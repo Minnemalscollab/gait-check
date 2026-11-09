@@ -1,0 +1,6 @@
+MediaPipe Pose — Google LLC
+Version: 0.5.1675469404
+License: Apache License, Version 2.0 (see MEDIAPIPE-LICENSE.txt)
+Package: https://www.npmjs.com/package/@mediapipe/pose
+Public distribution: https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/
+Local bundled assets are in mp/. Runtime scripts are unmodified; binary files have their ordinary filenames restored from the supplied artifact export.

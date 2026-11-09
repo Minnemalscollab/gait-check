@@ -1,0 +1,1252 @@
+<!doctype html><html lang="en" data-theme="light"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><link rel="icon" type="image/svg+xml" href="favicon.svg"><title>Minnemals Gait Check</title><meta name="description" content="Your Minnemals bonus: four walking views, seven simple foot checks, and a practical 14-day plan. Movement-only assessment available by confirmed opt-in."></head><body>
+
+
+<style>
+/* Layout: full-width color bands from the Minnemals brand board (deep green hero, beige, white, deep blue hand-off), each with one centered column. Helvetica throughout: bold headings, tracked caps subheads, square deep-blue buttons, mint underline links. */
+:root{
+  --bg:#F6F4EF; --surface:#FFFFFF; --sand:#E4DFD4; --beige:#D6CEBF; --line:#DDD6C8;
+  --ink:#262626; --muted:#5D625B; --char:#262626; --on-dark:#EDEDED;
+  --green:#0F354A; --mint:#D4F4E2; --blue:#1F2D1E; --sage:#525C51;
+  --btn:#1F2D1E; --btn-ink:#FFFFFF; --link:#1F2D1E; --focus:#1F2D1E;
+  --warn:#8A3B1A; --warn-bg:#F6E3D9; --watch:#262626; --watch-bg:#D6CEBF; --good:#1F2D1E; --good-bg:#D4F4E2;
+  --font:"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121611; --surface:#1B211A; --sand:#20261F; --beige:#3A3B33; --line:#2F362D;
+  --ink:#EDEDED; --muted:#A7ADA4; --char:#0C0F0B; --on-dark:#EDEDED;
+  --green:#0F354A; --mint:#D4F4E2; --blue:#1F2D1E; --sage:#525C51;
+  --btn:#D4F4E2; --btn-ink:#0F354A; --link:#A9D9C0; --focus:#D4F4E2;
+  --warn:#E8A988; --warn-bg:#3A2820; --watch:#EDEDED; --watch-bg:#3A3B33; --good:#D4F4E2; --good-bg:#22352A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121611; --surface:#1B211A; --sand:#20261F; --beige:#3A3B33; --line:#2F362D;
+  --ink:#EDEDED; --muted:#A7ADA4; --char:#0C0F0B; --on-dark:#EDEDED;
+  --green:#0F354A; --mint:#D4F4E2; --blue:#1F2D1E; --sage:#525C51;
+  --btn:#D4F4E2; --btn-ink:#0F354A; --link:#A9D9C0; --focus:#D4F4E2;
+  --warn:#E8A988; --warn-bg:#3A2820; --watch:#EDEDED; --watch-bg:#3A3B33; --good:#D4F4E2; --good-bg:#22352A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:1rem;line-height:1.55;padding:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--char)}
+.band{width:100%}
+.in{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:48px;display:flex;flex-direction:column;gap:24px}
+.dark{background:var(--green);color:var(--on-dark)}
+.deep{background:var(--sage);color:#FFFFFF}
+.sandy{background:var(--sand)}
+.white{background:var(--surface)}
+h1,h2,h3{margin:0;text-wrap:balance;font-weight:700;letter-spacing:-.015em}
+h1{font-size:clamp(2.2rem,7vw,3.6rem);line-height:1.02}
+h2{font-size:clamp(1.65rem,4.6vw,2.4rem);line-height:1.08}
+h3{font-size:1.25rem;line-height:1.2}
+p{margin:0;max-width:62ch}
+.sub{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em}
+.eyebrow{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--link)}
+.dark .eyebrow,.deep .eyebrow{color:var(--mint)}
+.lede{font-size:1.15rem;line-height:1.5;color:var(--muted);max-width:50ch}
+.dark .lede,.deep .lede{color:var(--on-dark);opacity:.82}
+.muted{color:var(--muted)}
+.fine{font-size:.82rem;color:var(--muted);max-width:68ch}
+.stack{display:flex;flex-direction:column;gap:16px}
+.stack-s{display:flex;flex-direction:column;gap:8px}
+.row{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center}
+
+/* top bar */
+.bar{background:var(--char);color:var(--on-dark);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.bar .in{padding-block:14px;flex-direction:row;justify-content:space-between;align-items:center;gap:12px}
+.mark{display:flex;align-items:center;gap:14px}
+.mark svg{width:22px;height:22px;flex:none}
+.word{font-size:.95rem;font-weight:500;letter-spacing:.34em;text-transform:uppercase}
+.bar .tag{font-size:.68rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--mint)}
+
+/* buttons: square deep blue, tracked caps; secondary = mint underline */
+.btn{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;border:0;border-radius:2px;padding:15px 24px;background:var(--btn);color:var(--btn-ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s,opacity .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+.dark .btn,.deep .btn{background:var(--mint);color:var(--green)}
+.btn.line{background:transparent;color:inherit;padding:8px 2px 6px;border-radius:0;box-shadow:inset 0 -4px 0 var(--mint)}
+.btn.small{padding:12px 18px;font-size:.72rem}
+.btn:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.dark .btn:focus-visible,.deep .btn:focus-visible{outline-color:var(--mint)}
+label.btn{position:relative}
+label.btn input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+label.btn:focus-within{outline:3px solid var(--focus);outline-offset:3px}
+
+/* hero */
+.hero{position:relative;overflow:hidden}
+.hero .in{padding-block:56px 64px;gap:28px;position:relative;z-index:1}
+.walker{position:absolute;inset:0;width:100%;height:100%;color:var(--mint);opacity:.3;pointer-events:none}
+@media (max-width:640px){.walker{opacity:.16}}
+.unlock{background:var(--surface);color:var(--ink);border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px;max-width:460px}
+.unlock .row{gap:10px}
+input[type=text]{font:inherit;font-size:1.1rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:13px 14px;border:1.5px solid var(--line);border-radius:2px;background:var(--bg);color:var(--ink);flex:1 1 160px;min-width:0}
+.err{color:var(--warn);font-size:.88rem}
+.lock{display:flex;gap:8px;align-items:flex-start;font-size:.82rem;color:var(--muted)}
+.lock svg{flex:none;width:14px;height:14px;margin-top:3px}
+
+/* how it works */
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.how div{display:flex;flex-direction:column;gap:6px;padding:20px;background:var(--surface);border-radius:4px;min-width:0}
+.how b{font-size:2rem;line-height:1;color:var(--green);font-weight:700}
+.how strong{font-size:1.05rem}
+.how span{font-size:.92rem;color:var(--muted)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .how b{color:var(--mint)}}
+:root[data-theme="dark"] .how b{color:var(--mint)}
+
+/* stepper */
+.steps{list-style:none;margin:0;padding:0;display:flex;align-items:center;gap:0}
+.steps li{display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);flex:1}
+.steps li::before{content:attr(data-n);display:grid;place-items:center;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);font-size:.75rem;letter-spacing:0;flex:none}
+.steps li::after{content:"";flex:1;height:1.5px;background:var(--line);margin-inline:6px}
+.steps li:last-child{flex:none}.steps li:last-child::after{display:none}
+.steps li.on{color:var(--ink)}
+.steps li.on::before{background:var(--green);border-color:var(--green);color:var(--mint)}
+.steps li.done::before{content:"✓";background:var(--mint);border-color:var(--mint);color:var(--green)}
+
+/* film setup */
+.setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.setup div{display:flex;gap:12px;align-items:flex-start;min-width:0}
+.setup svg{flex:none;width:34px;height:34px;color:var(--green)}
+.setup p{font-size:.92rem;color:var(--muted)}
+.setup strong{display:block;color:var(--ink);font-size:.95rem}
+.desk{font-size:.9rem;color:var(--muted);background:var(--sand);border-radius:4px;padding:12px 16px}
+.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.slot{display:flex;flex-direction:column;gap:12px;border-radius:4px;padding:18px;background:var(--surface);border:1.5px solid transparent;min-width:0}
+.slot.has{border-color:var(--green)}
+.slot.has .pic{display:none}
+.slot .pic{background:var(--sand);border-radius:3px;aspect-ratio:16/9;max-width:100%;display:grid;place-items:center;color:var(--green)}
+.slot .pic svg{width:70%;height:70%}
+.slot .v{font-weight:700;font-size:1.15rem}
+.slot .hint{font-size:.9rem;color:var(--muted)}
+.slot .f{font-size:.78rem;color:var(--muted);overflow-wrap:anywhere}
+.slot.has .f{color:var(--good);font-weight:700}
+.slot video{width:100%;max-width:100%;border-radius:3px;background:var(--line);aspect-ratio:16/9;object-fit:cover}
+.slot-btns{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.status{font-size:.85rem;color:var(--muted)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .slot .pic,:root:not([data-theme="light"]) .setup svg{color:var(--mint)}}
+:root[data-theme="dark"] .slot .pic,:root[data-theme="dark"] .setup svg{color:var(--mint)}
+
+/* tracking bar */
+.track{position:sticky;top:calc(env(safe-area-inset-top,0px) + 50px);z-index:4;background:var(--green);color:var(--on-dark)}
+.track .in{padding-block:12px;gap:8px}
+.progress{height:6px;background:rgba(212,244,226,.2);border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--mint);transition:width .25s}
+.track .status{color:var(--on-dark)}
+
+/* foot checks */
+.check{background:var(--surface);border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:14px}
+.check-head{display:flex;gap:16px;align-items:center}
+.num{font-size:2.4rem;font-weight:700;line-height:1;color:var(--beige);letter-spacing:-.03em;font-variant-numeric:tabular-nums;flex:none}
+.check-head .sub{color:var(--muted)}
+.check > p{color:var(--muted)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;border:0;margin:0;padding:0;min-width:0}
+.opts legend{font-weight:700;margin-bottom:8px;padding:0;font-size:.95rem}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1.5px solid var(--line);border-radius:3px;cursor:pointer;background:var(--bg);font-size:.92rem;line-height:1.35}
+.opt:has(input:checked){border-color:var(--green);background:var(--mint);color:var(--green)}
+.opt input,.sides input{accent-color:var(--green);margin-top:2px}
+.opt:focus-within,.sides label:focus-within{outline:3px solid var(--focus);outline-offset:2px}
+.sides{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sides>span{font-size:.9rem;color:var(--muted)}
+.sides label{display:flex;gap:6px;align-items:center;padding:7px 16px;border:1.5px solid var(--line);border-radius:99px;cursor:pointer;background:var(--bg);font-size:.9rem}
+.sides label:has(input:checked){border-color:var(--green);background:var(--mint);color:var(--green)}
+.sides input{margin-top:0}
+.mtool{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:12px}
+.mtool ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:.92rem}
+.mrow{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.mrow b{min-width:80px}
+.mres{font-weight:700;font-variant-numeric:tabular-nums}
+.tapper{display:flex;flex-direction:column;gap:10px}
+.tapper canvas{width:100%;max-width:100%;border-radius:3px;touch-action:manipulation;cursor:crosshair;background:var(--line)}
+.tap-prompt{font-weight:700;background:var(--mint);color:var(--green);border-radius:3px;padding:10px 14px}
+
+/* report */
+.tag-example{align-self:flex-start;background:var(--green);color:var(--mint);font-size:.7rem;font-weight:700;padding:5px 12px;border-radius:2px;letter-spacing:.18em;text-transform:uppercase}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.summary div{display:flex;flex-direction:column;gap:4px;padding-top:12px;border-top:1.5px solid rgba(212,244,226,.35)}
+.summary .n{font-size:clamp(2rem,6vw,2.8rem);font-weight:700;line-height:1;color:var(--mint);font-variant-numeric:tabular-nums}
+.summary .l{font-size:.78rem;opacity:.8;line-height:1.3}
+@media (max-width:480px){.summary{grid-template-columns:repeat(2,1fr);gap:16px 12px}}
+.notes{background:rgba(212,244,226,.12);border-radius:3px;padding:12px 14px;font-size:.9rem}
+.snaps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.snaps figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.snaps img{border-radius:3px;width:100%;background:var(--line)}
+.snaps figcaption{font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.insight{background:var(--surface);border-radius:4px;padding:24px;display:flex;flex-direction:column;gap:14px}
+.ihead{display:flex;gap:14px;align-items:flex-start}
+.rank{flex:none;width:34px;height:34px;border-radius:50%;background:var(--green);color:var(--mint);display:grid;place-items:center;font-weight:700;font-size:.95rem}
+.ihead > div{display:flex;flex-direction:column;gap:8px;min-width:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:2px}
+.chip.s2{background:var(--warn-bg);color:var(--warn)}
+.chip.s1{background:var(--watch-bg);color:var(--watch)}
+.chip.area{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:400;letter-spacing:.04em;text-transform:none;font-size:.75rem}
+.measure{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:.9rem;background:var(--bg);border-radius:3px;padding:12px 14px}
+.measure b{font-variant-numeric:tabular-nums}
+.measure span{color:var(--muted)}
+.insight > p{max-width:62ch}
+.link{background:var(--mint);color:var(--green);border-radius:3px;padding:12px 14px;font-size:.92rem}
+.drills{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.drills li{display:flex;gap:10px;align-items:flex-start;font-size:.95rem}
+.drills li::before{content:"";flex:none;width:14px;height:14px;border:1.5px solid var(--green);border-radius:2px;margin-top:4px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .drills li::before{border-color:var(--mint)}}
+:root[data-theme="dark"] .drills li::before{border-color:var(--mint)}
+.also{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.good{display:flex;flex-wrap:wrap;gap:8px}
+.good span{background:var(--good-bg);color:var(--good);font-size:.88rem;padding:6px 12px;border-radius:2px;font-variant-numeric:tabular-nums}
+.twocol{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:32px;align-items:start}
+.twocol > div{min-width:0}
+.sc-table{display:grid;grid-template-columns:1fr auto;gap:0 16px;align-items:stretch;border-top:1px solid var(--line)}
+.sc-table > span{padding-block:9px;border-bottom:1px solid var(--line);font-size:.95rem;min-height:46px;display:flex;align-items:center}
+.sc-table > span.cell{justify-content:flex-end}
+.wlist{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.wlist span{display:flex;align-items:center;gap:10px;min-height:46px;padding-block:9px;border-bottom:1px solid var(--line);font-size:.95rem;font-variant-numeric:tabular-nums}
+.wlist span::before{content:"✓";flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--good-bg);color:var(--good);font-size:.7rem;font-weight:700}
+.sc-table > span:nth-child(odd){white-space:nowrap}
+.sc-table > span.cell{min-width:0;text-align:right}
+.sc-table .pill{white-space:normal;line-height:1.35}
+@media (min-width:700px){.twocol{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}}
+.pill{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px!important;border-radius:2px;white-space:nowrap}
+.pill.p0{background:var(--good-bg);color:var(--good)}
+.pill.p1{background:var(--watch-bg);color:var(--watch)}
+.pill.p2{background:var(--warn-bg);color:var(--warn)}
+.pill.px{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:400}
+.sign{font-weight:700;font-size:1.05rem}
+/* owner-only text editing */
+.editbar{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:flex-end;background:var(--char);color:var(--on-dark);padding:8px;border-radius:4px;box-shadow:0 6px 24px rgba(0,0,0,.25);max-width:calc(100vw - 32px)}
+.editbar .btn{background:var(--mint);color:var(--green);padding:11px 16px;font-size:.7rem}
+.editbar .btn.line{background:transparent;color:var(--on-dark)}
+.editbar .msg{font-size:.8rem;padding-inline:6px;max-width:30ch}
+body.editing [data-copy]{outline:1.5px dashed currentColor;outline-offset:3px;border-radius:2px;cursor:text}
+body.editing [data-copy]:focus{outline:2px solid var(--mint);outline-offset:3px;background:rgba(212,244,226,.18)}
+body.editing [data-copy].changed{outline-style:solid}
+@media (prefers-reduced-motion:reduce){.progress i,.btn{transition:none}}
+</style>
+
+<style>/* Calm, phone-first additions. Keep the supplied Minnemals palette and wordmark. */
+.in{max-width:1040px} .bar .in{max-width:1120px}.hero .in{max-width:1040px;padding-block:70px 80px}.hero h1{max-width:720px}.unlock{max-width:530px;width:100%;margin-top:8px}.hero .lede{max-width:610px}h1{font-size:clamp(2.4rem,6.5vw,4.2rem)}h4{font-size:1.05rem;margin:0}h2{margin-bottom:12px}button,input,a{touch-action:manipulation}.btn,.skip,.risk-label{min-height:48px}input[type=radio],input[type=checkbox]{min-width:20px;width:20px;height:20px;flex:none;accent-color:#1F2D1E}.btn:focus-visible{outline-color:#61826c}section:focus{outline:none}.safety{background:#F6E3D9;border-left:4px solid #8A3B1A;padding:20px;display:grid;gap:12px;color:#442517}.safety h3{font-size:1.1rem}.safety p{font-size:.94rem;max-width:90ch}.risk-label{display:flex;align-items:center;gap:12px;font-weight:700;font-size:.94rem}.path-card{background:#D4F4E2;padding:28px;display:flex;align-items:flex-start;flex-direction:column;gap:16px;border:1px solid #afcbb9}.path-card h2{margin:0}.check-art{width:64px;height:76px;flex:none}.check{padding:24px;border:1px solid var(--line)}.check-head{gap:10px}.num{font-size:1.8rem}.check-head h3{font-size:1.3rem}.opts{grid-template-columns:1fr}.opt{min-height:56px;align-items:center}.skip{display:flex;gap:10px;align-items:center;color:#5D625B;cursor:pointer}.check-progress{position:sticky;top:52px;background:#E4DFD4;padding:12px 16px;z-index:3;font-weight:700;border-bottom:1px solid #c8c1b5}.report-hero{padding-block:50px}.report-hero h1{font-size:clamp(2.5rem,6vw,4.2rem)}.coverage{color:#D4F4E2;font-weight:700}.light{color:#deded6}.report-body{gap:48px}.report-body>section{display:flex;flex-direction:column;gap:16px}.report-body h2{margin:0}.glance{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.glance-card{background:white;border:1px solid var(--line);padding:20px 16px;display:flex;flex-direction:column;gap:14px}.glance-card h3{font-size:1.05rem}.badge{font-size:.78rem;font-weight:700;display:inline-block;align-self:flex-start;padding:5px 8px;line-height:1.35}.positive{background:#D4F4E2;color:#1F2D1E}.practice{background:#F6E3D9;color:#6d3016}.unknown{background:#E4DFD4;color:#4c5048}.notice{padding:16px 20px;border-left:3px solid #0F354A;background:#e6edf0;max-width:none}.priority-list{display:grid;gap:20px}.priority{background:#fff;border:1px solid var(--line);padding:28px;display:grid;gap:18px}.priority .eyebrow{display:block;margin-bottom:6px}.rank{width:38px;height:38px}.evidence{font-size:.9rem;color:#5D625B;padding:12px;background:#F6F4EF;max-width:none}.drill{border-top:1px solid var(--line);padding-top:18px;display:grid;gap:10px}.drill ol{padding-left:22px;margin:0}.drill li{padding:4px 0}.dosage{font-weight:700;color:#1F2D1E}.working{font-size:.92rem;padding:12px 16px;background:#edf6ef;max-width:none}.today{padding:28px;background:#D4F4E2}.routine{list-style:none;margin:0;padding:0;display:grid}.routine li{display:flex;gap:20px;padding:16px 0;border-top:1px solid #a5c8b5}.routine .time{font-weight:700;font-variant-numeric:tabular-nums;min-width:94px;font-size:.9rem}.routine p{font-size:.94rem}.days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.day{border:1px solid var(--line);padding:15px 14px;display:flex;gap:12px;background:white;align-items:flex-start;cursor:pointer}.day b{display:block}.day small{display:block;color:var(--muted);font-size:.88rem;line-height:1.5}.day:has(input:checked){background:#e1f3e7;border-color:#65826d}.wear-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.wear-grid>div{display:grid;gap:8px;padding:18px 14px;background:#E4DFD4}.wear-grid strong{font-size:1.2rem}.wear-grid span{font-size:.85rem}.comfort-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.comfort-grid>div{background:white;padding:22px;border:1px solid var(--line)}.comfort-grid h3{margin-bottom:10px}.comfort-grid>div:last-child{background:#F6E3D9}.raw-results{padding:20px;background:#fff;border:1px solid var(--line)}summary{cursor:pointer;min-height:44px;font-weight:700}.raw-results li{padding:6px 0}.help{padding:28px;background:#1F2D1E;color:white}.help .eyebrow{color:#D4F4E2}.help .fine{color:#d6dfd4}.help .btn{color:white;align-self:flex-start}.saved{padding:20px;background:white;border:1px solid var(--line);display:grid;gap:12px}.comparison{padding:22px;background:white;border:1px solid var(--line)}.compare-list{padding-left:22px}.compare-list li{margin:12px 0}#copyFallback{width:100%;height:180px;font:14px monospace}#reportEnd{display:grid;gap:16px}.word{letter-spacing:.28em}.check>p{max-width:80ch}.slot video{object-fit:contain}.hero .walker{opacity:.12}.opt:has(input:checked){color:#1F2D1E}.track{position:relative;top:0}.check-progress{top:54px}
+@media(min-width:800px){#checkList{display:grid;grid-template-columns:1fr 1fr;align-items:start}#checkList .check:last-child{grid-column:1/-1}.priority{padding:30px}.priority .drill{max-width:820px}.report-body{padding-block:56px}.report-body>section>p{max-width:85ch}}
+@media(max-width:700px){.glance{grid-template-columns:1fr 1fr}.glance-card:last-child{grid-column:1/-1}.days{grid-template-columns:1fr}.wear-grid{grid-template-columns:1fr 1fr}.comfort-grid{grid-template-columns:1fr}.in{padding-block:32px;padding-inline:20px}.bar .in{padding-inline:20px}.bar .tag{font-size:.6rem;letter-spacing:.12em}.word{font-size:.82rem;letter-spacing:.2em}.mark{gap:8px}.hero .in{padding-block:48px}.hero h1{font-size:2.65rem}.unlock{padding:20px}.unlock .row .btn{width:100%}.unlock input{width:100%}.path-card,.today,.help{padding:22px}.priority{padding:20px}.report-body{gap:38px}.report-hero{padding-block:40px}.routine li{gap:12px}.routine .time{min-width:78px;font-size:.8rem}.check{padding:18px}.check-art{width:49px}.check-head .num{display:none}.slots{grid-template-columns:1fr}.setup{grid-template-columns:1fr}.btn{letter-spacing:.08em;padding-inline:18px}.steps li{letter-spacing:.08em}.glance-card{padding:16px}.check-progress{font-size:.85rem}}
+@media print{@page{margin:14mm}*{box-shadow:none!important}html,body{background:#fff!important;color:#111!important;font-size:10pt}body::before,.bar,#gate,#upload,#checks,#exampleTag,.no-print,#copyMsg,#copyFallback{display:none!important}#reportWrap{display:block!important}.in{max-width:none;padding:12px 0}.dark,.today,.help,.safety,.notice,.working,.wear-grid>div{background:#fff!important;color:#111!important;border:1px solid #bbb}.dark .lede,.dark .eyebrow,.light,.coverage,.help .fine,.help .eyebrow{color:#222!important}.report-hero h1{font-size:28pt}.report-body{gap:24px}.report-body>section{break-inside:auto;gap:10px}h2,h3,h4{break-after:avoid}.priority{break-inside:auto;padding:16px}.drill,.glance-card,.day,.wear-grid>div,.comfort-grid>div,.routine li{break-inside:avoid}.glance{grid-template-columns:repeat(5,1fr)}.days{grid-template-columns:1fr 1fr}.glance-card:last-child{grid-column:auto}.day{padding:8px}.day small{font-size:8pt}.priority-list{gap:14px}.help a{color:#111!important}.raw-results{display:block}.raw-results>*{display:block}a{color:#111}#reportEnd{font-size:8pt}.check-art{display:none}h1,h2,h3{letter-spacing:0}.dosage{color:#111}}
+
+.skip-to{position:fixed;left:16px;top:-100px;padding:12px 20px;background:#D4F4E2;color:#1F2D1E;z-index:30;font-weight:700}.skip-to:focus{top:10px} main:focus{outline:none}
+@media print{.skip-to{display:none!important}}
+
+.day-date{font-weight:400;color:var(--muted);font-size:.85rem}
+
+.refilm{margin-top:8px}.refilm-card{background:#F6E3D9;border:1px solid #e0b79a;padding:24px;display:grid;gap:12px}.refilm-card h2{margin:0;font-size:1.45rem}.refilm-tips{margin:0;padding-left:20px;display:grid;gap:6px}.refilm-tips li{font-size:.95rem}.live-track{background:var(--green);color:var(--on-dark);padding:14px 16px;border-radius:4px;display:grid;gap:8px}.live-track .status{color:var(--on-dark)}.walk-lead{display:grid;gap:16px}.walk-obs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.obs{background:#fff;border:1px solid var(--line);padding:18px;display:grid;gap:10px}.obs.flag{border-color:#e0b79a;background:#fff8f3}.obs.ok{border-color:#afcbb9}.measure-line{font-size:.92rem;max-width:none}#videoNeed{background:#D4F4E2;border:1px solid #afcbb9;color:var(--ink)}.report-hero em{font-style:italic;color:var(--mint)}.opt-out{margin:0}.linkish{background:none;border:0;padding:8px 0;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;font-size:.9rem;min-height:44px}.linkish:hover{color:var(--ink)}.confirm-card{background:#fff;border:1px solid var(--line);padding:20px;display:grid;gap:12px;max-width:520px}.confirm-card .row{gap:10px}.slots{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+@media print{.refilm,.live-track,#videoNeed{display:none!important}.walk-obs{grid-template-columns:1fr 1fr}}
+</style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="fp"><ellipse cx="0" cy="8" rx="9" ry="16" fill="currentColor"/><ellipse cx="0" cy="30" rx="7" ry="8" fill="currentColor"/><circle cx="-7" cy="-14" r="3.6" fill="currentColor"/><circle cx="-1" cy="-17" r="3" fill="currentColor"/><circle cx="4.5" cy="-15.5" r="2.6" fill="currentColor"/><circle cx="8.5" cy="-12" r="2.2" fill="currentColor"/><circle cx="11" cy="-7.5" r="2" fill="currentColor"/></g>
+    <g id="zmark"><path d="M3 3h15L4 13" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M19 12L6 21h15" fill="none" stroke="currentColor" stroke-width="2.4"/></g>
+  </defs>
+</svg>
+
+<a class="skip-to" href="#main">Skip to content</a><header class="bar">
+  <div class="in">
+    <span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#zmark"/></svg><span class="word">Minnemals</span></span>
+    <span class="tag">Gait Check</span>
+  </div>
+</header><main id="main" tabindex="-1">
+
+<!-- GATE -->
+<section id="gate">
+  <div class="band dark hero">
+    <svg class="walker" aria-hidden="true"><g id="walkerG" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></g></svg>
+    <script>
+    (() => {
+      const g = document.getElementById('walkerG'), svg = g.ownerSVGElement, hero = svg.parentNode;
+      const D = Math.PI / 180, PERIOD = 1700, STRIDE = 196, FIG_W = 220, FIG_H = 340, GHOST_EVERY = 320, GHOSTS = 6;
+      const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const pt = (x, y, a, l) => [x + Math.sin(a) * l, y + Math.cos(a) * l];
+      const r1 = v => Math.round(v * 10) / 10;
+      function pose(t) {
+        const p = t / PERIOD * Math.PI * 2, bob = Math.cos(p * 2) * 3;
+        const hip = [110, 168 + bob], sh = [112, 82 + bob], head = [114, 58 + bob];
+        const leg = ph => {
+          const th = 24 * Math.sin(ph) * D, kn = (8 + 30 * Math.max(0, Math.sin(ph + 1.9))) * D;
+          const k = pt(hip[0], hip[1], th, 62), a = pt(k[0], k[1], th - kn, 60);
+          return [hip, k, a, pt(a[0], a[1], th - kn + 90 * D + 10 * Math.sin(ph) * D, 22)];
+        };
+        const arm = ph => { const th = -18 * Math.sin(ph) * D; const e = pt(sh[0], sh[1], th, 42); return [sh, e, pt(e[0], e[1], th + 28 * D, 38)]; };
+        const L = leg(p), R = leg(p + Math.PI), AL = arm(p), AR = arm(p + Math.PI);
+        const line = (pts, o) => `<polyline points="${pts.map(q => q.map(r1).join(',')).join(' ')}" opacity="${o}"/>`;
+        const dots = (pts, o) => pts.map(q => `<circle cx="${r1(q[0])}" cy="${r1(q[1])}" r="5" fill="currentColor" stroke="none" opacity="${o}"/>`).join('');
+        return line(R, .45) + line(AR, .45) + dots(R, .45) + dots(AR.slice(1), .45)
+          + line([[head[0], head[1] + 12], sh, hip], 1) + `<circle cx="${head[0]}" cy="${r1(head[1])}" r="13"/>`
+          + line(L, 1) + line(AL, 1) + dots(L, 1) + dots([sh, ...AL.slice(1)], 1);
+      }
+      let ghosts = [], lastGhost = -1e9, lastLoop = 0;
+      function render(t) {
+        const W = hero.clientWidth, H = hero.clientHeight; if (!W || !H) return;
+        svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+        const k = H * (innerWidth <= 640 ? .75 : .92) / FIG_H, w = FIG_W * k, top = H - FIG_H * k + 6;
+        const span = W + w, speed = STRIDE * k / PERIOD;
+        const loop = Math.floor(t * speed / span), x = still ? W - w * .9 : (t * speed) % span - w;
+        if (loop !== lastLoop) { ghosts = []; lastLoop = loop; }
+        const body = pose(still ? 250 : t);
+        if (!still && t - lastGhost >= GHOST_EVERY) { ghosts.push({ x, body }); lastGhost = t; if (ghosts.length > GHOSTS) ghosts.shift(); }
+        const at = (gx, o, inner) => `<g transform="translate(${r1(gx)} ${r1(top)}) scale(${k.toFixed(3)})" opacity="${o}">${inner}</g>`;
+        g.innerHTML = `<line x1="0" y1="${r1(H - 2)}" x2="${W}" y2="${r1(H - 2)}" opacity=".3" stroke-dasharray="2 10"/>`
+          + ghosts.map((gh, i) => at(gh.x, ((i + 1) / (ghosts.length + 1) * .32).toFixed(2), gh.body)).join('')
+          + at(x, 1, body);
+      }
+      if (still) { render(0); addEventListener('resize', () => render(0)); }
+      else { const tick = t => { render(t); requestAnimationFrame(tick); }; requestAnimationFrame(tick); }
+    })();
+    </script>
+    <div class="in">
+      <span class="eyebrow" data-copy="hero.eyebrow">Your Black Friday bonus</span>
+      <h1 data-copy="hero.title">Meet your feet.<br>Make your next step count.</h1>
+      <p class="lede" data-copy="hero.lede">Film your walk, check your feet, get a plan built from what your body is doing — not a generic template.</p>
+      <form id="gateForm" class="unlock">
+        <label for="code" class="sub" data-copy="hero.codeLabel">Access code from your order email</label>
+        <div class="row">
+          <input type="text" id="code" autocomplete="off" required aria-describedby="gateErr" placeholder="Enter code">
+          <button class="btn" type="submit">Unlock</button>
+        </div>
+        <span id="gateErr" class="err" role="alert" hidden data-copy="hero.codeError">That code doesn't match. Check your order confirmation email for your Gait Check code.</span>
+        <span class="lock"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span data-copy="hero.privacy">Your videos never leave your phone. All tracking happens right here in your browser.</span></span>
+      </form>
+    </div>
+  </div>
+  <div class="band sandy">
+    <div class="in">
+      <span class="eyebrow" data-copy="how.eyebrow">How it works</span>
+      <div class="how">
+        <div><b>1</b><strong data-copy="how.1.title">Film your walk</strong><span data-copy="how.1.text">Film four short clips: front, back, left side, and right side. That’s what makes this specific to you.</span></div>
+        <div><b>2</b><strong data-copy="how.2.title">Check your feet</strong><span data-copy="how.2.text">While your walk is tracked: seven simple checks. Skip anything uncomfortable.</span></div>
+        <div><b>3</b><strong data-copy="how.3.title">Get your report</strong><span data-copy="how.3.text">What your walk showed, your top priorities, and a plan you can use today.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- UPLOAD -->
+<section id="upload" hidden>
+  <div class="band">
+    <div class="in">
+      <ol class="steps" aria-label="Progress"><li class="on" data-n="1" aria-current="step">Film</li><li data-n="2">Feet</li><li data-n="3">Report</li></ol>
+      <div class="stack-s">
+        <h1 data-copy="film.title">Film your walk</h1>
+        <p class="lede" data-copy="film.lede">Film it the way I'd film you in clinic: front, back, left side, and right side. Four short clips, then foot checks, then your report.</p>
+      </div>
+      <div id="savedPanel" class="saved" hidden></div>
+      <aside class="safety"><h3>First, a quick safety check</h3><p>New or worsening pain, numbness, diabetes / neuropathy, or a recent injury? A self-check cannot tell you what is safe for your body. Ask a qualified clinician before testing, changing shoes, or starting drills. Sudden weakness or inability to bear weight needs prompt medical care.</p><label class="risk-label"><input type="checkbox" id="risk"> Any of these applies, or I’m unsure (show guidance, not an exercise plan)</label></aside>
+      <div id="refilm" class="refilm" hidden></div>
+      <p class="desk" id="videoNeed"><b>Four walk videos are required by default.</b> Front, back, left side, and right side — each must track clearly before we continue.</p><div class="setup">
+        <div><svg viewBox="0 0 34 34" aria-hidden="true"><rect x="3" y="10" width="28" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="17.5" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><p><strong data-copy="film.tip1.title">Phone sideways</strong><span data-copy="film.tip1.text">Propped at hip height, 10–12 feet away. No friend? Prop the phone securely and record a short practice clip first.</span></p></div>
+        <div><svg viewBox="0 0 34 34" aria-hidden="true"><use href="#fp" transform="translate(12 17) scale(.42)"/><use href="#fp" transform="translate(23 17) scale(-.42 .42)"/></svg><p><strong data-copy="film.tip2.title">Barefoot or Minnemals</strong><span data-copy="film.tip2.text">Shorts or leggings so your knees and ankles show.</span></p></div>
+        <div><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M4 26h26M8 26V12M17 26V8M26 26V16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p><strong data-copy="film.tip3.title">Normal pace</strong><span data-copy="film.tip3.text">6–8 natural steps. Keep head and feet visible, leave space at frame edges, and trim each clip to 5–12 seconds. No treadmill.</span></p></div>
+      </div>
+      <p class="desk" id="deskNote" hidden data-copy="film.desktop">On a computer? Open this page on your phone to record right here, or upload clips you've already filmed.</p>
+      <div class="slots">
+        <div class="slot" id="slot-front">
+          <div class="pic" id="pic-front"><svg viewBox="0 0 160 90" aria-hidden="true"><circle cx="80" cy="22" r="7" fill="currentColor"/><path d="M80 30v24M80 54l-7 20M80 54l7 20M80 36l-11 12M80 36l11 12" stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M120 30v34m-8-10l8 10 8-10M40 30v34m-8-10l8 10 8-10" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>
+          <video id="prev-front" muted playsinline controls hidden></video>
+          <span class="v">Front</span>
+          <span class="hint">Start far back and walk straight toward the camera.</span>
+          <div class="slot-btns">
+            <label class="btn small" id="rec-front-l">Record<input type="file" id="r-front" aria-label="Record front-view video" accept="video/*" capture="environment"></label>
+            <label class="btn line small">Upload<input type="file" id="f-front" aria-label="Upload front-view video" accept="video/*"></label>
+          </div>
+          <span class="f" id="name-front">No video yet</span>
+        </div>
+        <div class="slot" id="slot-back">
+          <div class="pic" id="pic-back"><svg viewBox="0 0 160 90" aria-hidden="true"><circle cx="80" cy="22" r="7" fill="currentColor"/><path d="M80 30v24M80 54l-7 20M80 54l7 20M80 36l-11 12M80 36l11 12" stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M120 64V30m-8 10l8-10 8 10M40 64V30m-8 10l8-10 8 10" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>
+          <video id="prev-back" muted playsinline controls hidden></video>
+          <span class="v">Back</span>
+          <span class="hint">Start near the camera and walk straight away from it.</span>
+          <div class="slot-btns">
+            <label class="btn small" id="rec-back-l">Record<input type="file" id="r-back" aria-label="Record back-view video" accept="video/*" capture="environment"></label>
+            <label class="btn line small">Upload<input type="file" id="f-back" aria-label="Upload back-view video" accept="video/*"></label>
+          </div>
+          <span class="f" id="name-back">No video yet</span>
+        </div>
+        <div class="slot" id="slot-left">
+          <div class="pic" id="pic-left"><svg viewBox="0 0 160 90" aria-hidden="true"><circle cx="50" cy="26" r="7" fill="currentColor"/><path d="M50 34v22M50 56l-8 18M50 56l9 18M50 40l-9 10M50 40l9 9" stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M78 50h52m-10-8l10 8-10 8" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>
+          <video id="prev-left" muted playsinline controls hidden></video>
+          <span class="v">Left side</span>
+          <span class="hint">Walk across the frame with your left side facing the camera.</span>
+          <div class="slot-btns">
+            <label class="btn small" id="rec-left-l">Record<input type="file" id="r-left" aria-label="Record left-side video" accept="video/*" capture="environment"></label>
+            <label class="btn line small">Upload<input type="file" id="f-left" aria-label="Upload left-side video" accept="video/*"></label>
+          </div>
+          <span class="f" id="name-left">No video yet</span>
+        </div>
+        <div class="slot" id="slot-right">
+          <div class="pic" id="pic-right"><svg viewBox="0 0 160 90" aria-hidden="true"><circle cx="110" cy="26" r="7" fill="currentColor"/><path d="M110 34v22M110 56l-8 18M110 56l9 18M110 40l-9 10M110 40l9 9" stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M82 50H30m10-8l-10 8 10 8" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>
+          <video id="prev-right" muted playsinline controls hidden></video>
+          <span class="v">Right side</span>
+          <span class="hint">Walk across the frame with your right side facing the camera.</span>
+          <div class="slot-btns">
+            <label class="btn small" id="rec-right-l">Record<input type="file" id="r-right" aria-label="Record right-side video" accept="video/*" capture="environment"></label>
+            <label class="btn line small">Upload<input type="file" id="f-right" aria-label="Upload right-side video" accept="video/*"></label>
+          </div>
+          <span class="f" id="name-right">No video yet</span>
+        </div>
+      </div>
+      <div class="stack-s">
+        <div class="row"><button class="btn" id="run" disabled>Analyze my walk</button><span class="status" id="modelStatus" role="status">Add all four views to unlock Analyze.</span></div>
+        <span class="status" id="filmNote">All four views must track clearly. Processing can take a minute per view on slower devices; keep this tab open.</span>
+        <p class="opt-out"><button type="button" class="linkish" id="feetOnlyLink">Can’t film? Do the movement assessment only</button></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SELF-CHECKS (video tracks in the background) -->
+<section id="checks" hidden>
+  <div class="track" id="track" aria-live="polite">
+    <div class="in">
+      <span class="status" id="procStatus">Starting…</span>
+      <div class="progress"><i id="bar"></i></div>
+    </div>
+  </div>
+  <div class="band">
+    <div class="in">
+      <ol class="steps" aria-label="Progress"><li class="done" data-n="1">Film</li><li class="on" data-n="2" aria-current="step">Feet</li><li data-n="3">Report</li></ol>
+      <div class="stack-s">
+        <h1 data-copy="feet.title">Now let's check your feet</h1>
+        <p class="lede" data-copy="feet.lede">Try both feet near a sturdy counter. Record what you notice, not what you think you should do. Stop if anything hurts. Skipping is always okay.</p>
+      </div>
+      <button class="btn line small" id="backSetup" style="align-self:flex-start">← Safety settings / choose another path</button><div class="check-progress" id="checkProgress" aria-live="polite"></div><div id="checkList" class="stack"></div>
+      <div class="stack-s">
+        <div class="row"><button class="btn" id="toReport" disabled>See my report</button></div>
+        <span class="status" id="reportStatus">Still tracking your walk…</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REPORT -->
+<section id="reportWrap" hidden>
+  <div class="band white" id="exampleTag">
+    <div class="in" style="padding-block:40px 32px">
+      <span class="tag-example">Example report</span>
+      <h2 data-copy="example.title">Here's what you'll get</h2>
+      <p class="lede" data-copy="example.lede">Your report uses only the walk clips and foot checks you actually complete.</p>
+    </div>
+  </div>
+  <div id="report"></div>
+</section>
+
+</main><script src="mp/pose.js" crossorigin="anonymous"></script>
+<script>
+(() => {
+const CDN = 'mp/';
+const ACCESS_CODES = ['GAITCHECK'];
+const MAP_URL = 'https://gaithappens.com/local-practitioners/';
+const $ = id => document.getElementById(id);
+
+/* ---------- editable copy (saved to copy.json by the owner's edit mode) ---------- */
+let COPY = {}, editing = false;
+const DEFAULTS = {};
+function applyCopy(root) {
+  root.querySelectorAll('[data-copy]').forEach(el => {
+    const k = el.dataset.copy;
+    if (!(k in DEFAULTS)) DEFAULTS[k] = el.textContent;
+    if (!(editing && el === document.activeElement)) el.textContent = k in COPY ? COPY[k] : DEFAULTS[k];
+  });
+}
+function setEditable(root, on) {
+  root.querySelectorAll('[data-copy]').forEach(el => {
+    if (on) { el.contentEditable = 'plaintext-only'; if (el.contentEditable !== 'plaintext-only') el.contentEditable = 'true'; el.spellcheck = true; }
+    else el.removeAttribute('contenteditable');
+  });
+}
+function afterRender(root) { applyCopy(root); if (editing) setEditable(root, true); }
+
+/* ---------- math helpers ---------- */
+const deg = r => r * 180 / Math.PI;
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+const sorted = a => [...a].filter(Number.isFinite).sort((x, y) => x - y);
+const pct = (a, p) => { const s = sorted(a); if (!s.length) return NaN; const i = (s.length - 1) * p, lo = Math.floor(i), hi = Math.ceil(i); return s[lo] + (s[hi] - s[lo]) * (i - lo); };
+const median = a => pct(a, .5);
+const mean = a => { const s = a.filter(Number.isFinite); return s.length ? s.reduce((x, y) => x + y, 0) / s.length : NaN; };
+const smooth = (a, k = 2) => a.map((_, i) => mean(a.slice(Math.max(0, i - k), i + k + 1)));
+const vis = (f, idx, th) => idx.every(i => f.lm?.[i] && Number.isFinite(f.lm[i].x) && Number.isFinite(f.lm[i].y) && (f.lm[i].v ?? 0) >= th);
+function trackingQuality(frames) {
+ const F=frames.filter(f=>vis(f,[23,24,25,26,27,28],.35));
+ if(F.length<30) return {error:true,reason:'visibility'};
+ if(F.length<frames.length*.65 || F[F.length-1].t-F[0].t<2.5) return {error:true,reason:'coverage'};
+ const legs=F.map(f=>(dist(f.lm[23],f.lm[27])+dist(f.lm[24],f.lm[28]))/2);
+ if(median(legs)<25) return {error:true,reason:'distance'};
+ for(let i=1;i<F.length;i++) {
+  if(F[i].t-F[i-1].t>.5) return {error:true,reason:'coverage'};
+  const travel=dist(mid(F[i].lm[23],F[i].lm[24]),mid(F[i-1].lm[23],F[i-1].lm[24]));
+  if(travel>median(legs)*.45) return {error:true,reason:'identity'};
+ }
+ return {F};
+}
+const LM = { sh: [11, 12], wr: [15, 16], hip: [23, 24], knee: [25, 26], ank: [27, 28], heel: [29, 30], toe: [31, 32] };
+
+/* ---------- side view ---------- */
+function analyzeSide(frames) {
+  const quality=trackingQuality(frames); if(quality.error)return quality; const F=quality.F;
+  const hm = f => mid(f.lm[23], f.lm[24]);
+  const dir = hm(F[F.length - 1]).x >= hm(F[0]).x ? 1 : -1;
+  const legLen = median(F.map(f => (dist(f.lm[23], f.lm[27]) + dist(f.lm[24], f.lm[28])) / 2));
+  const torso = median(F.map(f => dist(mid(f.lm[11], f.lm[12]), hm(f))));
+  const sep = smooth(F.map(f => (f.lm[27].x - f.lm[28].x) * dir));
+  const ev = [];
+  for (let i = 2; i < sep.length - 2; i++) {
+    const w = sep.slice(Math.max(0, i - 4), i + 5);
+    if (sep[i] === Math.max(...w) && sep[i] > .2 * legLen) ev.push({ i, lead: 0 });
+    if (sep[i] === Math.min(...w) && sep[i] < -.2 * legLen) ev.push({ i, lead: 1 });
+  }
+  ev.sort((a, b) => a.i - b.i);
+  const steps=[];
+  for(const e of ev) {
+    const last=steps[steps.length-1];
+    if(!last){steps.push(e);continue;}
+    if(e.lead===last.lead){if(Math.abs(sep[e.i])>Math.abs(sep[last.i]))steps[steps.length-1]=e;continue;}
+    if(F[e.i].t-F[last.i].t>=.25)steps.push(e);
+  }
+  if (steps.length < 4 || !Number.isFinite(legLen) || legLen <= 0) return { error: true, reason:'steps' };
+  const out = { overstride: [], heel: [], hipExt: [], rocker: [], stepL: [[], []] };
+  steps.forEach((e, k) => {
+    const f = F[e.i], l = e.lead, t = 1 - l;
+    const hip = hm(f), heel = f.lm[LM.heel[l]], toe = f.lm[LM.toe[l]];
+    out.overstride.push(vis(f,[LM.heel[l]],.5)?(heel.x - hip.x) * dir / legLen:NaN);
+    if (vis(f, [LM.heel[l], LM.toe[l]], .3)) out.heel.push(deg(Math.atan2(heel.y - toe.y, (toe.x - heel.x) * dir)));
+    let he = -Infinity;
+    for (let j = Math.max(0, e.i - 2); j <= Math.min(F.length - 1, e.i + 4); j++) {
+      const g = F[j], h = g.lm[LM.hip[t]], kn = g.lm[LM.knee[t]];
+      he = Math.max(he, deg(Math.atan2((h.x - kn.x) * dir, kn.y - h.y)));
+    }
+    out.hipExt.push(he);
+    const end = k + 1 < steps.length ? steps[k + 1].i : Math.min(F.length - 1, e.i + 12);
+    let rk = -Infinity;
+    for (let j = e.i; j <= end; j++) {
+      const g = F[j], kn = g.lm[LM.knee[l]], an = g.lm[LM.ank[l]];
+      rk = Math.max(rk, deg(Math.atan2((kn.x - an.x) * dir, an.y - kn.y)));
+    }
+    out.rocker.push(rk);
+    out.stepL[l].push(Math.abs(sep[e.i]) / legLen);
+  });
+  let cadence = NaN;
+  if (steps.length >= 4) cadence = (steps.length - 1) / (F[steps[steps.length - 1].i].t - F[steps[0].i].t) * 60;
+  if(!Number.isFinite(cadence)||cadence<40||cadence>200)return {error:true,reason:'steps'};
+  const trunk = median(F.filter(f=>vis(f,[11,12],.5)).map(f => { const s = mid(f.lm[11], f.lm[12]), h = hm(f); return deg(Math.atan2((s.x - h.x) * dir, h.y - s.y)); }));
+  const side = mean(F.map(f => f.lm[15].v)) >= mean(F.map(f => f.lm[16].v)) ? 0 : 1;
+  const armRel = torso>10?F.filter(f=>vis(f,[LM.wr[side],LM.sh[side]],.5)).map(f => (f.lm[LM.wr[side]].x - f.lm[LM.sh[side]].x) * dir / torso):[];
+  const armRange = pct(armRel, .9) - pct(armRel, .1);
+  const a = mean(out.stepL[0]), b = mean(out.stepL[1]);
+  const stepAsym = Math.abs(a - b) / ((a + b) / 2);
+  const worst = steps.reduce((best, e, k) => (out.overstride[k] > (best?.v ?? -9) ? { v: out.overstride[k], t: F[e.i].t } : best), null);
+  return {
+    usableFrames:F.length, steps: steps.length, cadence, trunk, armRange, stepAsym: steps.length >= 4 ? stepAsym : NaN,
+    overstride: median(out.overstride), heelAngle: median(out.heel), hipExt: median(out.hipExt), ankleRocker: median(out.rocker),
+    snapT: worst ? worst.t : F[Math.floor(F.length / 2)].t
+  };
+}
+
+/* ---------- front / back views ---------- */
+function analyzeFrontal(frames) {
+  const quality=trackingQuality(frames); if(quality.error)return quality; const F=quality.F;
+  const leg=median(F.map(f=>(dist(f.lm[23],f.lm[27])+dist(f.lm[24],f.lm[28]))/2));
+  const phase=smooth(F.map(f=>(f.lm[27].y-f.lm[28].y)/leg));
+  if(pct(phase,.9)-pct(phase,.1)<.06)return {error:true,reason:'motion'};
+  if(median(F.map(f=>Math.abs(f.lm[23].x-f.lm[24].x)))<8)return {error:true,reason:'view'};
+  const tilt = F.map(f => deg(Math.atan2(f.lm[23].y - f.lm[24].y, Math.abs(f.lm[23].x - f.lm[24].x))));
+  const m = median(tilt);
+  const dropL = pct(tilt.map(x => x - m), .95), dropR = pct(tilt.map(x => m - x), .95);
+  const knee = [0, 1].map(l => pct(F.map(f => {
+    const hip = f.lm[LM.hip[l]], kn = f.lm[LM.knee[l]], an = f.lm[LM.ank[l]], hm = mid(f.lm[23], f.lm[24]);
+    const xl = hip.x + (an.x - hip.x) * (kn.y - hip.y) / ((an.y - hip.y) || 1);
+    return (kn.x - xl) * Math.sign(hm.x - hip.x) / Math.max(1,dist(hip, an));
+  }), .85));
+  const stepW = median(F.map(f => Math.abs(f.lm[27].x - f.lm[28].x) / Math.max(8,Math.abs(f.lm[23].x - f.lm[24].x))));
+  const n = F.length, xs = F.map((f, i) => i), ys = F.map(f => mid(f.lm[23], f.lm[24]).x);
+  const mx = mean(xs), my = mean(ys);
+  const slope = xs.reduce((s, x, i) => s + (x - mx) * (ys[i] - my), 0) / xs.reduce((s, x) => s + (x - mx) ** 2, 0);
+  const swayRel = F.map((f, i) => (ys[i] - (my + slope * (i - mx))) / Math.max(8,Math.abs(f.lm[23].x - f.lm[24].x)));
+  const sway = pct(swayRel, .95) - pct(swayRel, .05);
+  const shTilt = median(F.map(f => deg(Math.atan2(f.lm[11].y - f.lm[12].y, Math.abs(f.lm[11].x - f.lm[12].x)))));
+  const W = F.filter(f => f.wl);
+  let armAsym = NaN, toeOut = [NaN, NaN];
+  if (W.length > 15) {
+    const r = [0, 1].map(l => { const z = W.map(f => f.wl[LM.wr[l]].z - f.wl[LM.sh[l]].z); return pct(z, .9) - pct(z, .1); });
+    armAsym = Math.abs(r[0] - r[1]) / Math.max(r[0], r[1]);
+    toeOut = [0, 1].map(l => median(W.filter(f => vis(f, [LM.heel[l], LM.toe[l]], .5)).map(f => {
+      const he = f.wl[LM.heel[l]], to = f.wl[LM.toe[l]], hp = f.wl[LM.hip[l]], hc = (f.wl[23].x + f.wl[24].x) / 2;
+      return deg(Math.atan2((to.x - he.x) * Math.sign(hp.x - hc), Math.abs(to.z - he.z) || 1e-3));
+    })));
+  }
+  const worstI = tilt.reduce((bi, x, i) => Math.abs(x - m) > Math.abs(tilt[bi] - m) ? i : bi, 0);
+  return { usableFrames:F.length, dropL, dropR, kneeL: knee[0], kneeR: knee[1], stepW, sway, shDiff: shTilt - m, armAsym, toeOutL: toeOut[0], toeOutR: toeOut[1], snapT: F[worstI].t };
+}
+
+function avgFinite(vals){ const s=vals.filter(Number.isFinite); return s.length? s.reduce((a,b)=>a+b,0)/s.length : NaN; }
+function combine(views) {
+  // views: {front, back, left, right} analysis objects
+  const left=views.left, right=views.right, front=views.front, back=views.back;
+  const sideKeys=['cadence','overstride','heelAngle','hipExt','ankleRocker','trunk','armRange','stepAsym'];
+  const M = {views:Object.fromEntries(Object.entries(views).map(([k,v])=>[k,{...v}]))};
+  const sides=[left,right].filter(v=>v && !v.error);
+  if(sides.length){
+    for(const k of sideKeys) M[k]=avgFinite(sides.map(s=>s[k]));
+    M.sideViews = sides.length;
+    M.leftOk = !!(left && !left.error);
+    M.rightOk = !!(right && !right.error);
+  }
+  const fr=[front,back].filter(v=>v && !v.error);
+  if(fr.length){
+    const both=k=>avgFinite(fr.map(v=>v[k]));
+    Object.assign(M,{ dropL:both('dropL'), dropR:both('dropR'), kneeL:both('kneeL'), kneeR:both('kneeR'), stepW:both('stepW'), sway:both('sway'), shDiff:both('shDiff'),
+      armAsym: front && !front.error ? front.armAsym : NaN,
+      // Uncalibrated world-foot angles are too view-sensitive for a trial recommendation.
+      toeOutL: NaN, toeOutR: NaN,
+      frontOk: !!(front && !front.error), backOk: !!(back && !back.error) });
+  }
+  return M;
+}
+const VIEW_KEYS=['front','back','left','right'];
+const VIEW_LABEL={front:'front',back:'back',left:'left side',right:'right side'};
+
+
+/* ---------- insight library (gait specialist lens) ---------- */
+const f0 = v => Number.isFinite(v)?Math.round(v):'not reliable', f2 = v => (Math.round(v * 100) / 100).toFixed(2);
+const RULES = [
+  { id: 'overstride', area: 'Heel rocker · side view', ok: m => Number.isFinite(m.overstride),
+    sev: m => m.overstride > .65 ? 2 : m.overstride > .55 ? 1 : 0,
+    title: 'You reach out in front of your body',
+    measure: m => [[`${f0(m.overstride * 100)}% of leg length`, 'heel lands ahead of your hips'], ['about 40–55%', 'typical range']],
+    why: 'When your heel lands far in front of you, every step starts with a small brake. Your body has to absorb that and then pull itself back over the foot, instead of rolling smoothly through the heel and onto the forefoot.',
+    tryThis: ['Shorten your step slightly and let your foot land closer to underneath you.', 'Walk to a metronome 5% faster than your current pace for 5 minutes a day.', 'Cue "walk quieter." Softer landings usually mean the foot is landing closer to you.'],
+    pro: 'how your heel rocker, ankle mobility and hip extension are working together at foot strike.' },
+  { id: 'hipExt', area: 'Push-off · side view', ok: m => Number.isFinite(m.hipExt),
+    sev: m => m.hipExt < 6 ? 2 : m.hipExt < 10 ? 1 : 0,
+    title: 'Your back leg isn\'t getting behind you',
+    measure: m => [[`${f0(m.hipExt)}°`, 'thigh behind vertical at push-off'], ['10–20°', 'typical range']],
+    why: 'A good step finishes with your hip opening up and your foot pushing the ground behind you. When the hip stays flexed, your stride gets shorter and more of the work shifts to your lower back and front of the hip.',
+    tryThis: ['Half-kneeling hip opener: squeeze the glute of the down knee and hold 30–45 seconds per side.', 'Single-leg glute bridges, 2 sets of 8 per side.', 'While walking, think "push the sidewalk behind me" rather than "reach forward."'],
+    pro: 'whether hip mobility, glute timing or big toe extension is limiting your push-off.' },
+  { id: 'ankleRocker', area: 'Ankle rocker · side view', ok: m => Number.isFinite(m.ankleRocker),
+    sev: m => m.ankleRocker < 4 ? 2 : m.ankleRocker < 7 ? 1 : 0,
+    title: 'Your shin isn\'t rolling forward over your foot',
+    measure: m => [[`${f0(m.ankleRocker)}°`, 'peak shin travel past the ankle'], ['about 8–15°', 'typical range']],
+    why: 'Midway through each step your shin should glide forward over a planted foot. If the ankle runs out of room, your body finds the motion elsewhere, often by turning the foot out, lifting the heel early, or collapsing through the arch.',
+    tryThis: ['Knee-to-wall ankle mobility: foot a few inches from the wall, drive the knee forward over the second toe, 10 slow reps per side.', 'Calf raises with a slow 3-second lowering, 2 sets of 10.', 'Spend a few minutes a day in a deep squat holding onto something.'],
+    pro: 'your ankle dorsiflexion range and what\'s restricting it.' },
+  { id: 'heelFlat', area: 'Heel rocker · side view', ok: m => Number.isFinite(m.heelAngle),
+    sev: m => m.heelAngle < 5 ? 1 : 0,
+    title: 'You land flat-footed',
+    measure: m => [[`${f0(m.heelAngle)}°`, 'foot angle at contact'], ['about 10–25°', 'typical range']],
+    why: 'In walking, the heel normally touches first and the foot lowers under control. Landing flat skips that heel rocker, which usually means the ankle or the step length is changing to protect something.',
+    tryThis: ['Heel walks: 20 steps on your heels with toes lifted.', 'Practice slow walking where you feel heel, then outside of the foot, then big toe.'],
+    pro: 'how your foot moves through each rocker from contact to push-off.' },
+  { id: 'cadence', area: 'Rhythm · side view', ok: m => Number.isFinite(m.cadence),
+    sev: m => m.cadence < 90 ? 2 : m.cadence < 98 ? 1 : 0,
+    title: 'Your walking rhythm is on the slow side',
+    measure: m => [[`${f0(m.cadence)} steps/min`, 'your cadence'], ['100–120 steps/min', 'typical brisk walk']],
+    why: 'Slower cadence often pairs with longer, reaching steps. Nudging your rhythm up a little tends to bring the foot back under you without you thinking about it.',
+    tryThis: ['Set a metronome app to your current pace plus 5 steps per minute and walk to it.', 'Pick one daily walk where you "walk like you\'re a little late."'],
+    pro: 'whether cadence is a habit or a sign of something limiting your stride.' },
+  { id: 'trunk', area: 'Posture · side view', ok: m => Number.isFinite(m.trunk),
+    sev: m => m.trunk > 10 || m.trunk < -6 ? 2 : m.trunk > 7 || m.trunk < -4 ? 1 : 0,
+    title: m => m.trunk > 0 ? 'You lean forward as you walk' : 'You lean back as you walk',
+    measure: m => [[`${f0(Math.abs(m.trunk))}° ${m.trunk > 0 ? 'forward' : 'back'}`, 'average trunk lean'], ['0–5°', 'typical range']],
+    why: 'Your trunk sits on top of your hips like a stack. Leaning changes how much each step loads your hips, back and feet, and is often a workaround for tight hip flexors or a step that ends too early.',
+    tryThis: ['Walk with the cue "tall, like a string is pulling the top of your head."', 'Half-kneeling hip flexor stretch, 30–45 seconds per side.', 'Open-book rotations on your side, 8 per side, to free up your upper back.'],
+    pro: 'where the lean is coming from: hips, ribcage or feet.' },
+  { id: 'arm', area: 'Arm swing · side view', ok: m => Number.isFinite(m.armRange),
+    sev: m => m.armRange < .2 ? 2 : m.armRange < .32 ? 1 : 0,
+    title: 'Your arms are barely swinging',
+    measure: m => [[`${f2(m.armRange)}× torso length`, 'arm swing range'], ['0.35× and up', 'typical range']],
+    why: 'Arm swing counter-rotates your torso against your pelvis. It saves energy and helps balance. A quiet arm swing usually means the upper back or shoulders are stiff, or the trunk is being held still on purpose.',
+    tryThis: ['Let your arms hang heavy and swing from the shoulder, opposite arm to opposite leg.', 'Open-book rotations, 8 per side, before your walk.'],
+    pro: 'how your trunk rotation and pelvis are working together.' },
+  { id: 'stepAsym', area: 'Symmetry · side view', ok: m => Number.isFinite(m.stepAsym),
+    sev: m => m.stepAsym > .2 ? 2 : m.stepAsym > .12 ? 1 : 0,
+    title: 'Your steps are uneven left to right',
+    measure: m => [[`${f0(m.stepAsym * 100)}%`, 'difference in step length'], ['under 10%', 'typical']],
+    why: 'One step longer than the other usually means one side is doing more of the work. It\'s often the first visible sign of an old injury or a stiff joint on one side.',
+    tryThis: ['Single-leg balance, 30 seconds per side. Notice which side is harder.', 'Split squats with extra sets on the weaker side.'],
+    pro: 'which side is compensating and why.' },
+  { id: 'pelvis', area: 'Hip stability · front & back view', ok: m => Number.isFinite(m.dropL),
+    sev: m => Math.max(m.dropL, m.dropR) > 9 ? 2 : Math.max(m.dropL, m.dropR) > 6 ? 1 : 0,
+    title: m => `Your pelvis dips when you stand on your ${m.dropL > m.dropR ? 'right' : 'left'} leg`,
+    measure: m => [[`${f0(m.dropL)}°`, 'left hip drop'], [`${f0(m.dropR)}°`, 'right hip drop'], ['under 6°', 'typical range']],
+    why: 'When you stand on one leg, the hip muscles on that side should hold your pelvis level. If the opposite side drops, the knee and foot below often take extra load, and you may see the knee drift in too.',
+    tryThis: m => [`Side-lying leg raises on your ${m.dropL > m.dropR ? 'right' : 'left'} side, 2 sets of 12 with a slow lower.`, 'Single-leg balance barefoot, 30 seconds, keeping your hips level in a mirror.', 'Slow step-downs from a low step, 8 per side.'],
+    pro: 'your lateral hip strength and how your foot is feeding into it.' },
+  { id: 'kneeIn', area: 'Knee tracking · front & back view', ok: m => Number.isFinite(m.kneeL),
+    sev: m => Math.max(m.kneeL, m.kneeR) > .1 ? 2 : Math.max(m.kneeL, m.kneeR) > .06 ? 1 : 0,
+    title: m => `Your ${m.kneeL > m.kneeR ? 'left' : 'right'} knee drifts inward`,
+    measure: m => [[`${f0(m.kneeL * 100)}% / ${f0(m.kneeR * 100)}%`, 'inward drift, left / right (of leg length)'], ['under 6%', 'typical']],
+    why: 'When the knee travels in, it\'s rarely the knee\'s idea. It usually comes from the foot below (the arch collapsing) or the hip above (not controlling the thigh). Barefoot strength work tends to help from the bottom up.',
+    tryThis: ['Short foot: gently dome your arch without curling the toes, hold 5 seconds, 10 reps.', 'Single-leg balance with your knee lined up over your second toe, 30 seconds per side.', 'Banded side steps, 2 sets of 10 each way.'],
+    pro: 'whether it\'s starting at the foot or the hip.' },
+  { id: 'kneeOut', area: 'Knee tracking · front & back view', ok: m => Number.isFinite(m.kneeL),
+    sev: m => Math.min(m.kneeL, m.kneeR) < -.1 ? 2 : Math.min(m.kneeL, m.kneeR) < -.06 ? 1 : 0,
+    title: m => `Your ${m.kneeL < m.kneeR ? 'left' : 'right'} knee bows outward`,
+    measure: m => [[`${f0(-m.kneeL * 100)}% / ${f0(-m.kneeR * 100)}%`, 'outward bow, left / right (of leg length)'], ['under 6%', 'typical']],
+    why: 'An outward bow often means you\'re living on the outside edge of your foot and not getting weight across to the big toe. That makes it harder to push off from the strongest part of the foot.',
+    tryThis: ['Tripod foot: stand and feel the heel, the base of the big toe and the base of the little toe all pressing evenly.', 'Big toe presses: press the big toe down while lifting the other four, 10 reps.'],
+    pro: 'how weight travels across your foot from heel to big toe.' },
+  { id: 'stepW', area: 'Base of support · front & back view', ok: m => Number.isFinite(m.stepW),
+    sev: m => m.stepW < .3 || m.stepW > 1.5 ? 2 : m.stepW < .42 || m.stepW > 1.25 ? 1 : 0,
+    title: m => m.stepW < .42 ? 'Your feet land close to a single line' : 'You walk with a wide base',
+    measure: m => [[`${f2(m.stepW)}× hip width`, 'distance between your feet'], ['0.45–1.2×', 'typical range']],
+    why: m => m.stepW < .42 ? 'Walking a tightrope narrows your base and asks your hips to work harder side to side. It often pairs with a pelvis that dips.' : 'A wide base buys stability. It often means your balance system is asking for more support than it should need.',
+    tryThis: m => m.stepW < .42 ? ['Walk as if on railroad tracks, one foot on each rail, for a minute at a time.', 'Side-lying leg raises, 2 sets of 12 per side.'] : ['Single-leg balance barefoot, progress to eyes closed.', 'Heel-to-toe walking along a line, 20 steps.'],
+    pro: 'what your balance and hip control look like under load.' },
+  { id: 'sway', area: 'Side-to-side sway · front & back view', ok: m => Number.isFinite(m.sway),
+    sev: m => m.sway > .55 ? 2 : m.sway > .4 ? 1 : 0,
+    title: 'Your hips sway side to side',
+    measure: m => [[`${f2(m.sway)}× hip width`, 'side-to-side hip travel'], ['under 0.4×', 'typical']],
+    why: 'Some sway is normal. A lot of it means each step shifts your whole body over the standing leg instead of the hip holding you steady.',
+    tryThis: ['Single-leg balance with a light reach forward, 8 per side.', 'Suitcase carry: walk with a weight in one hand, staying tall, 30 steps per side.'],
+    pro: 'hip stability and how it shows up in your feet.' },
+  { id: 'toeOut', area: 'Foot angle · front view (estimate)', ok: m => Number.isFinite(m.toeOutL) || Number.isFinite(m.toeOutR),
+    sev: m => Math.max(m.toeOutL || 0, m.toeOutR || 0) > 22 ? 2 : Math.max(m.toeOutL || 0, m.toeOutR || 0) > 17 ? 1 : 0,
+    title: m => `Your ${(m.toeOutL || 0) > (m.toeOutR || 0) ? 'left' : 'right'} foot turns out`,
+    measure: m => [[`${f0(m.toeOutL)}° / ${f0(m.toeOutR)}°`, 'toe-out, left / right'], ['about 5–15°', 'typical']],
+    why: 'Turning the foot out lets you roll off the side of the big toe instead of over it. It\'s a common workaround when the ankle or big toe doesn\'t have the range to let you push straight through.',
+    tryThis: ['Big toe lifts: lift only the big toe while the others stay down, 10 reps.', 'Knee-to-wall ankle mobility, 10 slow reps per side.', 'Walk a few minutes a day thinking "push off through the big toe."'],
+    pro: 'your big toe extension and ankle range, which a camera can\'t measure well.' },
+];
+const call = (v, m) => typeof v === 'function' ? v(m) : v;
+
+const GOOD = [
+  ['overstride', m => `Foot lands close to your body (${f0(m.overstride * 100)}% of leg length)`],
+  ['hipExt', m => `Good hip extension at push-off (${f0(m.hipExt)}°)`],
+  ['ankleRocker', m => `Shin rolls forward well over your foot (${f0(m.ankleRocker)}°)`],
+  ['cadence', m => `Healthy rhythm (${f0(m.cadence)} steps/min)`],
+  ['trunk', m => `Upright trunk (${f0(Math.abs(m.trunk))}°)`],
+  ['arm', m => `Natural arm swing`],
+  ['stepAsym', m => `Even steps left to right (${f0(m.stepAsym * 100)}% difference)`],
+  ['pelvis', m => `Level pelvis on each leg`],
+  ['kneeIn', m => `Knees track over your feet`],
+  ['stepW', m => `Steady base of support`],
+  ['sway', m => `Controlled side-to-side motion`],
+  ['toeOut', m => `Feet point forward`],
+];
+
+/* ---------- guided foot self-checks ---------- */
+const CHECKS = [
+  { id: 'bigToeLift', name: 'Big toe lift',
+    how: 'Stand barefoot with your weight even. Keep your four small toes on the floor and lift only your big toe. Then try the other foot.',
+    opts: ['My big toe lifts easily and the others stay down', 'One foot is harder', 'Hard on both feet, or my other toes lift too'],
+    title: s => s ? `Your ${s} big toe doesn't move on its own` : 'Your big toes don\'t move on their own',
+    why: 'Your big toe is the last thing to leave the ground on every step. When it can\'t move separately from the other toes, push-off tends to roll off the side of the foot instead of straight through the big toe.',
+    tryThis: ['Big toe lifts: lift only the big toe, 10 slow reps per foot. Hold the small toes down with your hand at first if you need to.', 'Big toe presses: press the big toe down while the small toes lift, 10 reps.'],
+    pro: 'how your big toe moves and takes load through push-off.' },
+  { id: 'smallToes', name: 'Small toe lift',
+    how: 'Now the opposite. Press your big toe into the floor and lift your four small toes.',
+    opts: ['My small toes lift and the big toe stays down', 'One foot is harder', 'Hard on both feet, or everything lifts together'],
+    title: s => s ? `Your ${s} small toes don't lift on their own` : 'Your small toes don\'t lift on their own',
+    why: 'Small toes that can\'t move on their own tend to go along for the ride instead of helping you grip and balance. It\'s common in toes that have spent years squeezed together in narrow shoes.',
+    tryThis: ['Small toe lifts, 10 slow reps per foot.', 'Toe yoga: alternate big toe up, then small toes up, 10 rounds.'],
+    pro: 'your toe control and how it feeds your balance.' },
+  { id: 'toeSpread', name: 'Toe spread',
+    how: 'Without using your hands, spread all five toes as wide as you can. Look for space between each toe.',
+    opts: ['Clear gaps between all my toes', 'One foot spreads less', 'Barely any space, or my toes overlap'],
+    title: s => s ? `Your ${s} toes don't spread much` : 'Your toes don\'t spread much',
+    why: 'Toes that spread give you a wider, steadier base on every step. Toes that stay crowded together shrink that base and give the muscles that support your arch less to work with.',
+    tryThis: ['Toe spreads: spread, hold 5 seconds, relax. 10 reps.', 'Wear toe spacers for 10–20 minutes a day while you sit.', 'Spend more time barefoot or in shoes with a wide toe box so your toes have room.'],
+    pro: 'your toe alignment and the small muscles inside your feet.' },
+  { id: 'shortFoot', name: 'Arch dome',
+    how: 'Standing, try to lift your arch by drawing the ball of your foot toward your heel. Keep your toes long and relaxed, not curled.',
+    opts: ['My arch lifts and my toes stay relaxed', 'One foot is harder', 'My toes curl, or nothing happens'],
+    title: s => s ? `Your ${s} arch muscles are hard to find` : 'Your arch muscles are hard to find',
+    why: 'Your arch is built to hold itself up with small muscles inside the foot. If you can\'t switch them on without curling your toes, the long toe muscles are doing a job that isn\'t theirs, and the arch tends to flatten more with each step.',
+    tryThis: ['Arch domes: lift, hold 5 seconds, 10 reps. Start seated, then standing, then on one leg.', 'Do them barefoot on a hard floor so you can feel the arch working.'],
+    pro: 'how your arch behaves as you load it while walking.' },
+  { id: 'bigToeBend', name: 'Big toe bend',
+    how: 'Sit with one foot supported across your other thigh. Gently guide the big toe upward, stopping before pain or a hard block. Compare sides. This is a comfort check, not an angle measurement.',
+    opts: ['It bends back comfortably on both feet', 'One foot is stiffer', 'It feels stiff or blocked on both feet'],
+    title: s => s ? `Your ${s} big toe is stiff` : 'Your big toes are stiff',
+    why: 'At push-off your big toe needs to bend back a long way, and as it does your arch should rise and turn the foot into a firm lever. When the big toe is stiff, your body routes around it, often by turning the foot out or cutting the step short.',
+    tryThis: ['Kneeling toe stretch: kneel with your toes tucked under and sit back gently for 30 seconds.', 'Big toe mobilizations: gently bend the big toe back and forth by hand, 20 reps.', 'Calf raises pushing up through the big toe, 2 sets of 10.'],
+    pro: 'whether the stiffness is in the joint itself or the tissue around it. That\'s something I\'d check with my hands.' },
+  { id: 'kneeWall', name: 'Knee to wall',
+    how: 'Face a wall with your toes about 4 inches (10 cm, roughly a hand\'s width) from it. Keep your heel down and bend your knee forward to touch the wall. Then switch sides.',
+    opts: ['My knee touches easily with my heel down', 'One side can\'t reach', 'Neither side reaches without my heel lifting'],
+    title: s => s ? `Your ${s} ankle runs out of room` : 'Your ankles run out of room',
+    why: 'Your shin has to move forward over your foot on every step. If the ankle can\'t bend that far, your body borrows the motion somewhere else: an early heel lift, a turned-out foot, or an arch that drops.',
+    tryThis: ['Knee-to-wall mobility: 10 slow reps per side, inching your foot back as it gets easier.', 'Calf raises with a slow 3-second lower, 2 sets of 10.', 'A few minutes a day in a supported deep squat.'],
+    pro: 'what\'s limiting your ankle: the joint, the calf, or something else.' },
+  { id: 'balance', name: 'Single-leg balance',
+    how: 'Stand beside a sturdy counter on a clear, flat floor. If safe, try one foot for up to 30 seconds with eyes open. Keep your hand ready for support. Switch sides. Skip if unsafe; never push through a wobble or symptoms.',
+    opts: ['Steady for 30 seconds on both without hand support', 'One side is shakier', 'Hard to hold on both sides'],
+    title: s => s ? `Balance is harder on your ${s} leg` : 'Standing on one leg is a challenge',
+    why: 'Every step is a moment on one leg. Balance comes from your foot sensing the ground and your hip holding you steady, so a wobble here often shows up in your walk as a hip drop or sway.',
+    tryThis: ['Single-leg balance barefoot, 30 seconds, 3 rounds per side. Try brushing your teeth on one leg.', 'When that\'s easy, close your eyes or stand on a pillow.'],
+    pro: 'whether your balance limit starts at the foot or the hip.' },
+];
+// video finding -> self-check that explains or backs it up
+const LINKS = {
+  hipExt: [['bigToeBend', 'Your big toe bend check showed stiffness. Your hip can only get behind you if the big toe bends back, so these two likely go together.']],
+  toeOut: [['bigToeBend', 'Your big toe bend check showed stiffness, one of the most common reasons a foot turns out.'], ['kneeWall', 'Your knee-to-wall check showed limited ankle bend, another common reason a foot turns out.']],
+  ankleRocker: [['kneeWall', 'Your knee-to-wall check showed the same limit standing still.']],
+  overstride: [['kneeWall', 'Your knee-to-wall check showed limited ankle bend. When the ankle is stiff it\'s easier to reach forward than to roll over the foot.']],
+  kneeIn: [['shortFoot', 'Your arch check suggests this may be starting at the foot.'], ['bigToeLift', 'Your big toe check suggests weight isn\'t getting across to the big toe side of the foot.']],
+  pelvis: [['balance', 'Your single-leg balance check showed the same thing standing still.']],
+  sway: [['balance', 'Your single-leg balance check backs this up.']],
+  stepW: [['balance', 'Your single-leg balance check backs this up.']],
+};
+const scSev = a => a && Number.isInteger(a.v) ? a.v : null;
+const scSide = a => (a && a.v === 1 && a.side) ? a.side : '';
+
+
+const toeAngle={left:null,right:null}; const toeResult=()=>null;
+function renderChecks() {
+  $('checkList').innerHTML = CHECKS.map((c, i) => `<div class="check">
+    <div class="check-head">${checkIllustration(c.id)}<span class="num">${String(i + 1).padStart(2, '0')}</span><div class="stack-s" style="gap:2px"><span class="sub">Check ${i + 1} of ${CHECKS.length}</span><h3 id="check-title-${c.id}" data-copy="check.${c.id}.name">${esc(c.name)}</h3></div></div>
+    <p data-copy="check.${c.id}.how">${esc(c.how)}</p>
+    <fieldset class="opts" aria-labelledby="check-title-${c.id}"><legend>How did it go?</legend>
+      ${c.opts.map((o, v) => `<label class="opt"><input type="radio" name="sc-${c.id}" id="sc-${c.id}-${v}" value="${v}"><span data-copy="check.${c.id}.opt${v}">${esc(o)}</span></label>`).join('')}
+      <div class="sides" id="sides-${c.id}" hidden><span>Which side?</span>
+        <label><input type="radio" name="side-${c.id}" id="side-${c.id}-left" value="left">Left</label>
+        <label><input type="radio" name="side-${c.id}" id="side-${c.id}-right" value="right">Right</label>
+      </div>
+    </fieldset>
+    <label class="skip"><input type="radio" name="sc-${c.id}" value="-1"> Skip this check / not sure</label>
+  </div>`).join('');
+  toeAngle.left = toeAngle.right = null; afterRender($('checkList'));
+  $('checkList').onchange = e => {
+    const m = e.target.name.match(/^sc-(.+)$/);
+    if (m) $('sides-' + m[1]).hidden = e.target.value !== '1';
+    updateReportBtn();
+  };
+}
+function readChecks() {
+  const out = {};
+  CHECKS.forEach(c => {
+    const o = document.querySelector(`input[name="sc-${c.id}"]:checked`);
+    if (!o || +o.value < 0) return;
+    const sd = document.querySelector(`input[name="side-${c.id}"]:checked`);
+    out[c.id] = { v: +o.value, side: sd ? sd.value : '' };
+  });
+  const tr = toeResult();
+  if (tr && out.bigToeBend) out.bigToeBend.angle = tr.angle;
+  return out;
+}
+
+/* ---------- a practical, evidence-aware plan ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const STORE = 'minnemals-gait-v3';
+let memoryStore = {}, storageOK = true, retesting = false, currentReport = null, analysisRun=0, isAnalyzing=false;
+function load() { if(!storageOK) return memoryStore; try { return JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (_) { storageOK=false; return memoryStore; } }
+function save(data) { memoryStore=data; try { localStorage.setItem(STORE,JSON.stringify(data)); } catch (_) { storageOK=false; } }
+function dateLabel(iso) { return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+function plusDays(iso,n) { const d=new Date(iso); d.setDate(d.getDate()+n); return d.toISOString(); }
+function checkIllustration(id) {
+ const marks = {bigToeLift:'M35 29v-14m-5 5l5-5 5 5',smallToes:'M61 27V13m-5 5l5-5 5 5',toeSpread:'M21 26l-8-9m46 11l10-9',shortFoot:'M31 63q14-26 30 0',bigToeBend:'M30 35q-5-18 10-23',kneeWall:'M62 12v65M27 24l16 21-7 24H20',balance:'M40 12v22m-14 9l14-9 15 10m-15-10v22l-8 19m8-19 19 5'};
+ if(id==='kneeWall') return `<svg class="check-art" viewBox="0 0 80 88" aria-hidden="true"><path d="M65 8v70H12M28 14l20 29-12 30h18" fill="none" stroke="#1F2D1E" stroke-width="4" stroke-linecap="round"/><path d="M46 38h13m-5-5l5 5-5 5" fill="none" stroke="#0F354A" stroke-width="2"/></svg>`;
+ if(id==='balance') return `<svg class="check-art" viewBox="0 0 80 88" aria-hidden="true"><circle cx="34" cy="15" r="7" fill="#1F2D1E"/><path d="M34 25v28l-5 24h-8m13-24 15 8 8-13M34 31 20 45m14-14 20 8h14m-5 0v38" fill="none" stroke="#1F2D1E" stroke-width="4" stroke-linecap="round"/></svg>`;
+ return `<svg class="check-art" viewBox="0 0 80 88" aria-hidden="true"><g color="#1F2D1E"><use href="#fp" transform="translate(40 44)"/></g><path d="${marks[id]}" fill="none" stroke="#0F354A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+const DRILLS = {
+ toes: {name:'Toe switches',dose:'1 set of 6 slow switches per foot · once daily',steps:['Sit with both feet flat. Keep your heels down.','Lift your big toes while the smaller toes rest. Use a hand to guide them if needed.','Switch: big toes down, small toes up. One slow switch each way is one rep.','Stay gentle. Smaller independent movement counts; do not force range.'],cue:'You can switch toes with less hand help and fewer other toes joining in.'},
+ spread: {name:'Spread and soften',dose:'1 set of 6 holds per foot, 5 seconds each · once daily',steps:['Sit barefoot with the whole foot resting on the floor.','Gently widen your toes without gripping the floor.','Hold for 5 seconds while breathing normally.','Relax fully. Use your fingers to show the toes the direction, not to pull.'],cue:'The same toe-spread check feels easier, even if the gaps are still small.'},
+ arch: {name:'Seated arch dome',dose:'1 set of 6 holds per foot, 5 seconds each · once daily',steps:['Sit with heel, base of big toe and base of little toe touching the floor.','Gently draw the ball of your foot toward your heel.','Keep the toes long; aim for a tiny arch lift, not a hard grip.','Hold 5 seconds, then relax. Stay seated until this feels easy.'],cue:'Your arch lifts a little without your toes curling or your foot rolling outward.'},
+ bend: {name:'Gentle big-toe bend',dose:'1 set of 8 gentle bends per foot · once daily',steps:['Sit with one foot supported across your other thigh.','Hold the foot just behind the big-toe joint.','Guide the big toe upward only through a comfortable range.','Return slowly. Never push into a pinch, pain, or a hard block.'],cue:'The same gentle bend feels easier without pressure or discomfort.'},
+ ankle: {name:'Comfortable knee-to-wall rocks',dose:'1 set of 8 slow reps per side · once daily',steps:['Face a wall and use it for support. Start closer than the test distance.','Keep the heel down and your foot resting evenly.','Bend the knee toward the wall, in line with your middle toes.','Return slowly. Move closer if the heel lifts or the ankle pinches.'],cue:'You can repeat the same distance with less heel lift. Retest with the same ruler, stance, and surface.'},
+ balance: {name:'Counter-supported balance',dose:'2 holds of 20 seconds per side, 10 seconds rest · once daily',steps:['Stand beside a sturdy counter on a clear, flat floor.','Keep your eyes open and fingertips touching the counter.','Lift one foot only as far as feels secure; breathe and stand tall.','Set it down and switch sides. Keep support; do not progress to closed eyes.'],cue:'You need less fingertip support at the same 20-second duration.'},
+ walk: {name:'Easy, unforced walk',dose:'2 rounds of 60 seconds, 30 seconds rest · 5 days per week',steps:['Choose a flat, clear route in shoes you already tolerate.','Walk at your comfortable pace, looking ahead.','Let your arms move naturally. If comfortable, try slightly shorter, quieter steps—not a forced foot strike.','Rest between rounds. Return to your usual walk if the cue feels awkward or causes symptoms.'],cue:'The cue feels comfortable and repeatable. A repeat video is an estimate, not proof that a pattern is fixed.'}
+};
+const AREAS = [
+ {id:'toes',name:'Toes',ids:['bigToeLift','smallToes','toeSpread','bigToeBend'],why:'Independent toe movement helps you explore control and comfortable push-off.',drills:['toes','spread']},
+ {id:'arch',name:'Arch',ids:['shortFoot'],why:'A gentle arch dome practices control without asking your toes to grip.',drills:['arch']},
+ {id:'ankle',name:'Ankle mobility',ids:['kneeWall'],why:'Comfortable ankle motion helps your shin move forward over your planted foot.',drills:['ankle']},
+ {id:'balance',name:'Balance',ids:['balance'],why:'Walking includes brief moments on one leg. Supported balance gives you a safe place to practice.',drills:['balance']},
+ {id:'walk',name:'Walk',ids:[],why:'Video suggests a movement cue to explore—not the cause of a problem or a clinical diagnosis.',drills:['walk']}
+];
+function areaResults(M,SC) {
+ const video=RULES.filter(r=>r.ok(M)).map(r=>({r,v:r.sev(M)}));
+ return AREAS.map(a=>{
+  const values=a.ids.map(id=>SC[id]?.v).filter(Number.isInteger);
+  const seen=a.id==='walk'?video.length:values.length;
+  const score=seen?Math.max(...(a.id==='walk'?video.map(x=>x.v):values)):null;
+  let ds=[...a.drills];
+  if(a.id==='toes') { ds=[['toes',Math.max(SC.bigToeLift?.v||0,SC.smallToes?.v||0)],['spread',SC.toeSpread?.v||0],['bend',SC.bigToeBend?.v||0]].filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,2).map(x=>x[0]); if(!ds.length) ds=['toes']; }
+  if(a.id==='walk' && score>0) { const hits=video.filter(x=>x.v>0).sort((a,b)=>b.v-a.v); const map={ankleRocker:'ankle',pelvis:'balance',sway:'balance',stepAsym:'balance',stepW:'balance',kneeIn:'arch',kneeOut:'toes',toeOut:'ankle'}; const extra=hits.map(x=>map[x.r.id]).find(Boolean); ds=extra?['walk',extra]:['walk']; }
+  return {...a,score,seen,total:a.id==='walk'?RULES.length:a.ids.length,drills:ds,video};
+ });
+}
+function status(a) { return a.score===null?'Not checked':a.score>0?'Work on':a.seen<a.total?'Good on checked items':'Good'; }
+function planFor(areas) {
+ const order={walk:0,toes:1,arch:2,ankle:3,balance:4};
+ const flagged=areas.filter(a=>a.score>0).sort((a,b)=>(a.id==='walk'?-1:b.id==='walk'?1:b.score-a.score || (order[a.id]??9)-(order[b.id]??9)));
+ const good=areas.filter(a=>a.score===0);
+ const plan=flagged.map(a=>({...a,mode:'practice'}));
+ for(const a of good) {if(plan.length>=3)break;plan.push({...a,mode:'maintain'});}
+ if(plan.length<3 && areas.some(a=>a.id!=='walk' && (a.score===null||a.seen<a.total))) plan.push({id:'complete',name:'Fill in the missing foot checks',mode:'observe',why:'A skipped foot check tells us nothing about that area. Completing a comfortable check makes the plan sharper; filming all four views adds walk-specific context.',drills:[]});
+ if(plan.length<3)plan.push({id:'repeat',name:'Keep the setup consistent',mode:'observe',why:'Repeat the same checks in 14 days. Comfort and consistency matter more than chasing a perfect score.',drills:[]});
+ return plan.slice(0,3);
+}
+function drillHTML(id) {const d=DRILLS[id]; return `<div class="drill"><h4>${d.name}</h4><p class="dosage">${d.dose}</p><ol>${d.steps.map(s=>`<li>${s}</li>`).join('')}</ol><p class="working"><b>You’ll know it’s working when…</b> ${d.cue}</p></div>`;}
+function footNotes(SC) {return CHECKS.map(c=>{const a=SC[c.id];return `${c.name}: ${a?c.opts[a.v]+(a.side?` (${a.side})`:''):'Not checked'}`;});}
+function comparison(base,SC) {
+ if(!base)return '<p>No saved baseline yet. Complete one comfortable check to begin.</p>';
+ const paired=CHECKS.filter(c=>base.SC[c.id]&&SC[c.id]);
+ if(!paired.length)return '<p>No matching completed foot checks to compare yet. Skips are not counted as a change.</p>';
+ return `<p>Compared with your baseline from ${dateLabel(base.date)}. These are self-reports, not clinical scores. “One side harder” and “both sides hard” describe extent, not a diagnosis.</p><ul class="compare-list">${CHECKS.map(c=>{
+ const b=base.SC[c.id],n=SC[c.id];
+ if(!b||!n)return `<li><b>${c.name}:</b> ${!b?'Not in baseline':'Not checked now'} — no comparison.</li>`;
+ const change=n.v<b.v?'You reported less difficulty':n.v>b.v?'You reported more difficulty':'Same response';
+ return `<li><b>${c.name}:</b> ${change}.<br><span class="fine">Before: ${esc(c.opts[b.v])}${b.side?' ('+b.side+')':''}. Now: ${esc(c.opts[n.v])}${n.side?' ('+n.side+')':''}.</span></li>`;
+ }).join('')}</ul><p class="fine">Use the same surface, support, distance, time, and side each time. Video is not compared as a clinical score.</p>`;
+}
+const DAILY = ['Begin the 5-minute routine. Keep it gentle.','Repeat the routine. Keep the effort easy.','Repeat. Notice whether you need hand or counter help.','Repeat. Keep the same comfortable dose.','Repeat. Check your next-morning comfort.','Repeat if comfortable; otherwise take a rest day.','Easy day: observe your comfortable walk. Review the first week.','Return to the same routine, without adding effort.','Repeat. Note any change in control, not just range.','Repeat. Keep both sides gentle and supported.','Repeat. Check that toes stay relaxed.','Repeat. Avoid adding exercise and shoe time together.','Easy day. Set up the same wall, surface, and support.','Retest your checks. Compare with your baseline.'];
+function hasWalk(M){ return !!(M && M.frontOk && M.backOk && M.leftOk && M.rightOk && RULES.some(r => r.ok(M))); }
+function walkObservations(M){
+ if(!hasWalk(M))return [];
+ const hits=RULES.filter(r=>r.ok(M)).map(r=>({r,s:r.sev(M)})).sort((a,b)=>b.s-a.s);
+ return hits.map(({r,s})=>({
+  id:r.id,
+  title:s>0?'Estimate to explore: '+call(r.title,M).replace(/^Your /,'your ').replace(/^You /,'you '):r.area.split(' · ')[0]+' — no cue triggered',
+  measures:r.measure(M).slice(0,-1).map(([v,l])=>`${v} (${l.replace('heel lands ahead of your hips','heel-to-hip spacing at wide-step frames').replace('thigh behind vertical at push-off','estimated trailing-thigh angle').replace('foot angle at contact','foot slope at wide-step frames').replace('difference in step length','difference between alternating foot-separation peaks')})`).join('; '),
+  tone:s>0?(s===2?'Worth exploring':'Keep an eye on'):'Looking steady',
+  s, area:r.area, why:'These image-based estimates can suggest a comfortable cue to try, but cannot establish the cause of a movement pattern, pain, or injury. Compare the cue with how you feel; do not force a different gait.'
+ }));
+}
+function showRefilm({failed=[], reason='tracking', details={}}={}) {
+ const panel=$('refilm'); if(!panel) return;
+ panel.hidden=false;
+ const labels=failed.map(k=>VIEW_LABEL[k]||k); const viewTxt = labels.length===1 ? `your ${labels[0]}` : labels.length ? `your ${labels.slice(0,-1).join(', ')} and ${labels.slice(-1)[0]}` : 'your walk video';
+ const why = ({
+  model:'the tracking model couldn’t load in this browser — try the latest Chrome or Safari.',
+  'no-saved-walk':'there’s no saved walk on this browser yet.',
+  missing:'one or more of the four required views is still missing.',
+  decode:'the file couldn’t be opened as a short walking video.',
+  tracking:'this view did not provide reliable walking measurements. See the view-specific fix below; I won’t guess from unclear data.'
+ })[reason] || 'I couldn’t get a clear enough read yet.';
+ panel.innerHTML = `<div class="refilm-card" role="alert"><span class="eyebrow">Let’s refilm</span>
+  <h2>I couldn’t get a clear read on ${esc(viewTxt)}.</h2>
+  <p>Your report is built from <b>your</b> walk. Without usable tracking I won’t guess — and I won’t move you to foot checks yet.</p>
+  <p><b>What likely went wrong:</b> ${why}</p>
+  ${Object.keys(details).length?'<ul class="view-failures">'+failed.map(k=>'<li><b>'+esc(VIEW_LABEL[k])+':</b> '+esc(({visibility:'Hips, knees, or ankles were not clearly visible for enough frames. Show your whole body in brighter light.',coverage:'Tracking was interrupted or too brief. Keep walking in frame for 5–12 seconds with no cuts.',distance:'Your legs were too small in the image. Move the phone closer while keeping head and feet visible.',identity:'Tracking jumped between positions. Film one person only, with a plain background and no cuts.',steps:'Fewer than four clear alternating step events were found. Walk 6–8 natural steps across the camera, with your side facing the lens.',motion:'Too little alternating foot movement was visible. Walk toward or away from the camera for 6–8 natural steps; do not stand still.',view:'Hip width was too narrow to estimate this view. Face directly toward or away from the camera.',decode:'This file could not be decoded. Export a short MP4 (H.264), then upload it again.',tracking:'Tracking was interrupted. Try a short MP4, clear light, and the latest Chrome or Safari.'})[details[k]]||'Use a continuous, well-lit full-body clip with only you in frame.')+'</li>').join('')+'</ul>':''}
+  <ul class="refilm-tips">
+    <li>Phone sideways at about hip height, 10–12 feet away, on a hard floor.</li>
+    <li>One person only. Whole body in frame from head to feet — leave space at the edges.</li>
+    <li>Shorts or leggings so knees and ankles show. Barefoot or Minnemals.</li>
+    <li>Good light, plain background, 6–8 natural steps, about 5–12 seconds.</li>
+    <li>For the full check, all four views must track: front, back, left side, and right side.</li>
+  </ul>
+  <p class="fine">Replace the clip${failed.length===1?'':''} below${failed.length?` (start with ${failed[0]})`:''}, then tap <b>Analyze my walk</b> again.</p>
+  <button class="btn" type="button" id="refilmFocus">Got it — fix my clips</button></div>`;
+ $('refilmFocus').onclick=()=>{ ($('slot-'+(failed[0]||'front'))||$('run')).scrollIntoView({block:'center',behavior:'smooth'}); };
+}
+function startFootRetest() {
+ const data=load();
+ const walk = data.baseline?.M || data.last?.M || {};
+ if(!hasWalk(walk)){
+  if((data.baseline?.path||data.last?.path)==='feet'){ startFeetOnly(); retesting=true; return; }
+  $('upload').hidden=false; $('reportWrap').hidden=true; $('checks').hidden=true;
+  showRefilm({failed:[], reason:'no-saved-walk'});
+  window.scrollTo({top:0}); return;
+ }
+ analysisRun++; retesting=true; $('upload').hidden=true; $('reportWrap').hidden=true; $('checks').hidden=false;
+ tracked={M:walk, snaps:data.last?.snaps||[], notes:['Quick retest: using your saved walk from this browser. Film a new walk anytime with “Start a new check.”'], path:data.baseline?.path||data.last?.path||'video'};
+ renderChecks(); $('track').hidden=true; updateReportBtn(); window.scrollTo({top:0});
+ const h=$('checks').querySelector('h1'); if(h){h.setAttribute('tabindex','-1'); h.focus();}
+}
+function showSaved() {
+ const data=load(), p=$('savedPanel'); if(data.last?.risk) $('risk').checked=true;
+ if(!data.baseline&&!data.last){p.hidden=true;return;}
+ p.hidden=false;p.innerHTML=`<b>Your last check is saved on this browser.</b><p class="fine">${data.baseline?'Baseline: '+dateLabel(data.baseline.date)+' · Retest: '+dateLabel(plusDays(data.baseline.date,14)):''}</p><div class="row"><button class="btn small" id="restoreReport">Open saved report</button><button class="btn line small" id="savedRetest">Quick foot retest</button></div>`;
+ $('restoreReport').onclick=()=>{const r=load().last;if(!r)return;$('risk').checked=r.risk;$('upload').hidden=true;$('reportWrap').hidden=false;buildReport(r.M,r.snaps||[],false,r.SC,r.notes,true,r.path|| (hasWalk(r.M)?'video':'feet'));window.scrollTo({top:0});};
+ $('savedRetest').onclick=()=>startFootRetest();
+}
+$('backSetup').onclick=()=>{analysisRun++;$('checks').hidden=true;$('upload').hidden=false; const rf=$('refilm'); if(rf) rf.hidden=true; const conf=$('feetConfirm'); if(conf) conf.hidden=true; showSaved();window.scrollTo({top:0});};
+function startFeetOnly(){
+  analysisRun++; retesting=false;
+  tracked={M:{}, snaps:[], notes:['You chose the movement-assessment-only path, so this report has no walk video. Filming front, back, left side, and right side would make these priorities more specific to how you move.'], path:'feet'};
+  const rf=$('refilm'); if(rf) rf.hidden=true; const conf=$('feetConfirm'); if(conf) conf.hidden=true;
+  $('upload').hidden=true; $('reportWrap').hidden=true; $('checks').hidden=false;
+  renderChecks(); if($('track')) $('track').hidden=true; updateReportBtn(); window.scrollTo({top:0});
+  const h=$('checks').querySelector('h1'); if(h){h.setAttribute('tabindex','-1'); h.focus();}
+}
+function showFeetConfirm(){
+  let box=$('feetConfirm');
+  if(!box){ box=document.createElement('div'); box.id='feetConfirm'; box.className='confirm-wrap'; $('videoNeed').after(box); }
+  box.hidden=false;
+  box.innerHTML=`<div class="confirm-card" role="dialog" aria-labelledby="feetConfirmTitle"><h3 id="feetConfirmTitle">Do the movement assessment without filming?</h3><p>The filmed walk is what makes this specific to how you move. Without it, you’ll still get foot-check priorities and drills — but not observations from your walk.</p><div class="row"><button class="btn" type="button" id="feetConfirmYes">Yes, continue without video</button><button class="btn line" type="button" id="feetConfirmNo">Go back — I’ll film</button></div></div>`;
+  $('feetConfirmYes').onclick=()=>startFeetOnly();
+  $('feetConfirmNo').onclick=()=>{ box.hidden=true; $('feetOnlyLink').focus(); };
+  $('feetConfirmYes').focus({preventScroll:true});
+  box.scrollIntoView({block:'center',behavior:'smooth'});
+}
+if($('feetOnlyLink')) $('feetOnlyLink').onclick=()=>showFeetConfirm();
+
+function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='video') {
+ const risk=$('risk').checked, date=restoring?(load().last?.date||new Date().toISOString()):new Date().toISOString();
+ if(!hasWalk(M) && path!=='feet') {M={};snaps=[];}
+ const areas=areaResults(M,SC), measured=RULES.filter(r=>r.ok(M)).length, answered=Object.keys(SC).length;
+ const hasData=answered+measured>0, issues=areas.filter(a=>a.score>0), plan=planFor(areas);
+ const data=load(), prior=data.baseline;
+ if(restoring) retesting=!!data.last?.retest;
+ if(restoring && data.last?.path) path=data.last.path;
+ const feetOnly=path==='feet' || (!hasWalk(M) && (notes||[]).some(n=>/movement-assessment-only|no walk video/i.test(n)));
+ const walkOK=hasWalk(M);
+ const record={date,M,SC,risk,notes,retest:retesting,path:feetOnly?'feet':(path||'video'),snaps};
+ if(!restoring) {const savable=walkOK||(feetOnly&&answered>0); if(savable&&!data.baseline){data.baseline={date,M,SC,path:record.path};data.days={};} if(savable){data.last=record;save(data);}}
+ currentReport=record;
+ const baseline=load().baseline, due=baseline?plusDays(baseline.date,14):null;
+ const routine=[...new Set(plan.filter(p=>p.mode!=='observe').map(p=>p.drills[0]).filter(Boolean))].slice(0,3);
+ const routineSlots=[...routine]; while(routineSlots.length<3)routineSlots.push(null);
+ const walkHits=walkObservations(M);
+ const walkFlags=walkHits.filter(x=>x.s>0);
+ const noExercise=risk||!hasData||(!walkOK && !feetOnly);
+ const summary=!hasData?'No walk or foot-check results were collected, so there is no personal assessment yet. Complete a comfortable check, or film all four views, when you are ready.':feetOnly?`You skipped filming, so this plan is based on your foot checks only — not on how you walk. Film front, back, left side, and right side anytime for a report specific to your movement.`:!walkOK?'I need a clear walk video before I can build your plan. Refilm and try again.':walkFlags.length?`Your four clips suggested ${walkFlags.length} movement cue${walkFlags.length===1?'':'s'} to explore. The measurements below show what triggered them. Start gently; your foot checks help choose the supporting drills.`:(issues.length?`Your walk looked organized across the patterns I could measure. Your foot checks point next to ${plan.filter(a=>a.mode==='practice').map(a=>a.name.toLowerCase()).join(', ')}.`:'Your walk and the foot checks you completed looked steady. Keep the habits that are working.');
+ const cautious= !walkOK || areas.some(a=>a.score===null||a.seen<a.total) || issues.length>0;
+ const wear = cautious?['5–10 minutes','10–15 minutes','15–20 minutes','20–30 minutes']:['10–15 minutes','15–20 minutes','20–30 minutes','30–40 minutes'];
+ let h=`<div class="band dark"><div class="in report-hero"><span class="eyebrow">Your Minnemals Gait Check · ${dateLabel(date)}</span><h1>${feetOnly?"Your movement assessment.":"Here’s what <em>your</em> walk showed."}</h1><p class="lede">${summary}</p><p class="coverage">${feetOnly?'Movement assessment only (no walk video)':walkOK?`${measured} walk patterns estimated from 4 views`:'No verified four-view walk'} · ${answered} / 7 foot checks completed</p><p class="fine light">Phone video estimates — not a diagnosis or clinical gait exam. Camera angle, clothing, and light can change the numbers.</p><div class="row no-print"><button class="btn" id="printReport">Print / Save as PDF</button><button class="btn line" id="copyBtn">Copy my results</button></div><p id="copyMsg" role="status" hidden></p><textarea id="copyFallback" aria-label="Select and copy your results" hidden readonly></textarea></div></div>
+ <div class="band"><div class="in report-body">`;
+
+ h += `<section class="walk-lead"><span class="eyebrow">01 / Your walk</span><h2>${feetOnly?'Walk video not included':'Specific to the four clips you filmed'}</h2><p class="muted">${feetOnly?'You opted into the movement assessment without filming. A filmed walk (front, back, left side, right side) would make these findings more personal.':'Educational estimates from your front, back, left-side, and right-side clips. Left/right detail appears when the camera angle made it available.'}</p>`;
+ if(feetOnly) h += `<p class="notice"><b>No walk video in this report.</b> Priorities below come from your foot checks only. Filming all four views later will unlock walk-specific observations.</p>`;
+ else if(!walkOK) h += `<p class="notice">No usable walk tracking in this saved report. Film a new walk to refresh it.</p>`;
+ else {
+  if(M.views)h+=`<div class="walk-obs clip-readings">${VIEW_KEYS.map(k=>{const v=M.views[k];const side=k==='left'||k==='right';const txt=side?`${v.steps} alternating step events · about ${f0(v.cadence)} steps/min · ${f0(v.overstride*100)}% heel-to-hip spacing`: `Hip-tilt variation: left ${f0(v.dropL)}°, right ${f0(v.dropR)}° · knee-line offset: left ${f0(v.kneeL*100)}%, right ${f0(v.kneeR*100)}% of leg length`;return `<article class="obs"><h3>${esc(VIEW_LABEL[k][0].toUpperCase()+VIEW_LABEL[k].slice(1))} clip</h3><p>${esc(txt)}</p><p class="fine">${v.usableFrames||'—'} usable frames · approximate camera measurements</p></article>`;}).join('')}</div><p class="fine">View names are the slots you selected, not automatically verified camera angles. Left/right refers to the tracked body, not the side of your screen. No clinical reference range is assumed.</p>`;
+  const flagged=walkHits.filter(x=>x.s>0), steady=walkHits.filter(x=>x.s===0);
+  const show=flagged.length?flagged:walkHits.slice(0,4);
+  h += `<div class="walk-obs">${show.map(x=>`<article class="obs ${x.s?'flag':'ok'}"><span class="badge ${x.s?'practice':'positive'}">${x.tone}</span><h3>${esc(x.title)}</h3><p class="measure-line"><b>${esc(x.measures)}</b></p><p class="fine">${esc(x.area)}</p></article>`).join('')}</div>`;
+  if(flagged.length && steady.length) h += `<p class="fine"><b>Also looking steadier:</b> ${steady.slice(0,4).map(x=>esc(x.title)).join('; ')}${steady.length>4?'…':''}.</p>`;
+ }
+ if(snaps.length) h += `<div class="snaps">${snaps.map(s=>`<figure><img src="${s.src}" alt="${esc(s.label)} with tracked joints"><figcaption>${esc(s.label)}</figcaption></figure>`).join('')}</div>`;
+ h += `</section><section><span class="eyebrow">02 / At a glance</span><h2>Walk + feet together</h2><p class="muted">“Good” means comfortable on the items you checked — not that an entire area is cleared.</p><div class="glance">${areas.map(a=>`<article class="glance-card"><h3>${a.name}</h3><span class="badge ${a.score===null?'unknown':a.score>0?'practice':'positive'}">${status(a)}</span><p class="fine">${a.id==='walk'?(a.seen?`${a.seen} estimated patterns from your four views.`:(feetOnly?'Skipped — movement assessment only.':'Walk required — film all four views.')):`${a.seen} / ${a.total} self-checks completed${a.seen<a.total?' · remaining not checked':''}.`}</p></article>`).join('')}</div></section>`;
+ if(notes.length)h+=`<p class="notice">${esc(notes.join(' '))}</p>`;
+ if(risk)h+=`<aside class="safety"><h3>Your safest next step is a professional check</h3><p>You flagged pain, numbness, diabetes / neuropathy, recent injury, or uncertainty. Your answers are saved, but this tool will not prescribe drills or a shoe transition. Bring your results to a qualified clinician. Don’t push through symptoms.</p></aside>`;
+ h+=`<section><span class="eyebrow">03 / Your priorities</span><h2>${risk?'Keep your findings. Get tailored advice.':!hasData?'Before you have personal findings':'Your top three next steps'}</h2><p class="muted">${risk?'The observations below are conversation starters, not treatment priorities.':'Walk findings come first — that’s what makes this specific to you — then foot checks. Three is a focus limit, not a medical ranking.'}</p><div class="priority-list">`;
+ const displayPlan=plan;
+ displayPlan.forEach((p,i)=>{
+ const source=areas.find(a=>a.id===p.id);
+ let evidence='';
+ if(source?.id==='walk'){
+  evidence=(walkFlags.length?walkFlags:walkHits).slice(0,3).map(x=>`${x.title} — ${x.measures}`).join(' · ');
+ } else if(source){
+  const foot=source.ids.filter(id=>SC[id]).map(id=>{const c=CHECKS.find(c=>c.id===id);return c.name+': '+c.opts[SC[id].v]+(SC[id].side?' ('+SC[id].side+')':'');}).join(' · ');
+  const fromVideo=[];
+  for(const [vid,pairs] of Object.entries(LINKS||{})){
+   const hit=walkHits.find(x=>x.id===vid && x.s>0);
+   if(hit && pairs.some(([cid])=>source.ids.includes(cid) && (SC[cid]?.v>0 || true))) {
+     if(pairs.some(([cid])=>source.ids.includes(cid))) fromVideo.push(`${hit.title} (${hit.measures})`);
+   }
+  }
+  evidence=[foot, fromVideo.length?('Walk link: '+fromVideo.slice(0,2).join('; ')):''].filter(Boolean).join(' · ');
+ }
+ const whyExtra = source?.id==='walk' && walkFlags[0] ? ' '+walkFlags[0].why : '';
+ h+=`<article class="priority"><div class="ihead"><span class="rank">${i+1}</span><div><span class="eyebrow">${p.mode==='practice'?'Practice':p.mode==='maintain'?'Maintain':'Observe'}</span><h3>${esc(p.mode==='practice'?({toes:'Give your toes independent movement',arch:'Find your arch without gripping',ankle:'Explore comfortable ankle motion',balance:'Build steadier supported balance',walk:'Explore an easy walking cue'}[p.id]):p.mode==='maintain'?({toes:'Keep your toes moving',arch:'Keep your arch control',ankle:'Keep your comfortable ankle motion',balance:'Keep your supported balance',walk:'Keep walking comfortably'}[p.id]):p.name)}</h3></div></div><p><b>Why:</b> ${p.why}${esc(whyExtra)}</p>${evidence?`<p class="evidence"><b>${source?.id==='walk'?'From your video (estimate)':'Your foot checks + walk'}:</b> ${esc(evidence)}${source?.id==='walk'?'. Rough phone estimate — not a confirmed diagnosis.':''}</p>`:''}${!noExercise?p.drills.map(drillHTML).join(''):''}${p.mode==='observe'?'<p class="working"><b>You’ll know it’s working when…</b> you have a repeatable setup and can describe what feels comfortable, difficult, or still untested.</p>':''}</article>`;
+ });
+ h+=`</div></section><section class="today"><span class="eyebrow">04 / Start today</span><h2>${noExercise?'A 5-minute check-in':'Five minutes. That’s enough.'}</h2><p>${noExercise?'Use this time to note questions—not to test through symptoms.': 'Choose a comfortable effort. This short routine uses smaller doses than the full drills above; it replaces them today, rather than adding extra sets.'}</p><ol class="routine">`;
+ const timeline=noExercise?[
+ ['0:00–1:00','Notice comfort','Sit somewhere safe. Note any symptoms and when they started.'],['1:00–2:00','Name the unknowns','List the checks you skipped and any filming problems.'],['2:00–3:00','Choose one question','Write what you want to understand about your feet.'],['3:00–4:00','Plan a safe next step',risk?'Arrange professional advice before exercises or a shoe change.':'Choose a comfortable check to try next time.'],['4:00–5:00','Save your notes','Print or copy this report. No exercise or wear target is prescribed.']
+ ]:[['0:00–0:30','Set up','Clear the floor. Sit or stand at a sturdy counter. Stop for pain or numbness.'],...routineSlots.map((id,i)=>[`${i}:30–${i+1}:30`,id?DRILLS[id].name:'Relax and notice',id==='balance'?'20 seconds supported per side; take 10 seconds between sides.':id==='walk'?'Walk comfortably for 60 seconds.':id?`3 gentle reps per foot${['arch','spread'].includes(id)?', hold 5 seconds each':''}; rest for any remaining time.`:'Sit, relax your toes, and note which checks you want to complete.']),['3:30–4:30','Easy movement','If safe, walk 60 seconds in familiar shoes at your own pace. No forced toe position.'],['4:30–5:00','Check in','Was it comfortable? Mark today, then check again tomorrow morning.']];
+ h+=timeline.map(([t,n,d])=>`<li><span class="time">${t}</span><div><b>${n}</b><p>${d}</p></div></li>`).join('')+'</ol></section>';
+ h+=`<section><span class="eyebrow">05 / Make it stick</span><h2>Your 14-day plan</h2><p>${baseline?`Baseline saved: <b>${dateLabel(baseline.date)}</b>. Quick retest: <b>${dateLabel(due)}</b>.`:'No baseline saved yet. Complete at least one check to set your retest date.'} Check off a practice, observation, or rest day—this is not a streak to push through.</p><p>${baseline?'The checklist starts the day after your baseline. Today is a gentle preview. ':''}${noExercise?'Use these days to observe and plan a safe next step.':'On practice days, use your 5-minute routine. The full drill doses above are alternatives, not extra sets.'}</p><p class="fine">${storageOK?'Saved only in this browser. Reloading keeps your checklist; another device won’t have it.':'Browser storage is unavailable. Progress lasts only while this page stays open; print or copy your report.'}</p><div class="days">${DAILY.map((d,i)=>`<label class="day"><input type="checkbox" data-day="${i}" ${load().days?.[i]?'checked':''}><span><b>Day ${i+1}${baseline?` <span class="day-date">· ${new Date(plusDays(baseline.date,i+1)).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>`:''}</b><small>${noExercise?(risk?'Note symptoms and questions; follow your clinician’s advice.':i===0?'Choose a safe setup and one comfortable check.':'Observe comfort. Return to complete a baseline when ready.'):d}</small></span></label>`).join('')}</div><p class="fine">If soreness lasts into the next day, take a rest day and reduce the next dose. No catch-up workouts.</p></section>`;
+ h+=`<section class="transition"><span class="eyebrow">06 / Wearing your Minnemals</span><h2>Give your feet time, not a deadline.</h2><p>Minnemals’ roomy toe box and thin, flexible sole change what your feet feel. Even if the checks feel good, comfort—not the calendar—sets the pace.</p>`;
+ if(risk)h+='<p class="notice">No wear schedule is suggested while a safety concern is flagged. Ask your clinician about footwear and loading first.</p>';
+ else if(!hasData)h+='<p class="notice">No personal wear schedule is suggested without usable checks. Keep footwear you already tolerate. Complete a comfortable baseline for a general starting option; the checks still cannot measure your tolerance for a new shoe.</p>';
+ else {
+ h+=`<p><b>${cautious?'A cautious starting option':'A gentle starting option'}</b> ${!hasData?'because there are no usable results yet':issues.length?'because you reported difficulty or video suggested patterns to explore':'because comfortable self-checks do not measure tissue tolerance'}. ${issues.some(a=>a.id==='ankle'||a.id==='balance'||a.id==='toes')?'Your ankle, balance, or toe findings are another reason to keep early wear short and flat.':''}</p><div class="wear-grid">${wear.map((w,i)=>`<div><b>Days ${['1–3','4–7','8–10','11–14'][i]}</b><strong>${w}</strong><span>per day, only if comfortable</span></div>`).join('')}</div><p>Start with easy indoor or flat-ground walking. Use your familiar shoes for the rest of the day. These are optional upper starting ranges, not goals; stay at a step longer or start lower. Only increase after two comfortable days and comfortable next mornings. Don’t add running, hills, gym loading, and shoe time at once. Already wear Minnemals comfortably? Keep your usual tolerated amount—no need to restart or increase because of this report.</p>`;
+ }
+ h+=`<div class="comfort-grid"><div><h3>May happen</h3><p>Mild, diffuse foot or calf muscle tiredness that settles by the next day. Reduce time if needed; soreness is not proof of progress.</p></div><div><h3>Not a “break-in” goal</h3><p>Sharp or focal pain, swelling, joint pain, limping, burning, tingling, numbness, or symptoms that persist or worsen. Stop the new activity and seek professional advice. Do not push through.</p></div></div></section>`;
+ h+=`<section><span class="eyebrow">07 / Check your progress</span><h2>A quick retest, not a verdict.</h2><p>In 14 days, repeat the same seven checks with the same setup. Compare how they feel, not just how they look. New symptoms are a reason for advice—not more reps.</p>${retesting&&prior?`<div class="comparison"><h3>Baseline → this retest</h3>${comparison(prior,SC)}</div>`:''}<div class="row no-print"><button class="btn" id="retest">Quick retest</button><button class="btn line" id="again">Start a new check / add video</button></div></section>`;
+ h+=`<details class="raw-results" open><summary>All seven self-check answers</summary><ul>${footNotes(SC).map(t=>`<li>${esc(t)}</li>`).join('')}</ul></details>`;
+ if(measured)h+=`<details class="raw-results"><summary>Video estimates and limitations</summary><p>2D phone tracking is affected by camera angle, clothing, perspective, speed, and lighting. The original heuristic thresholds are retained as exploration cues, not clinical reference ranges. A “good” label only means no cue was triggered by available estimates.</p><ul>${RULES.filter(r=>r.ok(M)).map(r=>`<li>${esc(r.area)}: ${r.sev(M)>0?'Possible cue to explore':'No cue triggered'} · ${esc(r.measure(M).slice(0,-1).map(x=>x.join(' ')).join('; '))}</li>`).join('')}</ul></details>`;
+ h+=`<section class="help"><span class="eyebrow">For the things a screen can’t tell you</span><h2>Get someone in your corner.</h2><p>A physical therapist, podiatrist, or appropriately qualified gait professional can assess symptoms, joint motion, sensation, and strength in person. Bring this report and your questions. No practitioner endorsement or shared training is implied.</p><a class="btn line" href="https://gaithappens.com/local-practitioners/" target="_blank" rel="noopener">Explore a practitioner directory ↗</a><p class="fine">External directory; check credentials, location, and fit yourself. This is the original tool’s directory link, not a confirmed Minnemals referral network.</p></section><div id="reportEnd"><p class="fine">Your videos are processed here and are not uploaded or saved as video files. Report still images, answers, and checklist progress are saved in this browser only; clear saved results to remove them. This shared access code is a convenience gate, not secure authentication. Clearing browser data removes saved results.</p><div class="row no-print"><button class="btn line small" id="clearData">Clear saved results from this browser</button><span id="clearMsg" role="status"></span></div></div></div></div>`;
+ $('report').innerHTML=h; $('exampleTag').hidden=true;
+ $('printReport').onclick=()=>window.print();
+ $('retest').onclick=()=>startFootRetest();
+ $('again').onclick=()=>{retesting=false;$('reportWrap').hidden=true;$('checks').hidden=true;$('upload').hidden=false; const rf=$('refilm'); if(rf) rf.hidden=true; showSaved();window.scrollTo({top:0});};
+ document.querySelectorAll('[data-day]').forEach(el=>el.onchange=()=>{const d=load();d.days={...(d.days||{}),[el.dataset.day]:el.checked};save(d);});
+ $('clearData').onclick=()=>{if(!confirm('Clear saved baseline, checklist, and last results from this browser? You can print this report first.'))return;save({});try{localStorage.removeItem('minnemals-gait-v2');}catch(_){}document.querySelectorAll('[data-day]').forEach(e=>e.checked=false);$('clearMsg').textContent='Saved results cleared. This open report is not saved again unless you run a new check.';};
+ $('copyBtn').onclick=async()=>{const text=reportText(record,areas,displayPlan,routineSlots,baseline,wear,noExercise,prior);try{await navigator.clipboard.writeText(text);$('copyMsg').textContent='Copied. Keep it in your notes or bring it to a professional.';}catch(_){$('copyFallback').hidden=false;$('copyFallback').value=text;$('copyFallback').select();$('copyMsg').textContent='Copy is unavailable here. Select the text below and copy it manually.';}$('copyMsg').hidden=false;};
+ if(restoring && data.last && prior && data.last.date!==prior.date) { /* Comparison is shown after a retest, not fabricated from a new baseline. */ }
+}
+function reportText(r,areas,plan,routine,base,wear,noExercise,prior) {
+ const walks=walkObservations(r.M);
+ const lines=['MINNEMALS GAIT CHECK',dateLabel(r.date),r.path==='feet'?'Educational self-check, not a diagnosis. Movement-assessment-only: no walk video.':'Educational self-check, not a diagnosis. Built from your four walk videos plus completed foot checks.','','WHAT YOUR WALK SHOWED',...(walks.length?walks.map(x=>`- [${x.tone}] ${x.title}: ${x.measures}`):['- No usable walk tracking in this export']),'','AREAS',...areas.map(a=>`${a.name}: ${status(a)} (${a.seen}/${a.total} items)`),'',...r.notes,'','YOUR NEXT STEPS'];
+ plan.forEach((p,i)=>{lines.push(`${i+1}. ${p.name} (${p.mode})`,`Why: ${p.why}`);if(!noExercise)p.drills.forEach(id=>{const d=DRILLS[id];lines.push(d.name+' — '+d.dose,...d.steps.map((s,j)=>`  ${j+1}. ${s}`),"You'll know it's working when: "+d.cue);});});
+ lines.push('','START TODAY — 5 MINUTES');
+ if(noExercise)lines.push('One minute each: note comfort, list unknowns, write one question, plan a safe next step, save notes. No exercise prescription.');
+ else lines.push('0:00–0:30: clear floor and find support.',...routine.map((id,i)=>`${i}:30–${i+1}:30: ${id?DRILLS[id].name:'Relax and notice'} — ${id==='balance'?'20 seconds each side with support, 10 seconds rest':id==='walk'?'60 seconds comfortable walking':id?'3 gentle reps per foot; rest for remaining time':'note missing checks'}.`),'3:30–4:30: comfortable walk in familiar shoes.','4:30–5:00: note comfort. This replaces the full-dose drills today.');
+ lines.push('','14-DAY CHECKLIST',...DAILY.map((d,i)=>`${load().days?.[i]?'[x]':'[ ]'} Day ${i+1}: ${noExercise?'Observe comfort and seek advice if needed.':d}`),base?`Retest: ${dateLabel(plusDays(base.date,14))} (baseline ${dateLabel(base.date)}).`:'No baseline or retest date yet.','Repeat the same setup; skips are not changes.','','MINNEMALS TRANSITION');
+ lines.push(r.risk?'Ask your clinician before changing footwear.':!Object.keys(r.SC).length&&!RULES.some(x=>x.ok(r.M))?'No personal wear schedule without usable checks. Keep footwear you already tolerate.':`Optional comfortable wear ranges: days 1–3 ${wear[0]}; days 4–7 ${wear[1]}; days 8–10 ${wear[2]}; days 11–14 ${wear[3]} daily. Flat easy walking only. Progress only after two comfortable days and next mornings. Familiar shoes for other activity. Already adapted? Keep your tolerated amount.`,'Mild muscle tiredness that settles by the next day may occur. Soreness is not progress. Sharp/focal pain, swelling, joint pain, limping, tingling or numbness: stop and seek advice.','','ALL FOOT ANSWERS',...footNotes(r.SC));
+ if(retesting&&prior)lines.push('','RETEST COMPARISON',...CHECKS.map(c=>{const b=prior.SC[c.id],n=r.SC[c.id];return `${c.name}: ${b&&n?(n.v<b.v?'reported less difficulty':n.v>b.v?'reported more difficulty':'same response'):'no paired answer'}`;}));
+ lines.push('','Professional directory (verify fit and credentials): https://gaithappens.com/local-practitioners/','Pain, numbness, diabetes/neuropathy or recent injury: get professional guidance before testing, exercise or footwear changes.','Data stays in this browser; print/copy to keep a portable record.');
+ return lines.join('\n');
+}
+
+/* ---------- gate ---------- */
+$('gateForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if (ACCESS_CODES.includes($('code').value.trim().toUpperCase())) {
+    $('gate').hidden = true; $('upload').hidden = false; $('gateErr').hidden = true; showSaved();
+    window.scrollTo({ top: 0 });
+  } else $('gateErr').hidden = false;
+});
+
+/* ---------- uploads ---------- */
+const files = {};
+const isPhone = window.matchMedia?.('(pointer: coarse)')?.matches ?? false;
+$('deskNote').hidden = isPhone;
+VIEW_KEYS.forEach(k => ['r-', 'f-'].forEach(pre => $(pre + k).addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  files[k] = f;
+  $('slot-' + k).classList.add('has');
+  $('name-' + k).textContent = pre === 'r-' ? 'Recorded. Watch it back to make sure your whole body is in frame.' : f.name;
+  $('rec-' + k + '-l').firstChild.textContent = 'Record again';
+  const pv = $('prev-' + k); if (pv.src) URL.revokeObjectURL(pv.src);
+  pv.src = URL.createObjectURL(f); pv.hidden = false;
+  updateRun();
+})));
+let modelReady = false;
+const updateRun = () => { VIEW_KEYS.forEach(k=>['r-','f-'].forEach(pre=>$(pre+k).disabled=isAnalyzing)); const ready=VIEW_KEYS.every(k=>!!files[k]); $('run').disabled = isAnalyzing || !ready; $('modelStatus').textContent = ready ? (modelReady?'Ready when you are.':'Add all four views — tracking loads when you Analyze.') : `Add ${VIEW_KEYS.filter(k=>!files[k]).map(k=>VIEW_LABEL[k]).join(', ')} to unlock Analyze.`; }; updateRun();
+
+/* ---------- pose model ---------- */
+let pose, resolver = null;
+async function initModel() {
+  if (modelReady) return; $('modelStatus').textContent='Loading local walk tracking…';
+  try {
+    pose = new Pose({ locateFile: f => CDN + f });
+    pose.setOptions({ modelComplexity: 1, smoothLandmarks: true, enableSegmentation: false, minDetectionConfidence: .5, minTrackingConfidence: .5 });
+    const modelInstance=pose;
+    pose.onResults(r => { if(pose!==modelInstance)return; if (resolver) { const fn = resolver; resolver = null; fn(r); } });
+    await timeout(pose.initialize(), 25000, 'Model loading timed out');
+    modelReady = true; $('modelStatus').textContent = 'Ready when you are.'; updateRun();
+  } catch (err) {
+    $('modelStatus').textContent = 'The tracking model couldn’t load in this browser. Try the latest Chrome or Safari.';
+    /* Tracking failure is handled in the UI, never interpreted as a good result. */
+  }
+}
+const timeout = (p, ms, message) => new Promise((resolve,reject) => { const timer=setTimeout(()=>reject(new Error(message)),ms); Promise.resolve(p).then(v=>{clearTimeout(timer);resolve(v);},e=>{clearTimeout(timer);reject(e);}); });
+async function detect(img) {
+ try{return await timeout(new Promise((res,reject)=>{resolver=res;pose.send({image:img}).catch(reject);}),12000,'Tracking timed out');}
+ catch(e){resolver=null;modelReady=false;try{await timeout(pose.close(),2000,'Model close timed out');}catch(_){} throw e;}
+}
+const seek = (v,t) => new Promise((res,rej)=>{
+ if(Math.abs(v.currentTime-t)<.002 && v.readyState>=2){res();return;}
+ const clean=()=>{clearTimeout(timer);v.removeEventListener('seeked',done);v.removeEventListener('error',fail);};
+ const done=()=>{clean();res();},fail=()=>{clean();rej(new Error('Video seek failed; export a short MP4'));};
+ const timer=setTimeout(fail,3000);v.addEventListener('seeked',done);v.addEventListener('error',fail);
+ try{v.currentTime=t;}catch(e){clean();rej(e);}
+});
+
+async function trackClip(file, onProg) {
+  const url = URL.createObjectURL(file);
+  const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+  try {
+  await timeout(new Promise((res, rej) => { v.onloadeddata = res; v.onerror = () => rej(new Error('decode')); }), 12000, 'Video could not be opened');
+  const dur = Math.min(v.duration || 0, 12); if (!Number.isFinite(dur) || dur < 1 || !v.videoWidth) throw new Error('Use a 5–12 second video');
+  const s = Math.min(1, 640 / Math.max(v.videoWidth,v.videoHeight)), W = Math.round(v.videoWidth * s), H = Math.round(v.videoHeight * s);
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d');
+  const frames = []; await pose.reset();
+  const started=performance.now();
+  for (let t = .05; t < dur; t += 1 / 15) {
+    if(performance.now()-started>90000)throw new Error('Tracking took too long; use a shorter MP4');
+    await seek(v, t); ctx.drawImage(v, 0, 0, W, H);
+    const r = await detect(c);
+    if (r.poseLandmarks) frames.push({ t, lm: r.poseLandmarks.map(p => ({ x: p.x * W, y: p.y * H, v: p.visibility })), wl: r.poseWorldLandmarks });
+    onProg(t / dur);
+  }
+  return { frames, v, url, c, ctx, W, H };
+  }catch(e){v.removeAttribute('src');v.load();URL.revokeObjectURL(url);throw e;}
+}
+function releaseClip(clip){if(!clip)return;clip.v.removeAttribute('src');clip.v.load();URL.revokeObjectURL(clip.url);}
+const BONES = [[11, 12], [11, 23], [12, 24], [23, 24], [23, 25], [25, 27], [24, 26], [26, 28], [27, 29], [29, 31], [27, 31], [28, 30], [30, 32], [28, 32], [11, 13], [13, 15], [12, 14], [14, 16]];
+async function snapshot(clip, t) {
+  const { v, c, ctx, W, H, frames } = clip;
+  await seek(v, t); ctx.drawImage(v, 0, 0, W, H);
+  const f = frames.reduce((b, x) => Math.abs(x.t - t) < Math.abs(b.t - t) ? x : b, frames[0]);
+  ctx.lineWidth = Math.max(2, W / 200); ctx.strokeStyle = '#EDEDED'; ctx.fillStyle = '#0F354A';
+  BONES.forEach(([a, b]) => { ctx.beginPath(); ctx.moveTo(f.lm[a].x, f.lm[a].y); ctx.lineTo(f.lm[b].x, f.lm[b].y); ctx.stroke(); });
+  [11, 12, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32].forEach(i => { ctx.beginPath(); ctx.arc(f.lm[i].x, f.lm[i].y, ctx.lineWidth * 1.6, 0, 7); ctx.fill(); ctx.stroke(); });
+  return c.toDataURL('image/jpeg', .8);
+}
+
+let tracked = null;
+function updateReportBtn() {
+  const n = Object.keys(readChecks()).length;
+  $('toReport').disabled = false; const skipped = document.querySelectorAll('input[value="-1"]:checked').length; $('checkProgress').textContent = `${n} of 7 checked · ${skipped} skipped · ${7-n-skipped} remaining`; 
+  $('reportStatus').textContent = !tracked ? `Still tracking your walk… (${n} of ${CHECKS.length} checks answered)`
+    : n < CHECKS.length ? `${n} of ${CHECKS.length} checks answered. Any you skip are left out of the report.` : 'All checks done.';
+}
+$('run').addEventListener('click', async () => {
+  const generation=++analysisRun; isAnalyzing=true; updateRun(); $('run').disabled = true;
+  const rf=$('refilm'); if(rf) rf.hidden=true;
+  const conf=$('feetConfirm'); if(conf) conf.hidden=true;
+  $('modelStatus').textContent='Loading local walk tracking…';
+  await initModel();
+  if(generation!==analysisRun){isAnalyzing=false;updateRun();return;}
+  if (!modelReady) {
+    isAnalyzing=false; updateRun();
+    $('modelStatus').textContent = 'Tracking is unavailable in this browser. Try the latest Chrome or Safari and short MP4s, then Analyze again.';
+    showRefilm({failed:VIEW_KEYS.slice(), reason:'model'});
+    return;
+  }
+  if(!VIEW_KEYS.every(k=>files[k])){
+    isAnalyzing=false; updateRun();
+    showRefilm({failed:VIEW_KEYS.filter(k=>!files[k]), reason:'missing'});
+    return;
+  }
+  $('checks').hidden = true; $('reportWrap').hidden = true; $('upload').hidden = false;
+  tracked = null;
+  let trackBar = $('liveTrack');
+  if(!trackBar){
+    trackBar=document.createElement('div'); trackBar.id='liveTrack'; trackBar.className='live-track';
+    trackBar.innerHTML='<p class="status" id="liveProc">Starting…</p><div class="progress"><i id="liveBar"></i></div>';
+    $('run').parentElement.parentElement.appendChild(trackBar);
+  }
+  trackBar.hidden=false; $('liveBar').style.width='0'; $('liveProc').textContent='Starting…';
+  window.scrollTo({ top: 0 });
+  const keys = VIEW_KEYS.slice();
+  const res = {}, snaps = [], failed = [], decodeFail=[], details={};
+  for (let n = 0; n < keys.length; n++) {
+    const k = keys[n];
+    $('liveProc').textContent = `Tracking your ${VIEW_LABEL[k]} (${n + 1} of ${keys.length})…`;
+    let clip;
+    try {
+      if(!modelReady){await initModel();if(!modelReady)throw new Error('Tracking model unavailable');}
+      clip = await trackClip(files[k], p => { $('liveBar').style.width = `${((n + p) / keys.length) * 100}%`; });
+      if(generation!==analysisRun){releaseClip(clip);isAnalyzing=false;updateRun();return;}
+      const a = (k==='left'||k==='right') ? analyzeSide(clip.frames) : analyzeFrontal(clip.frames);
+      res[k] = a;
+      if (a.error) {failed.push(k);details[k]=a.reason||'tracking';}
+      else snaps.push({ src: await snapshot(clip, a.snapT), label: VIEW_LABEL[k][0].toUpperCase()+VIEW_LABEL[k].slice(1) });
+      releaseClip(clip);clip=null;
+    } catch (err) {
+      releaseClip(clip); res[k] = { error: true }; failed.push(k); details[k]='tracking';
+      if(String(err&&err.message||err).toLowerCase().includes('decode') || String(err&&err.message||err).includes('Video could not')) {decodeFail.push(k);details[k]='decode';}
+    }
+  }
+  isAnalyzing=false; updateRun(); if(generation!==analysisRun)return; $('liveBar').style.width = '100%';
+  // All four must succeed — any failure stays on Film with a refilm message.
+  if (failed.length) {
+    $('liveProc').textContent = 'One or more views need a clearer clip — see how to refilm below.';
+    showRefilm({failed, reason: decodeFail.length===failed.length?'decode':'tracking',details});
+    tracked=null; return;
+  }
+  const M = combine(res);
+  if (!hasWalk(M)) {
+    $('liveProc').textContent = 'Couldn’t get a clear walk read yet — see how to refilm below.';
+    showRefilm({failed:keys, reason:'tracking'});
+    tracked=null; return;
+  }
+  tracked = { M, snaps, notes:[], path:'video' };
+  trackBar.hidden=true;
+  if(rf) rf.hidden=true;
+  $('upload').hidden = true; $('checks').hidden = false; $('reportWrap').hidden = true;
+  renderChecks(); $('track').hidden = false; if($('procStatus')) $('procStatus').textContent = 'All four views tracked. Finish the foot checks, then see your report.'; if($('bar')) $('bar').style.width='100%';
+  updateReportBtn(); window.scrollTo({ top: 0 });
+});
+$('toReport').addEventListener('click', () => {
+  const walkOK = tracked && (tracked.path==='feet' || hasWalk(tracked.M));
+  if (!walkOK) {
+    $('checks').hidden = true; $('upload').hidden = false;
+    showRefilm({failed:[], reason:'tracking'});
+    window.scrollTo({top:0}); return;
+  }
+  $('checks').hidden = true; $('reportWrap').hidden = false;
+  buildReport(tracked.M, tracked.snaps||[], false, readChecks(), tracked.notes||[], false, tracked.path||'video');
+  window.scrollTo({ top: 0 });
+});
+
+})();
+</script>
+</body></html>
