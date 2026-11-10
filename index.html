@@ -348,6 +348,12 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
 .viewcount .vc-dots i.ok{background:var(--mint);color:var(--navy)}
 #videoNeed{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;padding:0;border:0}
 .setup{background:#fff;border-radius:var(--r);padding:16px;gap:14px;box-shadow:var(--shadow)}
+.ways{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.ways h3{grid-column:1/-1;margin:0;font-size:1rem;color:var(--navy)}
+.way{background:#fff;border-radius:var(--r);padding:16px;box-shadow:var(--shadow);display:grid;gap:4px}
+.way-n{font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.way strong{color:var(--navy);font-size:1rem}
+.way span:last-child{font-size:.92rem;color:var(--muted)}
 .setup svg{width:38px;height:38px;padding:8px;border-radius:50%;background:var(--mint);color:var(--navy)}
 .slots{counter-reset:view;gap:12px}
 .slot{counter-increment:view;position:relative;border-radius:var(--r);background:#fff;box-shadow:var(--shadow);border:1.5px solid transparent;padding:16px;transition:border-color .25s}
@@ -581,8 +587,13 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
       <div id="savedPanel" class="saved" hidden></div>
       <aside class="safety"><h3>First, a quick safety check</h3><p>New or worsening pain, numbness, diabetes / neuropathy, or a recent injury? A self-check cannot tell you what is safe for your body. Ask a qualified clinician before testing, changing shoes, or starting drills. Sudden weakness or inability to bear weight needs prompt medical care.</p><label class="risk-label"><input type="checkbox" id="risk"> Any of these applies, or I’m unsure (show guidance, not an exercise plan)</label></aside>
       <div id="refilm" class="refilm" hidden></div>
-      <div class="viewcount" aria-hidden="true"><div class="vc-ring" id="vcRing"><b id="vcNum">0/4</b></div><div><strong>Four views required</strong><span>Each must track clearly before we continue.</span><div class="vc-dots"><i id="vcd-front">Front</i><i id="vcd-back">Back</i><i id="vcd-left">Left</i><i id="vcd-right">Right</i></div></div></div><p class="desk" id="videoNeed"><b>Four walk videos are required by default.</b> Front, back, left side, and right side. Each must track clearly before we continue.</p><div class="setup">
-        <div><svg viewBox="0 0 34 34" aria-hidden="true"><rect x="3" y="10" width="28" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="17.5" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><p><strong data-copy="film.tip1.title">Phone sideways</strong><span data-copy="film.tip1.text">Propped at hip height, 10 to 12 feet away. No friend? Prop the phone securely and record a short practice clip first.</span></p></div>
+      <div class="viewcount" aria-hidden="true"><div class="vc-ring" id="vcRing"><b id="vcNum">0/4</b></div><div><strong>Four views required</strong><span>Each must track clearly before we continue.</span><div class="vc-dots"><i id="vcd-front">Front</i><i id="vcd-back">Back</i><i id="vcd-left">Left</i><i id="vcd-right">Right</i></div></div></div><p class="desk" id="videoNeed"><b>Four walk videos are required by default.</b> Front, back, left side, and right side. Each must track clearly before we continue.</p>
+      <div class="ways" id="filmWays" role="group" aria-labelledby="waysTitle">
+        <h3 id="waysTitle" data-copy="film.ways.title">Two ways to film. Pick whichever is easier.</h3>
+        <div class="way"><span class="way-n">Option 1</span><strong data-copy="film.way1.title">Prop it up and walk by</strong><span data-copy="film.way1.text">Lean your phone sideways at about hip height, 10 to 12 feet away. Hit record, then walk past it, toward it, or away from it.</span></div>
+        <div class="way"><span class="way-n">Option 2</span><strong data-copy="film.way2.title">Have someone film you</strong><span data-copy="film.way2.text">They hold the phone sideways at hip height and stay in one spot, turning slowly to keep your whole body in frame. No zooming, and no walking alongside you.</span></div>
+      </div><div class="setup">
+        <div><svg viewBox="0 0 34 34" aria-hidden="true"><rect x="3" y="10" width="28" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="17.5" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><p><strong data-copy="film.tip1.title">Phone sideways and steady</strong><span data-copy="film.tip1.text">Landscape, level, and about 10 to 12 feet from your path. Record a short practice clip first.</span></p></div>
         <div><svg viewBox="0 0 34 34" aria-hidden="true"><use href="#fp" transform="translate(12 17) scale(.42)"/><use href="#fp" transform="translate(23 17) scale(-.42 .42)"/></svg><p><strong data-copy="film.tip2.title">Barefoot or Minnemals</strong><span data-copy="film.tip2.text">Shorts or leggings so your knees and ankles show.</span></p></div>
         <div><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M4 26h26M8 26V12M17 26V8M26 26V16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p><strong data-copy="film.tip3.title">Normal pace</strong><span data-copy="film.tip3.text">6 to 8 natural steps. Keep head and feet visible, leave space at frame edges, and trim each clip to 5 to 12 seconds. No treadmill.</span></p></div>
       </div>
@@ -614,7 +625,7 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
           <div class="pic" id="pic-left"><svg viewBox="0 0 160 90" aria-hidden="true"><circle cx="50" cy="26" r="7" fill="currentColor"/><path d="M50 34v22M50 56l-8 18M50 56l9 18M50 40l-9 10M50 40l9 9" stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M78 50h52m-10-8l10 8-10 8" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>
           <video id="prev-left" muted playsinline controls hidden></video>
           <span class="v">Left side</span>
-          <span class="hint">Walk across the frame with your left side facing the camera.</span>
+          <span class="hint">Walk past the camera with your left side facing it.</span>
           <div class="slot-btns">
             <label class="btn small" id="rec-left-l">Record<input type="file" id="r-left" aria-label="Record left-side video" accept="video/*" capture="environment"></label>
             <label class="btn line small">Upload<input type="file" id="f-left" aria-label="Upload left-side video" accept="video/*"></label>
@@ -625,7 +636,7 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
           <div class="pic" id="pic-right"><svg viewBox="0 0 160 90" aria-hidden="true"><circle cx="110" cy="26" r="7" fill="currentColor"/><path d="M110 34v22M110 56l-8 18M110 56l9 18M110 40l-9 10M110 40l9 9" stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M82 50H30m10-8l-10 8 10 8" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>
           <video id="prev-right" muted playsinline controls hidden></video>
           <span class="v">Right side</span>
-          <span class="hint">Walk across the frame with your right side facing the camera.</span>
+          <span class="hint">Walk past the camera with your right side facing it.</span>
           <div class="slot-btns">
             <label class="btn small" id="rec-right-l">Record<input type="file" id="r-right" aria-label="Record right-side video" accept="video/*" capture="environment"></label>
             <label class="btn line small">Upload<input type="file" id="f-right" aria-label="Upload right-side video" accept="video/*"></label>
@@ -730,20 +741,40 @@ function trackingQuality(frames) {
  return {F};
 }
 const LM = { sh: [11, 12], wr: [15, 16], hip: [23, 24], knee: [25, 26], ank: [27, 28], heel: [29, 30], toe: [31, 32] };
+/* Camera-independent helpers. Clips may come from a propped phone (person crosses the frame) or a
+   handheld phone that turns to follow the walker (person stays centered, background moves, mild shake).
+   Gait events and metrics therefore use positions relative to the body in the same frame, scaled by
+   that frame's leg length, never absolute screen position or travel across the frame. */
+const legOf = f => (dist(f.lm[23], f.lm[27]) + dist(f.lm[24], f.lm[28])) / 2;
+const legSeries = F => smooth(F.map(legOf), 7); // ~1 s window: follows zoom or a filmer stepping closer, ignores knee bend
+const fpsOf = F => { const d = median(F.slice(1).map((f, i) => f.t - F[i].t)); return d > 0 ? 1 / d : 15; };
+function walkDirection(F, legLen) {
+  // Toes point the way you walk and the nose sits ahead of the ears, whatever the camera does.
+  const votes = [];
+  for (const f of F) {
+    for (const l of [0, 1]) if (vis(f, [LM.heel[l], LM.toe[l]], .5)) { const d = f.lm[LM.toe[l]].x - f.lm[LM.heel[l]].x; if (Math.abs(d) > .04 * legLen) votes.push(Math.sign(d)); }
+    if (vis(f, [0, 7, 8], .5)) { const d = f.lm[0].x - (f.lm[7].x + f.lm[8].x) / 2; if (Math.abs(d) > .03 * legLen) votes.push(Math.sign(d)); }
+  }
+  const body = votes.length >= 10 ? mean(votes) : 0;
+  if (Math.abs(body) >= .3) return { dir: Math.sign(body), source: 'body' };
+  const hm = f => mid(f.lm[23], f.lm[24]), travel = hm(F[F.length - 1]).x - hm(F[0]).x;
+  return { dir: travel >= 0 ? 1 : -1, source: Math.abs(travel) > legLen ? 'travel' : 'weak' };
+}
 
 /* ---------- side view ---------- */
 function analyzeSide(frames) {
   const quality=trackingQuality(frames); if(quality.error)return quality; const F=quality.F;
   const hm = f => mid(f.lm[23], f.lm[24]);
-  const dir = hm(F[F.length - 1]).x >= hm(F[0]).x ? 1 : -1;
-  const legLen = median(F.map(f => (dist(f.lm[23], f.lm[27]) + dist(f.lm[24], f.lm[28])) / 2));
+  const legLen = median(F.map(legOf)), legS = legSeries(F);
+  const { dir, source: dirSource } = walkDirection(F, legLen);
   const torso = median(F.map(f => dist(mid(f.lm[11], f.lm[12]), hm(f))));
-  const sep = smooth(F.map(f => (f.lm[27].x - f.lm[28].x) * dir));
+  // Ankle-to-ankle spacing in leg lengths: same-frame difference, so camera pan and shake cancel out.
+  const sep = smooth(F.map((f, i) => (f.lm[27].x - f.lm[28].x) * dir / legS[i]));
   const ev = [];
   for (let i = 2; i < sep.length - 2; i++) {
     const w = sep.slice(Math.max(0, i - 4), i + 5);
-    if (sep[i] === Math.max(...w) && sep[i] > .2 * legLen) ev.push({ i, lead: 0 });
-    if (sep[i] === Math.min(...w) && sep[i] < -.2 * legLen) ev.push({ i, lead: 1 });
+    if (sep[i] === Math.max(...w) && sep[i] > .2) ev.push({ i, lead: 0 });
+    if (sep[i] === Math.min(...w) && sep[i] < -.2) ev.push({ i, lead: 1 });
   }
   ev.sort((a, b) => a.i - b.i);
   const steps=[];
@@ -758,7 +789,7 @@ function analyzeSide(frames) {
   steps.forEach((e, k) => {
     const f = F[e.i], l = e.lead, t = 1 - l;
     const hip = hm(f), heel = f.lm[LM.heel[l]], toe = f.lm[LM.toe[l]];
-    out.overstride.push(vis(f,[LM.heel[l]],.5)?(heel.x - hip.x) * dir / legLen:NaN);
+    out.overstride.push(vis(f,[LM.heel[l]],.5)?(heel.x - hip.x) * dir / legS[e.i]:NaN);
     if (vis(f, [LM.heel[l], LM.toe[l]], .3)) out.heel.push(deg(Math.atan2(heel.y - toe.y, (toe.x - heel.x) * dir)));
     let he = -Infinity;
     for (let j = Math.max(0, e.i - 2); j <= Math.min(F.length - 1, e.i + 4); j++) {
@@ -773,7 +804,7 @@ function analyzeSide(frames) {
       rk = Math.max(rk, deg(Math.atan2((kn.x - an.x) * dir, an.y - kn.y)));
     }
     out.rocker.push(rk);
-    out.stepL[l].push(Math.abs(sep[e.i]) / legLen);
+    out.stepL[l].push(Math.abs(sep[e.i]));
   });
   let cadence = NaN;
   if (steps.length >= 4) cadence = (steps.length - 1) / (F[steps[steps.length - 1].i].t - F[steps[0].i].t) * 60;
@@ -786,7 +817,7 @@ function analyzeSide(frames) {
   const stepAsym = Math.abs(a - b) / ((a + b) / 2);
   const worst = steps.reduce((best, e, k) => (out.overstride[k] > (best?.v ?? -9) ? { v: out.overstride[k], t: F[e.i].t } : best), null);
   return {
-    usableFrames:F.length, steps: steps.length, cadence, trunk, armRange, stepAsym: steps.length >= 4 ? stepAsym : NaN,
+    usableFrames:F.length, dirSource, steps: steps.length, cadence, trunk, armRange, stepAsym: steps.length >= 4 ? stepAsym : NaN,
     overstride: median(out.overstride), heelAngle: median(out.heel), hipExt: median(out.hipExt), ankleRocker: median(out.rocker),
     snapT: worst ? worst.t : F[Math.floor(F.length / 2)].t
   };
@@ -795,23 +826,32 @@ function analyzeSide(frames) {
 /* ---------- front / back views ---------- */
 function analyzeFrontal(frames) {
   const quality=trackingQuality(frames); if(quality.error)return quality; const F=quality.F;
-  const leg=median(F.map(f=>(dist(f.lm[23],f.lm[27])+dist(f.lm[24],f.lm[28]))/2));
-  const phase=smooth(F.map(f=>(f.lm[27].y-f.lm[28].y)/leg));
+  const legS=legSeries(F);
+  // Alternating foot height in leg lengths: body-relative, so it works with a still or a following camera.
+  const phase=smooth(F.map((f,i)=>(f.lm[27].y-f.lm[28].y)/legS[i]));
   if(pct(phase,.9)-pct(phase,.1)<.06)return {error:true,reason:'motion'};
-  if(median(F.map(f=>Math.abs(f.lm[23].x-f.lm[24].x)))<8)return {error:true,reason:'view'};
+  // Facing check in body units, not pixels, so a closer handheld phone cannot make a side-on clip pass as front or back.
+  if(median(F.map(f=>Math.abs(f.lm[23].x-f.lm[24].x)))<8 || median(F.map((f,i)=>Math.abs(f.lm[23].x-f.lm[24].x)/legS[i]))<.15)return {error:true,reason:'view'};
+  // Stride period from the alternating feet (two sign changes per stride), used to remove slow camera drift.
+  const fps=fpsOf(F), pm=median(phase); let cross=0, sgn=0;
+  for(const x of phase){const s=x-pm>.02?1:x-pm<-.02?-1:0; if(s&&sgn&&s!==sgn)cross++; if(s)sgn=s;}
+  const stride=Math.min(1.8,Math.max(.7,cross>=2?2*(F[F.length-1].t-F[0].t)/cross:1.1));
+  const kW=Math.max(3,Math.round(stride*fps/2));
   const tilt = F.map(f => deg(Math.atan2(f.lm[23].y - f.lm[24].y, Math.abs(f.lm[23].x - f.lm[24].x))));
   const m = median(tilt);
-  const dropL = pct(tilt.map(x => x - m), .95), dropR = pct(tilt.map(x => m - x), .95);
+  // Hip-line tilt measured against its own one-stride average, so a slowly tilting handheld phone does not read as hip drop.
+  const tiltBase = smooth(tilt, kW), tiltRel = tilt.map((x, i) => x - tiltBase[i]);
+  const dropL = pct(tiltRel, .95), dropR = pct(tiltRel.map(x => -x), .95);
   const knee = [0, 1].map(l => pct(F.map(f => {
     const hip = f.lm[LM.hip[l]], kn = f.lm[LM.knee[l]], an = f.lm[LM.ank[l]], hm = mid(f.lm[23], f.lm[24]);
     const xl = hip.x + (an.x - hip.x) * (kn.y - hip.y) / ((an.y - hip.y) || 1);
     return (kn.x - xl) * Math.sign(hm.x - hip.x) / Math.max(1,dist(hip, an));
   }), .85));
   const stepW = median(F.map(f => Math.abs(f.lm[27].x - f.lm[28].x) / Math.max(8,Math.abs(f.lm[23].x - f.lm[24].x))));
-  const n = F.length, xs = F.map((f, i) => i), ys = F.map(f => mid(f.lm[23], f.lm[24]).x);
-  const mx = mean(xs), my = mean(ys);
-  const slope = xs.reduce((s, x, i) => s + (x - mx) * (ys[i] - my), 0) / xs.reduce((s, x) => s + (x - mx) ** 2, 0);
-  const swayRel = F.map((f, i) => (ys[i] - (my + slope * (i - mx))) / Math.max(8,Math.abs(f.lm[23].x - f.lm[24].x)));
+  // Side-to-side hip travel over the feet (hip midpoint relative to the ankle midpoint, in hip widths).
+  // Both points are in the same frame, so camera pan and hand shake cancel; walking slightly off line cancels too.
+  const swayRaw = smooth(F.map(f => (mid(f.lm[23], f.lm[24]).x - mid(f.lm[27], f.lm[28]).x) / Math.max(8,Math.abs(f.lm[23].x - f.lm[24].x))), 1);
+  const swayBase = smooth(swayRaw, kW), swayRel = swayRaw.map((x, i) => x - swayBase[i]);
   const sway = pct(swayRel, .95) - pct(swayRel, .05);
   const shTilt = median(F.map(f => deg(Math.atan2(f.lm[11].y - f.lm[12].y, Math.abs(f.lm[11].x - f.lm[12].x)))));
   const W = F.filter(f => f.wl);
@@ -824,7 +864,7 @@ function analyzeFrontal(frames) {
       return deg(Math.atan2((to.x - he.x) * Math.sign(hp.x - hc), Math.abs(to.z - he.z) || 1e-3));
     })));
   }
-  const worstI = tilt.reduce((bi, x, i) => Math.abs(x - m) > Math.abs(tilt[bi] - m) ? i : bi, 0);
+  const worstI = tiltRel.reduce((bi, x, i) => Math.abs(x) > Math.abs(tiltRel[bi]) ? i : bi, 0);
   return { usableFrames:F.length, dropL, dropR, kneeL: knee[0], kneeR: knee[1], stepW, sway, shDiff: shTilt - m, armAsym, toeOutL: toeOut[0], toeOutR: toeOut[1], snapT: F[worstI].t };
 }
 
@@ -1198,9 +1238,10 @@ function showRefilm({failed=[], reason='tracking', details={}}={}) {
   <h2>I couldn’t get a clear read on ${esc(viewTxt)}.</h2>
   <p>Your report is built from <b>your</b> walk. Without usable tracking I won’t guess, and I won’t move you to foot checks yet.</p>
   <p><b>What likely went wrong:</b> ${why}</p>
-  ${Object.keys(details).length?'<ul class="view-failures">'+failed.map(k=>'<li><b>'+esc(VIEW_LABEL[k])+':</b> '+esc(({visibility:'Hips, knees, or ankles were not clearly visible for enough frames. Show your whole body in brighter light.',coverage:'Tracking was interrupted or too brief. Keep walking in frame for 5 to 12 seconds with no cuts.',distance:'Your legs were too small in the image. Move the phone closer while keeping head and feet visible.',identity:'Tracking jumped between positions. Film one person only, with a plain background and no cuts.',steps:'Fewer than four clear alternating step events were found. Walk 6 to 8 natural steps across the camera, with your side facing the lens.',motion:'Too little alternating foot movement was visible. Walk toward or away from the camera for 6 to 8 natural steps; do not stand still.',view:'Hip width was too narrow to estimate this view. Face directly toward or away from the camera.',decode:'This file could not be decoded. Export a short MP4 (H.264), then upload it again.',tracking:'Tracking was interrupted. Try a short MP4, clear light, and the latest Chrome or Safari.'})[details[k]]||'Use a continuous, well-lit full-body clip with only you in frame.')+'</li>').join('')+'</ul>':''}
+  ${Object.keys(details).length?'<ul class="view-failures">'+failed.map(k=>'<li><b>'+esc(VIEW_LABEL[k])+':</b> '+esc(({visibility:'Hips, knees, or ankles were not clearly visible for enough frames. Show your whole body in brighter light.',coverage:'Tracking was interrupted or too brief. Keep walking in frame for 5 to 12 seconds with no cuts.',distance:'Your legs were too small in the image. Move the phone closer while keeping head and feet visible.',identity:'Tracking jumped between positions. Film one person only, with no cuts. If someone is filming, ask them to turn smoothly instead of swinging the phone.',steps:'Fewer than four clear alternating step events were found. Walk 6 to 8 natural steps past the camera, with your side facing the lens and your feet in frame the whole time.',motion:'Too little alternating foot movement was visible. Walk toward or away from the camera for 6 to 8 natural steps; do not stand still.',view:'I couldn’t see your hips square on. For front and back, walk straight toward or away from the camera, facing it.',decode:'This file could not be decoded. Export a short MP4 (H.264), then upload it again.',tracking:'Tracking was interrupted. Try a short MP4, clear light, and the latest Chrome or Safari.'})[details[k]]||'Use a continuous, well-lit full-body clip with only you in frame.')+'</li>').join('')+'</ul>':''}
   <ul class="refilm-tips">
-    <li>Phone sideways at about hip height, 10 to 12 feet away, on a hard floor.</li>
+    <li>Prop the phone sideways at about hip height, 10 to 12 feet away, on a hard floor. Or have someone hold it there for you.</li>
+    <li>If someone is filming, they stay in one spot and turn slowly to follow you. No zooming, no walking alongside, no quick swings.</li>
     <li>One person only. Whole body in frame from head to feet, with space at the edges.</li>
     <li>Shorts or leggings so knees and ankles show. Barefoot or Minnemals.</li>
     <li>Good light, plain background, 6 to 8 natural steps, about 5 to 12 seconds.</li>
