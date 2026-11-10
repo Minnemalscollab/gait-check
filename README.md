@@ -1,4 +1,4 @@
-# Minnemals Gait Check — educational trial
+# Minnemals Gait Check · educational trial
 
 Standalone static site. No build, AI service, Claude login, backend, or external runtime CDN is required. All tracking scripts/models are in `mp/`. Serve over HTTP locally and HTTPS publicly, not `file://`.
 
@@ -35,7 +35,7 @@ Videos are processed in browser memory and not uploaded or stored as video files
 
 No production test hook, debug query route, or sample metric injection remains. Reproducible QA lives outside the deployed directory, in `/workspace/minnemals-gait-qa/`. Its synthetic tests intercept HTML only in their own browser session; they never alter the shipped site.
 
-## Lasting hosting — not yet deployed
+## Lasting hosting: not yet deployed
 
 Use an **account-owned Netlify project**, not an anonymous Drop/preview link:
 

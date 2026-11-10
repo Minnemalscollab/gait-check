@@ -1,4 +1,4 @@
-MediaPipe Pose — Google LLC
+MediaPipe Pose · Google LLC
 Version: 0.5.1675469404
 License: Apache License, Version 2.0 (see MEDIAPIPE-LICENSE.txt)
 Package: https://www.npmjs.com/package/@mediapipe/pose
