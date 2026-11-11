@@ -596,7 +596,7 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
       </div><div class="setup">
         <div><svg viewBox="0 0 34 34" aria-hidden="true"><rect x="3" y="10" width="28" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="17.5" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><p><strong data-copy="film.tip1.title">Phone sideways and steady</strong><span data-copy="film.tip1.text">Landscape, level, and about 10 to 12 feet from your path. Record a short practice clip first.</span></p></div>
         <div><svg viewBox="0 0 34 34" aria-hidden="true"><use href="#fp" transform="translate(12 17) scale(.42)"/><use href="#fp" transform="translate(23 17) scale(-.42 .42)"/></svg><p><strong data-copy="film.tip2.title">Barefoot, knees showing</strong><span data-copy="film.tip2.text">Film barefoot, not in shoes. Wear shorts so nothing covers your knees, shins, ankles, or feet.</span></p></div>
-        <div><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M4 26h26M8 26V12M17 26V8M26 26V16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p><strong data-copy="film.tip3.title">Normal pace</strong><span data-copy="film.tip3.text">6 to 8 natural steps. Keep head and feet visible, leave space at frame edges, and trim each clip to 5 to 12 seconds. Avoid a treadmill if possible.</span></p></div>
+        <div><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M4 26h26M8 26V12M17 26V8M26 26V16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p><strong data-copy="film.tip3.title">Normal pace</strong><span data-copy="film.tip3.text">6 to 8 natural steps. Keep head and feet visible and leave space at frame edges. About 5 to 12 seconds is ideal. If a clip runs longer, I’ll find the walking part. Avoid a treadmill if possible.</span></p></div>
       </div>
       <p class="desk" id="deskNote" hidden data-copy="film.desktop">On a computer? Open this page on your phone to record right here, or upload clips you've already filmed.</p>
       <div class="slots">
@@ -604,7 +604,7 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
           <div class="pic" id="pic-front"><svg viewBox="0 0 160 90" aria-hidden="true"><circle cx="80" cy="22" r="7" fill="currentColor"/><path d="M80 30v24M80 54l-7 20M80 54l7 20M80 36l-11 12M80 36l11 12" stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M120 30v34m-8-10l8 10 8-10M40 30v34m-8-10l8 10 8-10" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>
           <video id="prev-front" muted playsinline controls hidden></video>
           <span class="v">Front</span>
-          <span class="hint">Start far back and walk straight toward the camera.</span>
+          <span class="hint">Start far back and walk straight toward the camera. Stop about 6 feet away.</span>
           <div class="slot-btns">
             <label class="btn small" id="rec-front-l">Record<input type="file" id="r-front" aria-label="Record front-view video" accept="video/*" capture="environment"></label>
             <label class="btn line small">Upload<input type="file" id="f-front" aria-label="Upload front-view video" accept="video/*"></label>
@@ -615,7 +615,7 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
           <div class="pic" id="pic-back"><svg viewBox="0 0 160 90" aria-hidden="true"><circle cx="80" cy="22" r="7" fill="currentColor"/><path d="M80 30v24M80 54l-7 20M80 54l7 20M80 36l-11 12M80 36l11 12" stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M120 64V30m-8 10l8-10 8 10M40 64V30m-8 10l8-10 8 10" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".55"/></svg></div>
           <video id="prev-back" muted playsinline controls hidden></video>
           <span class="v">Back</span>
-          <span class="hint">Start near the camera and walk straight away from it.</span>
+          <span class="hint">Start about 6 feet in front of the camera and walk straight away from it.</span>
           <div class="slot-btns">
             <label class="btn small" id="rec-back-l">Record<input type="file" id="r-back" aria-label="Record back-view video" accept="video/*" capture="environment"></label>
             <label class="btn line small">Upload<input type="file" id="f-back" aria-label="Upload back-view video" accept="video/*"></label>
@@ -728,18 +728,67 @@ const median = a => pct(a, .5);
 const mean = a => { const s = a.filter(Number.isFinite); return s.length ? s.reduce((x, y) => x + y, 0) / s.length : NaN; };
 const smooth = (a, k = 2) => a.map((_, i) => mean(a.slice(Math.max(0, i - k), i + k + 1)));
 const vis = (f, idx, th) => idx.every(i => f.lm?.[i] && Number.isFinite(f.lm[i].x) && Number.isFinite(f.lm[i].y) && (f.lm[i].v ?? 0) >= th);
+/* Tracking quality. A real phone clip often starts and ends with the walker out of frame, standing,
+   or too close, so instead of requiring the whole clip to be clean, use the longest continuous stretch of
+   clear walking. Rejects only when no stretch is long enough, and says what was wrong. */
+const LOWER = [23, 24, 25, 26, 27, 28];
+const hipMid = f => mid(f.lm[23], f.lm[24]);
+const share = (A, idx, th) => A.length ? A.filter(f => vis(f, idx, th)).length / A.length : 0;
+function whyUnclear(all) {
+  if (all.length < 10) return 'noPerson';
+  const hips = share(all, [23, 24], .5), knees = share(all, [25, 26], .35), ankles = share(all, [27, 28], .35);
+  if (hips >= .5 && knees >= .5 && ankles < .5) return 'feet';
+  if (hips >= .5 && knees < .5) return 'knees';
+  return 'visibility';
+}
+function trimStill(run) {
+  // Drop standing time at the start and end of a stretch: keep from the first to the last moment the feet move relative to each other.
+  if (run.length < 10) return run;
+  const leg = median(run.map(legOf)) || 1;
+  const dx = run.map(f => (f.lm[27].x - f.lm[28].x) / leg), dy = run.map(f => (f.lm[27].y - f.lm[28].y) / leg);
+  const act = run.map((f, i) => {
+    let lo = i, hi = i; while (lo > 0 && f.t - run[lo - 1].t <= .5) lo--; while (hi < run.length - 1 && run[hi + 1].t - f.t <= .5) hi++;
+    const sx = dx.slice(lo, hi + 1), sy = dy.slice(lo, hi + 1);
+    return Math.max(Math.max(...sx) - Math.min(...sx), Math.max(...sy) - Math.min(...sy));
+  });
+  const on = act.map(a => a >= .12);
+  const first = on.indexOf(true), last = on.lastIndexOf(true);
+  if (first < 0) return run;
+  return run.filter(f => f.t >= run[first].t - .3 && f.t <= run[last].t + .3);
+}
 function trackingQuality(frames) {
- const F=frames.filter(f=>vis(f,[23,24,25,26,27,28],.35));
- if(F.length<30) return {error:true,reason:'visibility'};
- if(F.length<frames.length*.65 || F[F.length-1].t-F[0].t<2.5) return {error:true,reason:'coverage'};
- const legs=F.map(f=>(dist(f.lm[23],f.lm[27])+dist(f.lm[24],f.lm[28]))/2);
- if(median(legs)<25) return {error:true,reason:'distance'};
- for(let i=1;i<F.length;i++) {
-  if(F[i].t-F[i-1].t>.5) return {error:true,reason:'coverage'};
-  const travel=dist(mid(F[i].lm[23],F[i].lm[24]),mid(F[i-1].lm[23],F[i-1].lm[24]));
-  if(travel>median(legs)*.45) return {error:true,reason:'identity'};
- }
- return {F};
+  const all = frames.filter(f => f && f.lm);
+  const U = all.filter(f => vis(f, LOWER, .35));
+  if (U.length < 20) return { error: true, reason: whyUnclear(all) };
+  const leg = median(U.map(legOf));
+  if (leg < 25) return { error: true, reason: 'distance' };
+  // Split into continuous stretches at gaps over half a second or at jumps a walker could not make.
+  const lim = dt => leg * (.3 + 2.5 * dt);
+  const runs = []; let cur = [U[0]], jumps = 0;
+  for (let i = 1; i < U.length; i++) {
+    const f = U[i], p = cur[cur.length - 1], dt = f.t - p.t;
+    if (dt > .5) { runs.push(cur); cur = [f]; continue; }
+    if (dist(hipMid(f), hipMid(p)) > lim(dt)) {
+      const n = U[i + 1];
+      // One glitched frame (tracking briefly grabbed something else): skip it and keep the stretch going.
+      if (n && n.t - p.t <= .5 && dist(hipMid(n), hipMid(p)) <= lim(n.t - p.t)) continue;
+      jumps++; runs.push(cur); cur = [f]; continue;
+    }
+    cur.push(f);
+  }
+  runs.push(cur);
+  const span = r => r.length ? r[r.length - 1].t - r[0].t : 0;
+  const ok = r => r.length >= 20 && span(r) >= 2.5;
+  const longest = runs.reduce((a, b) => span(b) > span(a) ? b : a);
+  if (!ok(longest)) {
+    if (jumps && span(longest) < 2.5 && U.length >= all.length * .5) return { error: true, reason: 'identity' };
+    return { error: true, reason: U.length >= all.length * .5 ? 'coverage' : whyUnclear(all), info: { seconds: Math.round(span(longest) * 10) / 10 } };
+  }
+  // Prefer the longest stretch of actual walking; if trimming the still parts leaves too little, keep the whole stretch
+  // and let the step and motion checks decide.
+  const walking = runs.filter(ok).map(trimStill).filter(ok);
+  const best = walking.length ? walking.reduce((a, b) => span(b) > span(a) ? b : a) : longest;
+  return { F: best, win: [best[0].t, best[best.length - 1].t] };
 }
 const LM = { sh: [11, 12], wr: [15, 16], hip: [23, 24], knee: [25, 26], ank: [27, 28], heel: [29, 30], toe: [31, 32] };
 /* Camera-independent helpers. Clips may come from a propped phone (person crosses the frame) or a
@@ -785,7 +834,11 @@ function analyzeSide(frames) {
     if(e.lead===last.lead){if(Math.abs(sep[e.i])>Math.abs(sep[last.i]))steps[steps.length-1]=e;continue;}
     if(F[e.i].t-F[last.i].t>=.25)steps.push(e);
   }
-  if (steps.length < 4 || !Number.isFinite(legLen) || legLen <= 0) return { error: true, reason:'steps' };
+  if (steps.length < 4 || !Number.isFinite(legLen) || legLen <= 0) {
+    // A front or back clip in a side slot shows both hips square on; say so instead of asking for more steps.
+    const square = median(F.map(f => Math.abs(f.lm[23].x - f.lm[24].x) / legOf(f)));
+    return { error: true, reason: square >= .2 ? 'sideLooksFrontal' : 'steps' };
+  }
   const out = { overstride: [], heel: [], hipExt: [], rocker: [], stepL: [[], []] };
   steps.forEach((e, k) => {
     const f = F[e.i], l = e.lead, t = 1 - l;
@@ -818,7 +871,7 @@ function analyzeSide(frames) {
   const stepAsym = Math.abs(a - b) / ((a + b) / 2);
   const worst = steps.reduce((best, e, k) => (out.overstride[k] > (best?.v ?? -9) ? { v: out.overstride[k], t: F[e.i].t } : best), null);
   return {
-    usableFrames:F.length, dirSource, steps: steps.length, cadence, trunk, armRange, stepAsym: steps.length >= 4 ? stepAsym : NaN,
+    usableFrames:F.length, win:quality.win, dirSource, steps: steps.length, cadence, trunk, armRange, stepAsym: steps.length >= 4 ? stepAsym : NaN,
     overstride: median(out.overstride), heelAngle: median(out.heel), hipExt: median(out.hipExt), ankleRocker: median(out.rocker),
     snapT: worst ? worst.t : F[Math.floor(F.length / 2)].t
   };
@@ -866,7 +919,7 @@ function analyzeFrontal(frames) {
     })));
   }
   const worstI = tiltRel.reduce((bi, x, i) => Math.abs(x) > Math.abs(tiltRel[bi]) ? i : bi, 0);
-  return { usableFrames:F.length, dropL, dropR, kneeL: knee[0], kneeR: knee[1], stepW, sway, shDiff: shTilt - m, armAsym, toeOutL: toeOut[0], toeOutR: toeOut[1], snapT: F[worstI].t };
+  return { usableFrames:F.length, win:quality.win, dropL, dropR, kneeL: knee[0], kneeR: knee[1], stepW, sway, shDiff: shTilt - m, armAsym, toeOutL: toeOut[0], toeOutR: toeOut[1], snapT: F[worstI].t };
 }
 
 function avgFinite(vals){ const s=vals.filter(Number.isFinite); return s.length? s.reduce((a,b)=>a+b,0)/s.length : NaN; }
@@ -1224,7 +1277,32 @@ function walkObservations(M){
   s, area:r.area, why:'These image-based estimates can suggest a comfortable cue to try, but cannot establish the cause of a movement pattern, pain, or injury. Compare the cue with how you feel; do not force a different gait.'
  }));
 }
-function showRefilm({failed=[], reason='tracking', details={}}={}) {
+function failText(k, reason, info) {
+ const frontBack = k === 'front' || k === 'back';
+ const secs = info && Number.isFinite(info.seconds) && info.seconds > 0 ? `I could only follow you clearly for about ${info.seconds < 1 ? 'less than a second' : Math.round(info.seconds) + (Math.round(info.seconds) === 1 ? ' second' : ' seconds')} in a row. ` : '';
+ const M = {
+  noPerson: 'I couldn’t find a person in this clip. Check that it’s the right video and that you are in the frame while you walk.',
+  feet: frontBack
+   ? 'Your feet were cut off or hidden for most of the clip. Leave floor showing below your feet the whole time. Start farther away and stop walking before you are closer than about 6 feet to the phone.'
+   : 'Your feet were cut off or hidden for most of the clip. Set the phone a little farther back so there is floor showing below your feet the whole time.',
+  knees: 'Your knees and lower legs were hard to see. Wear shorts so your knees, shins, and ankles are showing, and film in brighter light.',
+  visibility: 'I couldn’t see your hips, knees, and ankles clearly enough. Film in brighter light with your whole body in frame, head to feet.',
+  coverage: secs + 'I need at least 3 seconds of steady walking with your whole body in frame. Keep head to feet in view the whole way, and keep the phone still or turning smoothly.',
+  distance: 'You were too small in the picture to measure. Move the phone closer so you fill more of the frame, with your head and feet still showing.',
+  identity: 'Tracking kept jumping. Film one person only, with no cuts. If someone is filming, ask them to turn smoothly instead of swinging the phone.',
+  steps: 'I found fewer than four clear steps. Walk past the camera with your side to it for 6 to 8 natural steps. Start walking a few steps before you reach the frame so you are already at your normal pace.',
+  sideLooksFrontal: 'This looks like a front or back clip. For the side views, walk across the camera’s view with your side facing the lens.',
+  motion: 'I couldn’t see enough walking in this clip. Walk toward or away from the camera for 6 to 8 natural steps. Standing still or stepping in place can’t be measured.',
+  view: 'I couldn’t see your hips square on. For front and back, walk straight toward or away from the camera, facing it.',
+  decode: 'This video couldn’t be opened in this browser. Try again in Safari or Chrome on the phone that filmed it. On a computer, save it as an MP4 first, or set your iPhone camera format to Most Compatible.',
+  seek: 'This video couldn’t be read frame by frame. Trim it to just the walk in your phone’s Photos app, or save it as an MP4, then upload it again.',
+  short: 'This clip is too short. Film about 5 to 12 seconds of walking.',
+  slow: 'This device took too long to track the clip. Trim it to just the walking part, about 5 to 12 seconds, and try again, or use a newer phone or a computer.',
+  tracking: 'Tracking was interrupted. Try again in the latest Chrome or Safari. If it keeps happening, trim the clip to just the walk.'
+ };
+ return M[reason] || 'Use a continuous, well lit, full body clip with only you in frame.';
+}
+function showRefilm({failed=[], reason='tracking', details={}, info={}}={}) {
  const panel=$('refilm'); if(!panel) return;
  panel.hidden=false;
  const labels=failed.map(k=>VIEW_LABEL[k]||k); const viewTxt = labels.length===1 ? `your ${labels[0]}` : labels.length ? `your ${labels.slice(0,-1).join(', ')} and ${labels.slice(-1)[0]}` : 'your walk video';
@@ -1239,7 +1317,7 @@ function showRefilm({failed=[], reason='tracking', details={}}={}) {
   <h2>I couldn’t get a clear read on ${esc(viewTxt)}.</h2>
   <p>Your report is built from <b>your</b> walk. Without usable tracking I won’t guess, and I won’t move you to foot checks yet.</p>
   <p><b>What likely went wrong:</b> ${why}</p>
-  ${Object.keys(details).length?'<ul class="view-failures">'+failed.map(k=>'<li><b>'+esc(VIEW_LABEL[k])+':</b> '+esc(({visibility:'Hips, knees, or ankles were not clearly visible for enough frames. Show your whole body in brighter light.',coverage:'Tracking was interrupted or too brief. Keep walking in frame for 5 to 12 seconds with no cuts.',distance:'Your legs were too small in the image. Move the phone closer while keeping head and feet visible.',identity:'Tracking jumped between positions. Film one person only, with no cuts. If someone is filming, ask them to turn smoothly instead of swinging the phone.',steps:'Fewer than four clear alternating step events were found. Walk 6 to 8 natural steps past the camera, with your side facing the lens and your feet in frame the whole time.',motion:'Too little alternating foot movement was visible. Walk toward or away from the camera for 6 to 8 natural steps; do not stand still.',view:'I couldn’t see your hips square on. For front and back, walk straight toward or away from the camera, facing it.',decode:'This file could not be decoded. Export a short MP4 (H.264), then upload it again.',tracking:'Tracking was interrupted. Try a short MP4, clear light, and the latest Chrome or Safari.'})[details[k]]||'Use a continuous, well-lit full-body clip with only you in frame.')+'</li>').join('')+'</ul>':''}
+  ${Object.keys(details).length?'<ul class="view-failures">'+failed.map(k=>'<li><b>'+esc(VIEW_LABEL[k])+':</b> '+esc(failText(k,details[k],info[k]))+'</li>').join('')+'</ul>':''}
   <ul class="refilm-tips">
     <li>Prop the phone sideways at about hip height, 10 to 12 feet away, on a hard floor. Or have someone hold it there for you.</li>
     <li>If someone is filming, they stay in one spot and turn slowly to follow you. No zooming, no walking alongside, no quick swings.</li>
@@ -1447,28 +1525,59 @@ const seek = (v,t) => new Promise((res,rej)=>{
  if(Math.abs(v.currentTime-t)<.002 && v.readyState>=2){res();return;}
  const clean=()=>{clearTimeout(timer);v.removeEventListener('seeked',done);v.removeEventListener('error',fail);};
  const done=()=>{clean();res();},fail=()=>{clean();rej(new Error('Video seek failed; export a short MP4'));};
- const timer=setTimeout(fail,3000);v.addEventListener('seeked',done);v.addEventListener('error',fail);
+ const timer=setTimeout(fail,8000);v.addEventListener('seeked',done);v.addEventListener('error',fail);
  try{v.currentTime=t;}catch(e){clean();rej(e);}
 });
 
+const once = (v, ev, ms) => new Promise(res => { const t = setTimeout(() => { v.removeEventListener(ev, h); res(false); }, ms); const h = () => { clearTimeout(t); v.removeEventListener(ev, h); res(true); }; v.addEventListener(ev, h); });
+const FINE = 1 / 15, WIN = 12;
 async function trackClip(file, onProg) {
   const url = URL.createObjectURL(file);
   const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
   try {
-  await timeout(new Promise((res, rej) => { v.onloadeddata = res; v.onerror = () => rej(new Error('decode')); }), 12000, 'Video could not be opened');
-  const dur = Math.min(v.duration || 0, 12); if (!Number.isFinite(dur) || dur < 1 || !v.videoWidth) throw new Error('Use a 5 to 12 second video');
+  // Wait for metadata, not loadeddata: iPhone Safari may hold back frame data until the first seek or play.
+  await timeout(new Promise((res, rej) => { v.onloadedmetadata = res; v.onloadeddata = res; v.onerror = () => rej(new Error('decode')); if (v.readyState >= 1) res(); }), 15000, 'Video could not be opened');
+  if (!v.videoWidth) { await once(v, 'loadeddata', 4000); }
+  if (!v.videoWidth) throw new Error('decode');
+  let full = v.duration;
+  if (!Number.isFinite(full)) { try { v.currentTime = 1e7; await once(v, 'seeked', 4000); } catch (_) {} full = Number.isFinite(v.duration) ? v.duration : v.currentTime; }
+  if (!Number.isFinite(full) || full < 1) throw new Error('Use a 5 to 12 second video');
   const s = Math.min(1, 640 / Math.max(v.videoWidth,v.videoHeight)), W = Math.round(v.videoWidth * s), H = Math.round(v.videoHeight * s);
   const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d');
-  const frames = []; await pose.reset();
-  const started=performance.now();
-  for (let t = .05; t < dur; t += 1 / 15) {
-    if(performance.now()-started>90000)throw new Error('Tracking took too long; use a shorter MP4');
-    await seek(v, t); ctx.drawImage(v, 0, 0, W, H);
-    const r = await detect(c);
-    if (r.poseLandmarks) frames.push({ t, lm: r.poseLandmarks.map(p => ({ x: p.x * W, y: p.y * H, v: p.visibility })), wl: r.poseWorldLandmarks });
-    onProg(t / dur);
+  const started = performance.now();
+  let seekFails = 0;
+  const grab = async t => { try { await seek(v, t); } catch (e) { if (++seekFails > 12) throw e; return null; } ctx.drawImage(v, 0, 0, W, H); const r = await detect(c); return r.poseLandmarks ? { t, lm: r.poseLandmarks.map(p => ({ x: p.x * W, y: p.y * H, v: p.visibility })), wl: r.poseWorldLandmarks } : null; };
+  // Longer, untrimmed clip: a quick pass first to find where the walking is, then track that part closely.
+  let t0 = 0, t1 = Math.min(full, WIN + .5), scanShare = 0;
+  if (full > WIN + 1.5) {
+    scanShare = .25; const span = Math.min(full, 90), step = Math.max(.5, span / 60), scan = [];
+    await pose.reset();
+    for (let t = .05; t < span; t += step) {
+      const f = await grab(t);
+      const leg = f ? legOf(f) : 0;
+      scan.push({ t, good: f && vis(f, LOWER, .35) && leg >= 25 ? 1 : 0 });
+      onProg(scanShare * t / span);
+    }
+    let bestScore = -1;
+    for (const a of scan) {
+      if (a.t > span - WIN && bestScore >= 0) break;
+      const score = scan.filter(b => b.t >= a.t && b.t < a.t + WIN).reduce((x, b) => x + b.good, 0);
+      if (score > bestScore) { bestScore = score; t0 = Math.max(0, a.t - step); }
+    }
+    t0 = Math.min(t0, Math.max(0, full - WIN)); t1 = Math.min(full, t0 + WIN + .5);
   }
-  return { frames, v, url, c, ctx, W, H };
+  const frames = []; await pose.reset();
+  let dt = FINE, slow = false, n = 0; const fineStart = performance.now();
+  for (let t = t0 + .05; t < t1; t += dt) {
+    const f = await grab(t); n++;
+    if (f) frames.push(f);
+    // A slower phone: sample 10 times a second instead of 15 so tracking still finishes.
+    if (n === 10 && dt === FINE && (performance.now() - fineStart) / n > 350) dt = .1;
+    // Out of time: stop and use what was tracked rather than throwing the clip away.
+    if (performance.now() - started > 150000) { slow = true; break; }
+    onProg(scanShare + (1 - scanShare) * (t - t0) / (t1 - t0));
+  }
+  return { frames, v, url, c, ctx, W, H, window: { t0, t1, full, slow } };
   }catch(e){v.removeAttribute('src');v.load();URL.revokeObjectURL(url);throw e;}
 }
 function releaseClip(clip){if(!clip)return;clip.v.removeAttribute('src');clip.v.load();URL.revokeObjectURL(clip.url);}
@@ -1519,7 +1628,7 @@ $('run').addEventListener('click', async () => {
   trackBar.hidden=false; $('liveBar').style.width='0'; $('liveProc').textContent='Starting…';
   window.scrollTo({ top: 0 });
   const keys = VIEW_KEYS.slice();
-  const res = {}, snaps = [], failed = [], decodeFail=[], details={};
+  const res = {}, snaps = [], failed = [], decodeFail=[], details={}, info={};
   for (let n = 0; n < keys.length; n++) {
     const k = keys[n];
     $('liveProc').textContent = `Tracking your ${VIEW_LABEL[k]} (${n + 1} of ${keys.length})…`;
@@ -1530,19 +1639,21 @@ $('run').addEventListener('click', async () => {
       if(generation!==analysisRun){releaseClip(clip);isAnalyzing=false;updateRun();return;}
       const a = (k==='left'||k==='right') ? analyzeSide(clip.frames) : analyzeFrontal(clip.frames);
       res[k] = a;
-      if (a.error) {failed.push(k);details[k]=a.reason||'tracking';}
+      if (a.error) {failed.push(k);details[k]=(clip.window&&clip.window.slow&&['coverage','steps','motion'].includes(a.reason))?'slow':(a.reason||'tracking');if(a.info)info[k]=a.info;}
       else snaps.push({ src: await snapshot(clip, a.snapT), label: VIEW_LABEL[k][0].toUpperCase()+VIEW_LABEL[k].slice(1) });
       releaseClip(clip);clip=null;
     } catch (err) {
       releaseClip(clip); res[k] = { error: true }; failed.push(k); details[k]='tracking';
       if(String(err&&err.message||err).toLowerCase().includes('decode') || String(err&&err.message||err).includes('Video could not')) {decodeFail.push(k);details[k]='decode';}
+      else if(String(err&&err.message||err).includes('seek')) {decodeFail.push(k);details[k]='seek';}
+      else if(String(err&&err.message||err).includes('5 to 12')) {details[k]='short';}
     }
   }
   isAnalyzing=false; updateRun(); if(generation!==analysisRun)return; $('liveBar').style.width = '100%';
   // All four must succeed; any failure stays on Film with a refilm message.
   if (failed.length) {
     $('liveProc').textContent = 'One or more views need a clearer clip. See how to refilm below.';
-    showRefilm({failed, reason: decodeFail.length===failed.length?'decode':'tracking',details});
+    showRefilm({failed, reason: decodeFail.length===failed.length?'decode':'tracking',details,info});
     tracked=null; return;
   }
   const M = combine(res);
