@@ -376,6 +376,8 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
 .track,.live-track{background:var(--navy-t)!important;color:var(--navy)!important}
 .track .status,.live-track .status{color:var(--navy)!important}
 .live-track{border-radius:var(--r)}
+.clip-preview{position:fixed;right:12px;bottom:12px;z-index:60;width:116px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px;box-shadow:0 4px 14px rgba(15,53,74,.14);display:grid;gap:4px;font-size:.66rem;color:#5C6A70;text-align:center}.clip-preview video{width:100%;max-height:150px;display:block;border-radius:4px;background:#E8E2D8;object-fit:contain}.clip-preview[hidden]{display:none}
+.tech-details{font-size:.72rem;color:#5C6A70}.tech-details summary{cursor:pointer}.tech-details pre{white-space:pre-wrap;word-break:break-word;font-size:.68rem;max-height:220px;overflow:auto}
 .progress{height:6px;background:var(--navy-t2)}
 .progress i{background:var(--teal)}
 /* ===== FOOT CHECKS ===== */
@@ -760,7 +762,7 @@ function trimStill(run) {
    spacing relative to each other mean walking. This works from the front, back, or side, and with a phone that turns
    to follow, because it never relies on where the body sits in the frame. Standing, swaying, or a shaky phone keeps
    the spacing nearly fixed. */
-const SCAN_LOOKS = [0, .2, .4], WALK_ACT = .06;
+const SCAN_LOOKS = [0, .2, .4], PLAY_LOOKS = [0, .2, .4, .6, .8], WALK_ACT = .06;
 const scanOk = f => !!f && vis(f, LOWER, .35) && legOf(f) >= 25;
 function footAct(G) {
   if (!G.every(scanOk)) return -1;
@@ -1327,14 +1329,14 @@ function failText(k, reason, info) {
   motion: 'I couldn’t see enough walking in this clip. Walk toward or away from the camera for 6 to 8 natural steps. Standing still or stepping in place can’t be measured.',
   view: 'I couldn’t see your hips square on. For front and back, walk straight toward or away from the camera, facing it.',
   decode: 'This video couldn’t be opened in this browser. Try again in Safari or Chrome on the phone that filmed it. On a computer, save it as an MP4 first, or set your iPhone camera format to Most Compatible.',
-  seek: 'This video couldn’t be read frame by frame. Save it as an MP4, or record it again with your phone’s camera app, then upload it again.',
+  seek: 'I couldn’t read this video frame by frame on this device. Try again in the latest Safari or Chrome. If it happens again, set your iPhone camera to Most Compatible (Settings, then Camera, then Formats) and film it again.',
   short: 'This clip is too short. Keep recording while you take 6 to 8 natural steps.',
   slow: 'This device took too long to track the clip. Try a shorter recording: start recording just before you walk and stop once you’ve taken 6 to 8 steps. Or use a newer phone or a computer.',
   tracking: 'Tracking was interrupted. Try again in the latest Chrome or Safari. If it keeps happening, record a new clip that starts just before you walk.'
  };
  return M[reason] || 'Use a continuous, well lit, full body clip with only you in frame.';
 }
-function showRefilm({failed=[], reason='tracking', details={}, info={}}={}) {
+function showRefilm({failed=[], reason='tracking', details={}, info={}, diag=null}={}) {
  const panel=$('refilm'); if(!panel) return;
  panel.hidden=false;
  const labels=failed.map(k=>VIEW_LABEL[k]||k); const viewTxt = labels.length===1 ? `your ${labels[0]}` : labels.length ? `your ${labels.slice(0,-1).join(', ')} and ${labels.slice(-1)[0]}` : 'your walk video';
@@ -1359,7 +1361,8 @@ function showRefilm({failed=[], reason='tracking', details={}, info={}}={}) {
     <li>For the full check, all four views must track: front, back, left side, and right side.</li>
   </ul>
   <p class="fine">Replace the clip${failed.length===1?'':''} below${failed.length?` (start with ${failed[0]})`:''}, then tap <b>Analyze my walk</b> again.</p>
-  <button class="btn" type="button" id="refilmFocus">Got it, fix my clips</button></div>`;
+  <button class="btn" type="button" id="refilmFocus">Got it, fix my clips</button>
+  ${diag&&Object.keys(diag).length?`<details class="tech-details"><summary>Details for support</summary><pre>${esc(Object.entries(diag).map(([k,d])=>k+': '+Object.entries(d||{}).map(([a,b])=>a+'='+(typeof b==='object'?JSON.stringify(b):b)).join('; ')).join('\n\n'))}</pre></details>`:''}</div>`;
  $('refilmFocus').onclick=()=>{ ($('slot-'+(failed[0]||'front'))||$('run')).scrollIntoView({block:'center',behavior:'smooth'}); };
 }
 function startFootRetest() {
@@ -1553,93 +1556,334 @@ async function detect(img) {
  try{return await timeout(new Promise((res,reject)=>{resolver=res;pose.send({image:img}).catch(reject);}),12000,'Tracking timed out');}
  catch(e){resolver=null;modelReady=false;try{await timeout(pose.close(),2000,'Model close timed out');}catch(_){} throw e;}
 }
-const seek = (v,t) => new Promise((res,rej)=>{
+const seek = (v,t,ms=5000) => new Promise((res,rej)=>{
  if(Math.abs(v.currentTime-t)<.002 && v.readyState>=2){res();return;}
  const clean=()=>{clearTimeout(timer);v.removeEventListener('seeked',done);v.removeEventListener('error',fail);};
- const done=()=>{clean();res();},fail=()=>{clean();rej(new Error('Video seek failed; export a short MP4'));};
- const timer=setTimeout(fail,8000);v.addEventListener('seeked',done);v.addEventListener('error',fail);
- try{v.currentTime=t;}catch(e){clean();rej(e);}
+ const done=()=>{clean();res();},fail=()=>{clean();rej(new Error('Video seek failed'));};
+ const timer=setTimeout(fail,ms);v.addEventListener('seeked',done);v.addEventListener('error',fail);
+ try{v.currentTime=t;}catch(e){clean();rej(new Error('Video seek failed'));}
+});
+// After a seek, wait until the new frame is actually ready to draw (a fresh seek can still show the old or a black frame).
+const frameReady = v => new Promise(res => {
+ let fin = false; const go = () => { if (!fin) { fin = true; res(); } };
+ if (typeof v.requestVideoFrameCallback === 'function') { try { v.requestVideoFrameCallback(go); } catch (_) {} setTimeout(go, 250); }
+ else requestAnimationFrame(() => requestAnimationFrame(go));
 });
 
 const once = (v, ev, ms) => new Promise(res => { const t = setTimeout(() => { v.removeEventListener(ev, h); res(false); }, ms); const h = () => { clearTimeout(t); v.removeEventListener(ev, h); res(true); }; v.addEventListener(ev, h); });
 const FINE = 1 / 15, WIN = 12;
+/* ---------- reading frames from a clip ----------
+   Main path: play the clip muted and inline, and take frames as they appear on screen (requestVideoFrameCallback where the
+   browser has it). No seeking, so iPhone clips (HEVC .mov, 4K, 60 fps, HDR) read the same way they play.
+   Backup path: step through the clip by seeking, used only if playback is refused or stalls.
+   One shared video element, started from the Analyze tap so iPhone Safari treats playback as started by the user. */
+let sharedVideo = null;
+function clipPreview() {
+  let b = document.getElementById('clipPreview');
+  if (!b) { b = document.createElement('div'); b.id = 'clipPreview'; b.className = 'clip-preview'; b.hidden = true; b.innerHTML = '<span>Watching your walk</span>'; document.body.appendChild(b); }
+  return b;
+}
+function clipVideo() {
+  let v = sharedVideo;
+  if (!v) {
+    v = sharedVideo = document.createElement('video');
+    v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = 'auto';
+    v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
+  }
+  const box = clipPreview(); if (v.parentNode !== box) box.insertBefore(v, box.firstChild);
+  box.hidden = false;
+  return v;
+}
+function hideClipPreview() { const b = document.getElementById('clipPreview'); if (b) b.hidden = true; }
+// Call synchronously inside the Analyze tap: a muted play() here unlocks this element for later playback on iOS, Low Power Mode included.
+function primeClipVideo(file) {
+  const v = clipVideo();
+  try {
+    if (file) { if (v.__primeUrl) URL.revokeObjectURL(v.__primeUrl); const u = URL.createObjectURL(file); v.__primeUrl = u; v.src = u; }
+    const p = v.play(); if (p && p.then) p.then(() => { if (v.__primeUrl && v.src === v.__primeUrl) v.pause(); }, () => {});
+  } catch (_) {}
+}
+// Which video format is inside the file (for support details only).
+async function sniffCodec(file) {
+  try {
+    const n = 524288, parts = [file.slice(0, n)]; if (file.size > n) parts.push(file.slice(Math.max(n, file.size - n)));
+    let s = ''; for (const p of parts) { const b = new Uint8Array(await p.arrayBuffer()); for (let i = 0; i < b.length; i++) s += (b[i] > 47 && b[i] < 123) ? String.fromCharCode(b[i]) : ' '; }
+    return ['hvc1', 'hev1', 'dvh1', 'dvhe', 'avc1', 'avc3', 'av01', 'vp09', 'vp08'].filter(k => s.includes(k)).join(' ') || 'unknown';
+  } catch (_) { return 'unknown'; }
+}
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 async function trackClip(file, onProg) {
-  const url = URL.createObjectURL(file);
-  const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+  const url = URL.createObjectURL(file), tStart = performance.now();
+  const v = clipVideo();
+  if (v.__primeUrl) { const u = v.__primeUrl; v.__primeUrl = null; setTimeout(() => URL.revokeObjectURL(u), 0); }
+  try { v.pause(); } catch (_) {}
+  v.onloadedmetadata = v.onloadeddata = v.onerror = null;
+  v.src = url; try { v.load(); } catch (_) {} try { v.playbackRate = 1; } catch (_) {}
+  const diag = { browser: navigator.userAgent, file: (file.name || '').split('.').pop().toLowerCase() + ' ' + (file.type || '?') + ' ' + (Math.round(file.size / 1e5) / 10) + 'MB',
+    frameCallback: typeof v.requestVideoFrameCallback === 'function', path: 'play', grabbed: 0, tracked: 0, blank: 0, seekTries: 0, seekFails: 0, stalls: 0 };
+  sniffCodec(file).then(c => { diag.codec = c; });
   try {
   // Wait for metadata, not loadeddata: iPhone Safari may hold back frame data until the first seek or play.
-  await timeout(new Promise((res, rej) => { v.onloadedmetadata = res; v.onloadeddata = res; v.onerror = () => rej(new Error('decode')); if (v.readyState >= 1) res(); }), 15000, 'Video could not be opened');
+  const meta = new Promise((res, rej) => { v.onloadedmetadata = res; v.onloadeddata = res; v.onerror = () => rej(new Error('decode')); if (v.readyState >= 1) res(); });
+  // Some phones only start loading a file once it plays.
+  const nudge = setTimeout(() => { if (v.readyState < 1) { try { const p = v.play(); if (p && p.then) p.then(() => v.pause(), () => {}); } catch (_) {} } }, 3000);
+  try { await timeout(meta, 15000, 'Video could not be opened'); } finally { clearTimeout(nudge); }
   if (!v.videoWidth) { await once(v, 'loadeddata', 4000); }
   if (!v.videoWidth) throw new Error('decode');
+  try { v.pause(); } catch (_) {}
   let full = v.duration;
-  if (!Number.isFinite(full)) { try { v.currentTime = 1e7; await once(v, 'seeked', 4000); } catch (_) {} full = Number.isFinite(v.duration) ? v.duration : v.currentTime; }
+  if (!Number.isFinite(full)) { try { v.currentTime = 1e7; await once(v, 'seeked', 4000); } catch (_) {} full = Number.isFinite(v.duration) ? v.duration : v.currentTime; try { v.currentTime = 0; await once(v, 'seeked', 3000); } catch (_) {} }
+  diag.size = v.videoWidth + 'x' + v.videoHeight; diag.seconds = Math.round(full * 10) / 10;
   if (!Number.isFinite(full) || full < 1) throw new Error('Clip too short');
   const s = Math.min(1, 640 / Math.max(v.videoWidth,v.videoHeight)), W = Math.round(v.videoWidth * s), H = Math.round(v.videoHeight * s);
   const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d');
-  const started = performance.now();
-  let seekFails = 0;
-  const grab = async t => { try { await seek(v, t); } catch (e) { if (++seekFails > 12) throw e; return null; } ctx.drawImage(v, 0, 0, W, H); const r = await detect(c); return r.poseLandmarks ? { t, lm: r.poseLandmarks.map(p => ({ x: p.x * W, y: p.y * H, v: p.visibility })), wl: r.poseWorldLandmarks } : null; };
-  // Longer, untrimmed clip: a quick pass over the whole recording (up to 3 minutes) to find where the walking starts,
-  // then track from that moment closely. No trimming needed: standing before or after the walk is skipped.
-  let t0 = 0, t1 = Math.min(full, WIN + .5), scanShare = 0, scanned = null;
-  if (full > WIN + 1.5) {
-    scanShare = .25;
-    const span = Math.min(full, 180) - .45, scanStart = performance.now(), BUDGET = 40000;
-    let step = Math.max(.6, span / 24), k = 0;
-    const look = async t => { const G = []; for (const o of SCAN_LOOKS) G.push(await grab(Math.min(full - .02, t + o))); return { t, act: footAct(G), seen: G.filter(scanOk).length }; };
-    // One warm up frame so the first look is not compared against a fresh detection.
-    await pose.reset(); await grab(.05);
-    const pts = [];
-    for (let t = .05; t < span; t += step) {
-      pts.push(await look(t)); k++;
-      onProg(scanShare * .9 * Math.min(1, t / span));
-      // A slow phone: space the looks out so the scan stays within its time budget.
-      const used = performance.now() - scanStart, per = used / k, left = Math.max(0, span - t - step);
-      if (left > 0 && used + per * left / step > BUDGET) step = Math.max(step, left / Math.max(1, (BUDGET - used) / per));
-    }
+  const tiny = document.createElement('canvas'); tiny.width = 16; tiny.height = 12; const tctx = tiny.getContext('2d', { willReadFrequently: true });
+  // A frame that is one flat color is an unready or failed frame, not a person with hidden feet. Drop it.
+  const isBlank = () => { try { tctx.drawImage(c, 0, 0, 16, 12); const d = tctx.getImageData(0, 0, 16, 12).data; let lo = 255, hi = 0; for (let i = 0; i < d.length; i += 4) { const y = (d[i] * 3 + d[i + 1] * 6 + d[i + 2]) / 10; if (y < lo) lo = y; if (y > hi) hi = y; } return hi - lo < 6; } catch (_) { return false; } };
+  const shoot = async t => {
+    ctx.drawImage(v, 0, 0, W, H); diag.grabbed++;
+    if (isBlank()) { diag.blank++; return null; }
+    const r = await detect(c); if (!r.poseLandmarks) return null; diag.tracked++;
+    return { t, lm: r.poseLandmarks.map(p => ({ x: p.x * W, y: p.y * H, v: p.visibility })), wl: r.poseWorldLandmarks };
+  };
+  const unreadable = () => diag.grabbed >= 10 && diag.blank > diag.grabbed * .6;
+  const started = performance.now(), thumbs = [];
+  const keepThumb = t => { if (!thumbs.length || t - thumbs[thumbs.length - 1].t >= .25) { try { thumbs.push({ t, src: c.toDataURL('image/jpeg', .72) }); } catch (_) {} } };
+  const seekSoft = async t => { diag.seekTries++; try { await seek(v, t, 4000); return true; } catch (_) { diag.seekFails++; return false; } };
+
+  /* Play toward b and hand frames to frame(t) whenever the media time reaches want(). While a frame is tracked the video
+     pauses if this device cannot keep up (so no frames are skipped), and it plays at 4x through stretches nobody wants.
+     Rejects with e.play if playback is refused or stalls, so the backup path can take over. */
+  const playRange = (b, opt) => new Promise((resolve, reject) => {
+    let fin = false, busy = false, stop = false, lastSeen = performance.now(), kicks = 0, handle = null, raf = null, pollT = -1;
+    const fail = m => Object.assign(new Error(m), { play: true });
+    const finish = err => {
+      if (fin) return; fin = true; clearInterval(watch);
+      try { v.pause(); } catch (_) {}
+      if (handle != null && v.cancelVideoFrameCallback) { try { v.cancelVideoFrameCallback(handle); } catch (_) {} }
+      if (raf) cancelAnimationFrame(raf);
+      v.removeEventListener('ended', onEnd); v.removeEventListener('error', onErr);
+      err ? reject(err) : resolve();
+    };
+    const setRate = () => { const r = opt.want() - v.currentTime > .8 ? 4 : opt.rate(); if (Math.abs(v.playbackRate - r) > .04) { try { v.playbackRate = r; } catch (_) {} } };
+    // AbortError only means our own pause() interrupted a pending play(); a real stall is caught by the watch below.
+    const resume = () => { try { const p = v.play(); if (p && p.catch) p.catch(e => { if (e && e.name === 'AbortError') return; finish(fail('play refused ' + (e && e.name || ''))); }); } catch (e) { finish(fail('play refused')); } };
+    const onFrame = async t => {
+      lastSeen = performance.now();
+      if (fin || busy) return;
+      if (stop || t >= b || opt.want() >= b) { finish(); return; }
+      if (t < opt.want() - .008) { setRate(); return; }
+      busy = true;
+      const hold = opt.hold(); if (hold) { try { v.pause(); } catch (_) {} }
+      try { await opt.frame(t); } catch (e) { busy = false; finish(e); return; }
+      busy = false; lastSeen = performance.now();
+      if (stop || (opt.over && opt.over()) || opt.want() >= b) { finish(); return; }
+      setRate();
+      if (hold || v.paused) { if (v.ended) { finish(); return; } resume(); }
+    };
+    const onEnd = () => { stop = true; if (!busy) finish(); };
+    const onErr = () => { const me = v.error; diag.mediaError = me ? me.code + ' ' + (me.message || '') : '?'; finish(fail('play error')); };
+    const tick = (now, m) => { if (fin) return; handle = v.requestVideoFrameCallback(tick); onFrame(m && Number.isFinite(m.mediaTime) ? m.mediaTime : v.currentTime); };
+    const poll = () => { if (fin) return; raf = requestAnimationFrame(poll); if (v.readyState >= 2 && v.currentTime !== pollT) { pollT = v.currentTime; onFrame(pollT); } };
+    // Nothing new for 4 seconds: nudge playback again, up to three times, then give up.
+    const watch = setInterval(() => {
+      if (fin || busy || performance.now() - lastSeen < 4000) return;
+      if (v.ended) { onEnd(); return; }
+      if (++kicks > 3) { finish(fail('play stalled')); return; }
+      diag.stalls++; lastSeen = performance.now(); resume();
+    }, 500);
+    v.addEventListener('ended', onEnd); v.addEventListener('error', onErr);
+    if (diag.frameCallback) handle = v.requestVideoFrameCallback(tick); else raf = requestAnimationFrame(poll);
+    setRate(); resume();
+  });
+  // Go back to time t: a seek if this browser manages it, otherwise reload the clip and let playRange fast forward.
+  const rewind = async t => {
+    if (Math.abs(v.currentTime - t) < .3) return;
+    if (await seekSoft(t)) { await frameReady(v); if (Math.abs(v.currentTime - t) < .5) return; }
+    diag.reloads = (diag.reloads || 0) + 1;
+    v.load(); await once(v, 'loadedmetadata', 8000);
+  };
+
+  // Choosing where the walk is, shared by both paths. pts: {t, act, seen} in time order.
+  const chooseWindow = (pts, step) => {
+    let t0 = 0, t1;
     const walk = pickWalk(pts, step, WIN);
-    scanned = { step, pts: pts.map(p => [Math.round(p.t * 100) / 100, Math.round(p.act * 100) / 100]), walk };
-    if (walk) {
-      // Narrow down the moment walking begins, between the last still look and the first walking look.
-      let lo = walk.before, hi = walk.a;
-      while (lo != null && hi - lo > .5 && performance.now() - scanStart < BUDGET + 8000) {
-        const m = (lo + hi) / 2, p = await look(m);
-        if (p.act >= WALK_ACT) hi = m; else lo = m;
-      }
-      t0 = Math.max(0, hi - .4);
-      // End at the first still look after the walk. With widely spaced looks a single still look may just be feet passing, so keep going.
-      const end = walk.after != null && step <= 1.7 ? walk.after + .5 : full;
-      t1 = Math.min(full, t0 + WIN + .5, Math.max(end, t0 + 4));
-    } else {
-      // No clear walking found: fall back to the stretch where the legs are most clearly in view.
-      let bestScore = -1;
-      for (const a of pts) {
-        const score = pts.filter(b => b.t >= a.t && b.t < a.t + WIN).reduce((x, b) => x + b.seen, 0);
-        if (score > bestScore) { bestScore = score; t0 = Math.max(0, a.t - step / 2); }
-      }
-      t0 = Math.min(t0, Math.max(0, full - WIN)); t1 = Math.min(full, t0 + WIN + .5);
+    if (walk) return { walk, t0: Math.max(0, walk.a - .4) };
+    let bestScore = -1;
+    for (const a of pts) {
+      const score = pts.filter(b => b.t >= a.t && b.t < a.t + WIN).reduce((x, b) => x + b.seen, 0);
+      if (score > bestScore) { bestScore = score; t0 = Math.max(0, a.t - step / 2); }
     }
-    onProg(scanShare);
+    t0 = Math.min(t0, Math.max(0, full - WIN)); t1 = Math.min(full, t0 + WIN + .5);
+    return { walk: null, t0, t1 };
+  };
+  const endFor = (w, t0, step) => { const end = w.after != null && step <= 1.7 ? w.after + .5 : full; return Math.min(full, t0 + WIN + .5, Math.max(end, t0 + 4)); };
+  const longClip = full > WIN + 1.5, scanShare = longClip ? .25 : 0;
+  // Speed for wanted stretches: as fast as this device tracks, so frames are not skipped (ms: time per tracked frame).
+  const paced = (ms, gap) => ms == null ? 1 : clamp(gap / (ms / 1000), .5, 2);
+
+  // ----- main path: playback -----
+  const viaPlay = async () => {
+    let t0 = 0, t1 = Math.min(full, WIN + .5), scanned = null, walk = null, step = 0, refine = false;
+    if (longClip) {
+      // Quick looks over the whole recording (up to 3 minutes): five frames 0.2 seconds apart at each look (about one full step,
+      // cheap while the clip is playing anyway), playing at 4x in between.
+      const span = Math.min(full, 180) - .45, BUDGET = 40000, pts = [], base = Math.max(.6, span / 24);
+      step = base;
+      let G = [], lookAt = .05, ms = null, k = 0, warm = false, scanStart = performance.now(), stepMax = base;
+      await pose.reset(); await rewind(0);
+      await playRange(span + .45, {
+        want: () => !warm ? 0 : G.length ? G[0].t + PLAY_LOOKS[G.length] : lookAt,
+        rate: () => 1, hold: () => true,
+        frame: async t => {
+          // One warm up frame so the first look is not compared against a fresh detection (and its slow start does not count).
+          if (!warm) { await shoot(t); warm = true; scanStart = performance.now(); return; }
+          const s0 = performance.now(); G.push({ t, f: await shoot(t) }); const took = performance.now() - s0; ms = ms == null ? took : ms * .7 + took * .3;
+          if (G.length < PLAY_LOOKS.length) return;
+          const F = G.map(x => x.f); pts.push({ t: G[0].t, act: footAct(F), seen: F.filter(scanOk).length }); G = []; k++;
+          onProg(scanShare * .9 * Math.min(1, lookAt / span));
+          // A slow phone: space the looks out so the scan stays within its time budget.
+          const used = performance.now() - scanStart, per = used / k, left = Math.max(0, span - lookAt - step);
+          step = left > 0 && used + per * left / base > BUDGET ? Math.max(base, left / Math.max(1, (BUDGET - used) / per)) : base;
+          if (step > stepMax) stepMax = step; lookAt += step; if (lookAt >= span) lookAt = 1e9;
+        },
+        over: () => performance.now() - scanStart > 90000
+      });
+      if (unreadable()) throw new Error('Video frames unreadable (seek)');
+      if (pts.length < 3) throw Object.assign(new Error('play scan too sparse'), { play: true });
+      step = stepMax; const ch = chooseWindow(pts, step); walk = ch.walk;
+      // Looks close together: start just before the first walking look (as precise as the seek path's search).
+      // Looks far apart (long clip): start at the last still look and let the close pass find the first step.
+      if (walk && walk.before != null && walk.a - walk.before > 1.5) { refine = true; t0 = walk.before; t1 = Math.min(full, t0 + WIN + .5 + (walk.a - t0)); }
+      else if (walk) { t0 = Math.max(0, walk.before != null ? walk.before : walk.a - .4, walk.a - .9); t1 = endFor(walk, t0, step); }
+      else { t0 = ch.t0; t1 = ch.t1; }
+      scanned = { step, pts: pts.map(p => [Math.round(p.t * 100) / 100, Math.round(p.act * 100) / 100]), walk };
+      onProg(scanShare);
+    }
+    // Close pass at 15 frames a second (10 on a slow phone). When the walk was found, this pass starts at the last still
+    // look and pins down the first real step from its own frames, then keeps the window from just before that step.
+    const frames = []; let slow = false, slowDev = false, hold = true, ms = null, last = null, onset = refine ? null : t0, gapAvg = null, rate = null;
+    const gap = () => slowDev ? .1 : FINE;
+    const findOnset = () => {
+      for (let i = 0; i < frames.length; i++) {
+        const a = frames[i], G = [a];
+        for (const o of [.2, .4]) { const b = frames.reduce((x, y) => Math.abs(y.t - a.t - o) < Math.abs(x.t - a.t - o) ? y : x, a); if (Math.abs(b.t - a.t - o) > .08) return null; G.push(b); }
+        if (footAct(G) >= WALK_ACT) return a.t;
+      }
+      return null;
+    };
+    await pose.reset(); await rewind(t0);
+    const fineStart = performance.now(); let n = 0;
+    await playRange(t1, {
+      want: () => last == null ? t0 + .05 : last + gap() * .9,
+      rate: () => rate == null ? paced(ms, gap()) : rate, hold: () => hold,
+      frame: async t => {
+        // Frames landing too far apart: pause while tracking, and slow playback until they land on time (decoding may lag on a busy phone).
+        if (last != null) {
+          const g = t - last; gapAvg = gapAvg == null ? g : gapAvg * .7 + g * .3; if (gapAvg > gap() * 1.5 && n > 12) hold = true;
+          if (rate == null) rate = paced(ms, gap());
+          if (g > gap() * 1.4) rate = Math.max(.3, rate * .8); else if (g < gap() * 1.15) rate = Math.min(hold ? 1 : 2, rate * 1.08);
+        }
+        last = t; n++;
+        const s0 = performance.now(), f = await shoot(t), took = performance.now() - s0; ms = ms == null ? took : ms * .7 + took * .3;
+        // A slower phone (tracking itself over 350 ms a frame, not counting playback): sample 10 times a second instead of 15.
+        if (n === 10 && !slowDev && ms > 350) slowDev = true;
+        // Start paused per frame (the first tracked frame is slow); a fast phone then plays straight through.
+        if (n === 8 && hold && ms < gap() * 600) { hold = false; gapAvg = null; }
+        if (f) { frames.push(f); keepThumb(t); }
+        if (onset == null && refine) {
+          const o = (t >= walk.a + .6) ? (findOnset() ?? walk.a) : (t >= walk.before + .6 ? findOnset() : null);
+          if (o != null) { onset = o; const s = Math.max(0, o - .4); t1 = endFor(walk, s, step); while (frames.length && frames[0].t < s) frames.shift(); }
+        }
+        const from = onset != null ? Math.max(0, onset - .4) : t0;
+        onProg(scanShare + (1 - scanShare) * clamp((t - from) / Math.max(.1, t1 - from), 0, 1));
+      },
+      // Out of time: stop and use what was tracked rather than throwing the clip away.
+      over: () => { if (last != null && last >= t1) return true; if (performance.now() - started > 150000) { slow = true; return true; } return false; }
+    });
+    if (unreadable()) throw new Error('Video frames unreadable (seek)');
+    if (n < 8 && t1 - t0 >= 3) throw Object.assign(new Error('play pass too sparse'), { play: true });
+    if (refine && onset != null) t0 = Math.max(0, onset - .4);
+    diag.hold = hold; diag.rate = rate == null ? null : Math.round(rate * 100) / 100; diag.fps = frames.length > 1 ? Math.round((frames.length - 1) / (frames[frames.length - 1].t - frames[0].t) * 10) / 10 : 0;
+    return { frames, window: { t0, t1, full, slow, scanned } };
+  };
+
+  // ----- backup path: seeking -----
+  const viaSeek = async () => {
+    let fails = 0, tries = 0, inRow = 0;
+    const grab = async t => {
+      tries++; diag.seekTries++;
+      try { await seek(v, t); await frameReady(v); inRow = 0; }
+      catch (e) { fails++; diag.seekFails++; inRow++; if ((inRow >= 6 && fails === tries) || (fails > 12 && fails > tries * .5)) throw new Error('Video seek failed'); return null; }
+      return shoot(t);
+    };
+    let t0 = 0, t1 = Math.min(full, WIN + .5), scanned = null;
+    if (longClip) {
+      const span = Math.min(full, 180) - .45, scanStart = performance.now(), BUDGET = 40000;
+      let step = Math.max(.6, span / 16), k = 0;
+      const look = async t => { const G = []; for (const o of SCAN_LOOKS) G.push(await grab(Math.min(full - .02, t + o))); return { t, act: footAct(G), seen: G.filter(scanOk).length }; };
+      await pose.reset(); await grab(.05);
+      const pts = [];
+      for (let t = .05; t < span; t += step) {
+        pts.push(await look(t)); k++;
+        onProg(scanShare * .9 * Math.min(1, t / span));
+        const used = performance.now() - scanStart, per = used / k, left = Math.max(0, span - t - step);
+        if (left > 0 && used + per * left / step > BUDGET) step = Math.max(step, left / Math.max(1, (BUDGET - used) / per));
+      }
+      const ch = chooseWindow(pts, step);
+      if (ch.walk) {
+        // Narrow down the moment walking begins, between the last still look and the first walking look.
+        let lo = ch.walk.before, hi = ch.walk.a, it = 0;
+        while (lo != null && hi - lo > .5 && it++ < 3 && performance.now() - scanStart < BUDGET + 8000) {
+          const m = (lo + hi) / 2, p = await look(m);
+          if (p.act >= WALK_ACT) hi = m; else lo = m;
+        }
+        t0 = Math.max(0, hi - .4); t1 = endFor(ch.walk, t0, step);
+      } else { t0 = ch.t0; t1 = ch.t1; }
+      scanned = { step, pts: pts.map(p => [Math.round(p.t * 100) / 100, Math.round(p.act * 100) / 100]), walk: ch.walk };
+      onProg(scanShare);
+    }
+    const frames = []; await pose.reset();
+    let dt = FINE, slow = false, n = 0; const fineStart = performance.now();
+    for (let t = t0 + .05; t < t1; t += dt) {
+      const f = await grab(t); n++;
+      if (f) { frames.push(f); keepThumb(t); }
+      if (n === 10 && dt === FINE && (performance.now() - fineStart) / n > 350) dt = .1;
+      if (performance.now() - started > 150000) { slow = true; break; }
+      onProg(scanShare + (1 - scanShare) * (t - t0) / (t1 - t0));
+    }
+    if (tries >= 10 && fails > tries * .5) throw new Error('Video seek failed');
+    if (unreadable()) throw new Error('Video frames unreadable (seek)');
+    return { frames, window: { t0, t1, full, slow, scanned } };
+  };
+
+  let out;
+  try { out = await viaPlay(); }
+  catch (e) {
+    if (!e || !e.play) throw e;
+    diag.playError = e.message; diag.path = 'seek';
+    if (performance.now() - started > 120000) throw new Error('Video seek failed');
+    try { v.playbackRate = 1; } catch (_) {}
+    // A video element that hit an error stays broken: load the file fresh before stepping through it.
+    if (v.error || diag.mediaError) { v.removeAttribute('src'); try { v.load(); } catch (_) {} v.src = url; try { v.load(); } catch (_) {} await once(v, 'loadedmetadata', 8000); }
+    out = await viaSeek();
   }
-  const frames = []; await pose.reset();
-  let dt = FINE, slow = false, n = 0; const fineStart = performance.now();
-  for (let t = t0 + .05; t < t1; t += dt) {
-    const f = await grab(t); n++;
-    if (f) frames.push(f);
-    // A slower phone: sample 10 times a second instead of 15 so tracking still finishes.
-    if (n === 10 && dt === FINE && (performance.now() - fineStart) / n > 350) dt = .1;
-    // Out of time: stop and use what was tracked rather than throwing the clip away.
-    if (performance.now() - started > 150000) { slow = true; break; }
-    onProg(scanShare + (1 - scanShare) * (t - t0) / (t1 - t0));
-  }
-  return { frames, v, url, c, ctx, W, H, window: { t0, t1, full, slow, scanned } };
-  }catch(e){v.removeAttribute('src');v.load();URL.revokeObjectURL(url);throw e;}
+  diag.ms = Math.round(performance.now() - started); diag.window = [Math.round(out.window.t0 * 10) / 10, Math.round(out.window.t1 * 10) / 10]; diag.frames = out.frames.length;
+  return { frames: out.frames, v, url, c, ctx, W, H, thumbs, diag, window: out.window };
+  }catch(e){ diag.error = String(e && e.message || e); diag.ms = Math.round(performance.now() - tStart); try { v.pause(); } catch (_) {} v.removeAttribute('src'); try { v.load(); } catch (_) {} URL.revokeObjectURL(url); if (e && typeof e === 'object') e.diag = diag; throw e; }
 }
-function releaseClip(clip){if(!clip)return;clip.v.removeAttribute('src');clip.v.load();URL.revokeObjectURL(clip.url);}
+function releaseClip(clip){if(!clip)return;try{clip.v.pause();}catch(_){}clip.v.removeAttribute('src');try{clip.v.load();}catch(_){}URL.revokeObjectURL(clip.url);clip.thumbs=null;}
 const BONES = [[11, 12], [11, 23], [12, 24], [23, 24], [23, 25], [25, 27], [24, 26], [26, 28], [27, 29], [29, 31], [27, 31], [28, 30], [30, 32], [28, 32], [11, 13], [13, 15], [12, 14], [14, 16]];
+// The report picture: a frame saved during tracking (no seeking needed), or a careful seek if none is close. Never fails the view.
 async function snapshot(clip, t) {
-  const { v, c, ctx, W, H, frames } = clip;
-  await seek(v, t); ctx.drawImage(v, 0, 0, W, H);
+  const { v, c, ctx, W, H, frames, thumbs } = clip;
+  try {
+    const th = (thumbs || []).reduce((b, x) => !b || Math.abs(x.t - t) < Math.abs(b.t - t) ? x : b, null);
+    if (th && Math.abs(th.t - t) <= .3) {
+      const img = new Image(); await timeout(new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = th.src; }), 4000, 'snap');
+      ctx.drawImage(img, 0, 0, W, H); t = th.t;
+    } else { await seek(v, t, 4000); await frameReady(v); ctx.drawImage(v, 0, 0, W, H); }
+  } catch (_) { return null; }
   const f = frames.reduce((b, x) => Math.abs(x.t - t) < Math.abs(b.t - t) ? x : b, frames[0]);
   ctx.lineWidth = Math.max(2, W / 200); ctx.strokeStyle = '#EDEDED'; ctx.fillStyle = '#0F354A';
   BONES.forEach(([a, b]) => { ctx.beginPath(); ctx.moveTo(f.lm[a].x, f.lm[a].y); ctx.lineTo(f.lm[b].x, f.lm[b].y); ctx.stroke(); });
@@ -1655,6 +1899,8 @@ function updateReportBtn() {
     : n < CHECKS.length ? `${n} of ${CHECKS.length} checks answered. Any you skip are left out of the report.` : 'All checks done.';
 }
 $('run').addEventListener('click', async () => {
+  // Must happen before any await so iPhone Safari counts the clip playback as started by this tap.
+  if(files.front) primeClipVideo(files.front);
   const generation=++analysisRun; isAnalyzing=true; updateRun(); $('run').disabled = true;
   const rf=$('refilm'); if(rf) rf.hidden=true;
   const conf=$('feetConfirm'); if(conf) conf.hidden=true;
@@ -1662,13 +1908,13 @@ $('run').addEventListener('click', async () => {
   await initModel();
   if(generation!==analysisRun){isAnalyzing=false;updateRun();return;}
   if (!modelReady) {
-    isAnalyzing=false; updateRun();
+    isAnalyzing=false; updateRun(); hideClipPreview();
     $('modelStatus').textContent = 'Tracking is unavailable in this browser. Try the latest Chrome or Safari and short MP4s, then Analyze again.';
     showRefilm({failed:VIEW_KEYS.slice(), reason:'model'});
     return;
   }
   if(!VIEW_KEYS.every(k=>files[k])){
-    isAnalyzing=false; updateRun();
+    isAnalyzing=false; updateRun(); hideClipPreview();
     showRefilm({failed:VIEW_KEYS.filter(k=>!files[k]), reason:'missing'});
     return;
   }
@@ -1683,7 +1929,7 @@ $('run').addEventListener('click', async () => {
   trackBar.hidden=false; $('liveBar').style.width='0'; $('liveProc').textContent='Starting…';
   window.scrollTo({ top: 0 });
   const keys = VIEW_KEYS.slice();
-  const res = {}, snaps = [], failed = [], decodeFail=[], details={}, info={};
+  const res = {}, snaps = [], failed = [], decodeFail=[], details={}, info={}, diags={};
   for (let n = 0; n < keys.length; n++) {
     const k = keys[n];
     $('liveProc').textContent = `Tracking your ${VIEW_LABEL[k]} (${n + 1} of ${keys.length})…`;
@@ -1691,24 +1937,29 @@ $('run').addEventListener('click', async () => {
     try {
       if(!modelReady){await initModel();if(!modelReady)throw new Error('Tracking model unavailable');}
       clip = await trackClip(files[k], p => { $('liveBar').style.width = `${((n + p) / keys.length) * 100}%`; });
-      if(generation!==analysisRun){releaseClip(clip);isAnalyzing=false;updateRun();return;}
+      diags[k]=clip.diag;
+      if(generation!==analysisRun){releaseClip(clip);isAnalyzing=false;updateRun();hideClipPreview();return;}
       const a = (k==='left'||k==='right') ? analyzeSide(clip.frames) : analyzeFrontal(clip.frames);
       res[k] = a;
       if (a.error) {failed.push(k);details[k]=(clip.window&&clip.window.slow&&['coverage','steps','motion'].includes(a.reason))?'slow':(a.reason||'tracking');if(a.info)info[k]=a.info;}
-      else snaps.push({ src: await snapshot(clip, a.snapT), label: VIEW_LABEL[k][0].toUpperCase()+VIEW_LABEL[k].slice(1) });
+      else { const src = await snapshot(clip, a.snapT).catch(()=>null); if (src) snaps.push({ src, label: VIEW_LABEL[k][0].toUpperCase()+VIEW_LABEL[k].slice(1) }); }
+      if (a.error && clip.diag) clip.diag.result = a.reason || 'tracking';
       releaseClip(clip);clip=null;
     } catch (err) {
       releaseClip(clip); res[k] = { error: true }; failed.push(k); details[k]='tracking';
+      diags[k] = (err && err.diag) || diags[k] || { error: String(err && err.message || err) };
       if(String(err&&err.message||err).toLowerCase().includes('decode') || String(err&&err.message||err).includes('Video could not')) {decodeFail.push(k);details[k]='decode';}
       else if(String(err&&err.message||err).includes('seek')) {decodeFail.push(k);details[k]='seek';}
       else if(String(err&&err.message||err).includes('too short')) {details[k]='short';}
     }
   }
-  isAnalyzing=false; updateRun(); if(generation!==analysisRun)return; $('liveBar').style.width = '100%';
+  isAnalyzing=false; updateRun(); hideClipPreview(); if(generation!==analysisRun)return; $('liveBar').style.width = '100%';
+  window.__gaitDiag = diags;
   // All four must succeed; any failure stays on Film with a refilm message.
   if (failed.length) {
     $('liveProc').textContent = 'One or more views need a clearer clip. See how to refilm below.';
-    showRefilm({failed, reason: decodeFail.length===failed.length?'decode':'tracking',details,info});
+    try { console.info('[gait check] clip details', JSON.stringify(diags)); } catch (_) {}
+    showRefilm({failed, reason: decodeFail.length===failed.length?'decode':'tracking',details,info,diag:Object.fromEntries(failed.map(k=>[k,diags[k]]))});
     tracked=null; return;
   }
   const M = combine(res);
