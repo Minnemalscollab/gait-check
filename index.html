@@ -377,7 +377,7 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
 .track .status,.live-track .status{color:var(--navy)!important}
 .live-track{border-radius:var(--r)}
 .clip-preview{position:fixed;right:12px;bottom:12px;z-index:60;width:116px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px;box-shadow:0 4px 14px rgba(15,53,74,.14);display:grid;gap:4px;font-size:.66rem;color:#5C6A70;text-align:center}.clip-preview video{width:100%;max-height:150px;display:block;border-radius:4px;background:#E8E2D8;object-fit:contain}.clip-preview[hidden]{display:none}
-.tech-details{font-size:.72rem;color:#5C6A70}.tech-details summary{cursor:pointer}.tech-details pre{white-space:pre-wrap;word-break:break-word;font-size:.68rem;max-height:220px;overflow:auto}
+.tech-details{font-size:.72rem;color:#5C6A70}.tech-details summary{cursor:pointer}.seen-pic{display:inline-block;margin:6px 8px 0 0;vertical-align:top}.seen-pic img{display:block;max-width:120px;height:auto;border-radius:6px}.seen-pic figcaption{font-size:.66rem;margin-top:2px}.tech-details pre{white-space:pre-wrap;word-break:break-word;font-size:.68rem;max-height:220px;overflow:auto}
 .progress{height:6px;background:var(--navy-t2)}
 .progress i{background:var(--teal)}
 /* ===== FOOT CHECKS ===== */
@@ -736,12 +736,60 @@ const vis = (f, idx, th) => idx.every(i => f.lm?.[i] && Number.isFinite(f.lm[i].
 const LOWER = [23, 24, 25, 26, 27, 28];
 const hipMid = f => mid(f.lm[23], f.lm[24]);
 const share = (A, idx, th) => A.length ? A.filter(f => vis(f, idx, th)).length / A.length : 0;
+/* Feet in frame. The tracker's confidence score for ankles is unreliable at both ends: bare feet on a floor of a similar
+   color can score low while the point is right, and feet past the bottom edge can still score 0.4 to 0.6 while the point
+   is only a guess. So an ankle counts when its point is inside the picture and its score is not near zero. Frames carry
+   the picture size (W, H) from tracking; without it, fall back to the score alone. */
+const EDGE = .005;
+const ankleIn = (f, l) => {
+  const a = f.lm[27 + l];
+  if (!a || !Number.isFinite(a.x) || !Number.isFinite(a.y)) return false;
+  if (!f.H) return (a.v ?? 0) >= .35;
+  return (a.v ?? 0) >= .12 && a.y <= f.H * (1 - EDGE) && a.x >= -f.W * .01 && a.x <= f.W * 1.01;
+};
+const feetIn = f => ankleIn(f, 0) && ankleIn(f, 1);
+const lowerOk = f => vis(f, [23, 24, 25, 26], .35) && feetIn(f);
+const shareOf = (A, fn) => A.length ? A.filter(fn).length / A.length : 0;
 function whyUnclear(all) {
   if (all.length < 10) return 'noPerson';
-  const hips = share(all, [23, 24], .5), knees = share(all, [25, 26], .35), ankles = share(all, [27, 28], .35);
+  const hips = share(all, [23, 24], .5), knees = share(all, [25, 26], .35), ankles = shareOf(all, feetIn);
   if (hips >= .5 && knees >= .5 && ankles < .5) return 'feet';
   if (hips >= .5 && knees < .5) return 'knees';
   return 'visibility';
+}
+/* Support details: a small copy of one frame exactly as the tracker saw it, with the tracked points and the frame edge drawn
+   on, so a screenshot shows at once whether the picture arrived upright and whole. */
+async function seenPicture(clip) {
+  try {
+    const fr = clip.frames.filter(f => f && f.lm), th = clip.thumbs || [];
+    if (!th.length) return null;
+    const f = fr.length ? fr[Math.floor(fr.length / 2)] : null, t = f ? f.t : th[Math.floor(th.length / 2)].t;
+    const pic = th.reduce((b, x) => Math.abs(x.t - t) < Math.abs(b.t - t) ? x : b, th[0]);
+    const img = new Image(); await timeout(new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = pic.src; }), 4000, 'pic');
+    const s = 160 / Math.max(clip.W, clip.H), w = Math.round(clip.W * s), h = Math.round(clip.H * s), pad = Math.round(h * .25);
+    const c = document.createElement('canvas'); c.width = w; c.height = h + pad; const x = c.getContext('2d');
+    x.fillStyle = '#F4EFE6'; x.fillRect(0, 0, w, h + pad); x.drawImage(img, 0, 0, w, h);
+    x.strokeStyle = '#0F354A'; x.lineWidth = 1; x.strokeRect(.5, .5, w - 1, h - 1);
+    if (f) {
+      x.strokeStyle = '#2A8C82'; x.lineWidth = 1.5;
+      BONES.forEach(([a, b]) => { x.beginPath(); x.moveTo(f.lm[a].x * s, f.lm[a].y * s); x.lineTo(f.lm[b].x * s, f.lm[b].y * s); x.stroke(); });
+      [27, 28].forEach(i => { x.fillStyle = ankleIn(f, i - 27) ? '#2A8C82' : '#8A3B1A'; x.beginPath(); x.arc(f.lm[i].x * s, f.lm[i].y * s, 3, 0, 7); x.fill(); });
+    }
+    return c.toDataURL('image/jpeg', .7);
+  } catch (_) { return null; }
+}
+const uprightShare = frames => { const A = frames.filter(f => f && f.lm); return shareOf(A, f => { const s = mid(f.lm[11], f.lm[12]), h = hipMid(f); return h.y - s.y > Math.abs(h.x - s.x); }); };
+/* Support details: why the feet check decided what it did, in one line. */
+function feetNote(frames) {
+  const all = frames.filter(f => f && f.lm); if (!all.length) return 'no person found';
+  const pc = x => Math.round(x * 100) + '%', H = all[0].H || NaN;
+  const legs = all.filter(f => vis(f, [23, 24, 25, 26], .35));
+  const inside = shareOf(all, f => !f.H || (f.lm[27].y <= f.H * (1 - EDGE) && f.lm[28].y <= f.H * (1 - EDGE)));
+  const low = pct(all.map(f => Math.max(f.lm[27].y, f.lm[28].y) / H), .9);
+  const av = mean(all.flatMap(f => [f.lm[27].v, f.lm[28].v]));
+  const up = uprightShare(all);
+  const q = trackingQuality(frames), run = q.win ? q.win[1] - q.win[0] : (q.info && q.info.seconds) || 0;
+  return `ok ${pc(shareOf(legs, feetIn))} of ${legs.length} frames with hips and knees, inside ${pc(inside)}, ankleLow ${Number.isFinite(low) ? pc(low) : '?'} of height, ankleVis ${Number.isFinite(av) ? av.toFixed(2) : '?'}, upright ${pc(up)}, stretch ${Math.round(run * 10) / 10}s of ${all.length}`;
 }
 function trimStill(run) {
   // Drop standing time at the start and end of a stretch: keep from the first to the last moment the feet move relative to each other.
@@ -763,7 +811,7 @@ function trimStill(run) {
    to follow, because it never relies on where the body sits in the frame. Standing, swaying, or a shaky phone keeps
    the spacing nearly fixed. */
 const SCAN_LOOKS = [0, .2, .4], PLAY_LOOKS = [0, .2, .4, .6, .8], WALK_ACT = .06;
-const scanOk = f => !!f && vis(f, LOWER, .35) && legOf(f) >= 25;
+const scanOk = f => !!f && lowerOk(f) && legOf(f) >= 25;
 function footAct(G) {
   if (!G.every(scanOk)) return -1;
   const L = mean(G.map(legOf)) || 1;
@@ -790,10 +838,13 @@ function pickWalk(pts, step, win) {
   if (!best) return null;
   return { a: pts[best.i].t, b: pts[best.j].t, before: best.i > 0 ? pts[best.i - 1].t : null, after: best.j < pts.length - 1 ? pts[best.j + 1].t : null, len: bestLen };
 }
+/* Shortest usable stretch. A phone held upright (portrait) shows a side walker for only about 2 seconds as they cross
+   its narrow view, so about 1.8 seconds of clean frames is enough: roughly one and a half strides, three or more steps. */
+const STRETCH_S = 1.8, STRETCH_N = 15;
 function trackingQuality(frames) {
   const all = frames.filter(f => f && f.lm);
-  const U = all.filter(f => vis(f, LOWER, .35));
-  if (U.length < 20) return { error: true, reason: whyUnclear(all) };
+  const U = all.filter(lowerOk);
+  if (U.length < STRETCH_N) return { error: true, reason: whyUnclear(all) };
   const leg = median(U.map(legOf));
   if (leg < 25) return { error: true, reason: 'distance' };
   // Split into continuous stretches at gaps over half a second or at jumps a walker could not make.
@@ -812,10 +863,10 @@ function trackingQuality(frames) {
   }
   runs.push(cur);
   const span = r => r.length ? r[r.length - 1].t - r[0].t : 0;
-  const ok = r => r.length >= 20 && span(r) >= 2.5;
+  const ok = r => r.length >= STRETCH_N && span(r) >= STRETCH_S;
   const longest = runs.reduce((a, b) => span(b) > span(a) ? b : a);
   if (!ok(longest)) {
-    if (jumps && span(longest) < 2.5 && U.length >= all.length * .5) return { error: true, reason: 'identity' };
+    if (jumps && span(longest) < STRETCH_S && U.length >= all.length * .5) return { error: true, reason: 'identity' };
     return { error: true, reason: U.length >= all.length * .5 ? 'coverage' : whyUnclear(all), info: { seconds: Math.round(span(longest) * 10) / 10 } };
   }
   // Prefer the longest stretch of actual walking; if trimming the still parts leaves too little, keep the whole stretch
@@ -855,7 +906,8 @@ function analyzeSide(frames) {
   // Ankle-to-ankle spacing in leg lengths: same-frame difference, so camera pan and shake cancel out.
   const sep = smooth(F.map((f, i) => (f.lm[27].x - f.lm[28].x) * dir / legS[i]));
   const ev = [];
-  for (let i = 2; i < sep.length - 2; i++) {
+  // Peaks one frame from either end count too: a walker crossing a narrow (portrait) view gives only a few steps.
+  for (let i = 1; i < sep.length - 1; i++) {
     const w = sep.slice(Math.max(0, i - 4), i + 5);
     if (sep[i] === Math.max(...w) && sep[i] > .2) ev.push({ i, lead: 0 });
     if (sep[i] === Math.min(...w) && sep[i] < -.2) ev.push({ i, lead: 1 });
@@ -868,7 +920,7 @@ function analyzeSide(frames) {
     if(e.lead===last.lead){if(Math.abs(sep[e.i])>Math.abs(sep[last.i]))steps[steps.length-1]=e;continue;}
     if(F[e.i].t-F[last.i].t>=.25)steps.push(e);
   }
-  if (steps.length < 4 || !Number.isFinite(legLen) || legLen <= 0) {
+  if (steps.length < 3 || !Number.isFinite(legLen) || legLen <= 0) {
     // A front or back clip in a side slot shows both hips square on; say so instead of asking for more steps.
     const square = median(F.map(f => Math.abs(f.lm[23].x - f.lm[24].x) / legOf(f)));
     return { error: true, reason: square >= .2 ? 'sideLooksFrontal' : 'steps' };
@@ -895,7 +947,7 @@ function analyzeSide(frames) {
     out.stepL[l].push(Math.abs(sep[e.i]));
   });
   let cadence = NaN;
-  if (steps.length >= 4) cadence = (steps.length - 1) / (F[steps[steps.length - 1].i].t - F[steps[0].i].t) * 60;
+  if (steps.length >= 3) cadence = (steps.length - 1) / (F[steps[steps.length - 1].i].t - F[steps[0].i].t) * 60;
   if(!Number.isFinite(cadence)||cadence<40||cadence>200)return {error:true,reason:'steps'};
   const trunk = median(F.filter(f=>vis(f,[11,12],.5)).map(f => { const s = mid(f.lm[11], f.lm[12]), h = hm(f); return deg(Math.atan2((s.x - h.x) * dir, h.y - s.y)); }));
   const side = mean(F.map(f => f.lm[15].v)) >= mean(F.map(f => f.lm[16].v)) ? 0 : 1;
@@ -1321,10 +1373,10 @@ function failText(k, reason, info) {
    : 'Your feet were cut off or hidden for most of the clip. Set the phone a little farther back so there is floor showing below your feet the whole time.',
   knees: 'Your knees and lower legs were hard to see. Wear shorts so your knees, shins, and ankles are showing, and film in brighter light.',
   visibility: 'I couldn’t see your hips, knees, and ankles clearly enough. Film in brighter light with your whole body in frame, head to feet.',
-  coverage: secs + 'I need at least 3 seconds of steady walking with your whole body in frame. Keep head to feet in view the whole way, and keep the phone still or turning smoothly.',
+  coverage: secs + 'I need at least 2 seconds of steady walking with your whole body in frame. Keep head to feet in view the whole way, and keep the phone still or turning smoothly.',
   distance: 'You were too small in the picture to measure. Move the phone closer so you fill more of the frame, with your head and feet still showing.',
   identity: 'Tracking kept jumping. Film one person only, with no cuts. If someone is filming, ask them to turn smoothly instead of swinging the phone.',
-  steps: 'I found fewer than four clear steps. Walk past the camera with your side to it for 6 to 8 natural steps. Start walking a few steps before you reach the frame so you are already at your normal pace.',
+  steps: 'I found fewer than three clear steps. Walk past the camera with your side to it for 6 to 8 natural steps. Start walking a few steps before you reach the frame so you are already at your normal pace.',
   sideLooksFrontal: 'This looks like a front or back clip. For the side views, walk across the camera’s view with your side facing the lens.',
   motion: 'I couldn’t see enough walking in this clip. Walk toward or away from the camera for 6 to 8 natural steps. Standing still or stepping in place can’t be measured.',
   view: 'I couldn’t see your hips square on. For front and back, walk straight toward or away from the camera, facing it.',
@@ -1362,7 +1414,7 @@ function showRefilm({failed=[], reason='tracking', details={}, info={}, diag=nul
   </ul>
   <p class="fine">Replace the clip${failed.length===1?'':''} below${failed.length?` (start with ${failed[0]})`:''}, then tap <b>Analyze my walk</b> again.</p>
   <button class="btn" type="button" id="refilmFocus">Got it, fix my clips</button>
-  ${diag&&Object.keys(diag).length?`<details class="tech-details"><summary>Details for support</summary><pre>${esc(Object.entries(diag).map(([k,d])=>k+': '+Object.entries(d||{}).map(([a,b])=>a+'='+(typeof b==='object'?JSON.stringify(b):b)).join('; ')).join('\n\n'))}</pre></details>`:''}</div>`;
+  ${diag&&Object.keys(diag).length?`<details class="tech-details"><summary>Details for support</summary><pre>${esc(Object.entries(diag).map(([k,d])=>k+': '+Object.entries(d||{}).filter(([a])=>!a.startsWith('__')).map(([a,b])=>a+'='+(typeof b==='object'?JSON.stringify(b):b)).join('; ')).join('\n\n'))}</pre>${Object.entries(diag).filter(([,d])=>d&&typeof d.__img==='string'&&d.__img.startsWith('data:image/')).map(([k,d])=>`<figure class="seen-pic"><img src="${d.__img}" alt="What the tracker saw in your ${esc(VIEW_LABEL[k]||k)} clip"><figcaption>${esc((VIEW_LABEL[k]||k).replace(/^./,c=>c.toUpperCase()))}: what the tracker saw</figcaption></figure>`).join('')}</details>`:''}</div>`;
  $('refilmFocus').onclick=()=>{ ($('slot-'+(failed[0]||'front'))||$('run')).scrollIntoView({block:'center',behavior:'smooth'}); };
 }
 function startFootRetest() {
@@ -1612,7 +1664,53 @@ async function sniffCodec(file) {
   } catch (_) { return 'unknown'; }
 }
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
-async function trackClip(file, onProg) {
+/* How each frame gets from the video onto the tracking canvas. Normally a plain draw. A browser can paint a phone's
+   portrait clip wrong (sideways, or only the top part stretched), so there are backups that take the frame another way:
+   'rect' names the whole picture explicitly, 'bitmap' and 'vframe' copy the frame first, 'gl' goes through the graphics
+   card the way the tracking model's own input does, and 'cw' is for a browser that
+   paints the stored sideways frame: draw it into a landscape box at its own shape, then turn it a quarter turn clockwise. */
+const PAINT_ALT = ['rect', 'bitmap', 'vframe', 'gl'];
+const glPainters = {};
+function glFor(w, h) {
+  const key = w + 'x' + h; if (glPainters[key]) return glPainters[key];
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const gl = c.getContext('webgl', { preserveDrawingBuffer: true, premultipliedAlpha: false }); if (!gl) throw new Error('no webgl');
+  const sh = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+  const pr = gl.createProgram();
+  gl.attachShader(pr, sh(gl.VERTEX_SHADER, 'attribute vec2 p;varying vec2 u;void main(){u=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}'));
+  gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, 'precision mediump float;varying vec2 u;uniform sampler2D t;void main(){gl_FragColor=texture2D(t,u);}'));
+  gl.linkProgram(pr); gl.useProgram(pr);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+  [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(k => gl.texParameteri(gl.TEXTURE_2D, k, gl.CLAMP_TO_EDGE));
+  [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(k => gl.texParameteri(gl.TEXTURE_2D, k, gl.LINEAR));
+  gl.viewport(0, 0, w, h);
+  return glPainters[key] = { c, draw: v => { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, v); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); } };
+}
+async function paintFrom(v, x, w, h, mode, side) {
+  if (mode === 'rect') x.drawImage(v, 0, 0, v.videoWidth, v.videoHeight, 0, 0, w, h);
+  else if (mode === 'bitmap') { const b = await createImageBitmap(v); x.drawImage(b, 0, 0, w, h); if (b.close) b.close(); }
+  else if (mode === 'vframe') { const f = new VideoFrame(v); try { x.drawImage(f, 0, 0, w, h); } finally { f.close(); } }
+  else if (mode === 'gl') { const g = glFor(w, h); g.draw(v); x.drawImage(g.c, 0, 0, w, h); }
+  else if (mode === 'cw') { const sx = side.getContext('2d'); sx.drawImage(v, 0, 0, h, w); x.save(); x.setTransform(0, 1, -1, 0, w, 0); x.drawImage(side, 0, 0); x.restore(); }
+  else x.drawImage(v, 0, 0, w, h);
+}
+/* First frame only: draw it every way at thumbnail size and compare. If the plain draw disagrees with backups that agree
+   with each other, the plain draw is the odd one out and the clip is read with a backup. Differences go in the support details. */
+async function paintCheck(v) {
+  const w = 9, h = 16, look = async m => { try { const t = document.createElement('canvas'); t.width = w; t.height = h; const x = t.getContext('2d', { willReadFrequently: true }); await paintFrom(v, x, w, h, m); const d = x.getImageData(0, 0, w, h).data, o = []; for (let i = 0; i < d.length; i += 4) o.push((d[i] * 3 + d[i + 1] * 6 + d[i + 2]) / 10); return o; } catch (_) { return null; } };
+  const diff = (a, b) => a && b ? a.reduce((s, x, i) => s + Math.abs(x - b[i]), 0) / a.length : NaN;
+  const base = await look(''); if (!base || Math.max(...base) - Math.min(...base) < 6) return null;
+  const L = {}; for (const m of PAINT_ALT) L[m] = await look(m);
+  // The plain draw again at the end: if the picture changed meanwhile (the video moved on a frame), compare at a later frame.
+  if (!(diff(base, await look('')) < 3)) return null;
+  const d = Object.fromEntries(PAINT_ALT.map(m => [m, diff(base, L[m])]));
+  const odd = PAINT_ALT.filter(m => d[m] > 12);
+  const agree = odd.filter(m => odd.some(n => n !== m && diff(L[m], L[n]) < 6));
+  return { note: PAINT_ALT.map(m => m + ' ' + (Number.isFinite(d[m]) ? Math.round(d[m]) : 'none')).join(', '), odd, pick: agree.length >= 2 ? agree[0] : null };
+}
+async function trackClip(file, onProg, mode) {
   const url = URL.createObjectURL(file), tStart = performance.now();
   const v = clipVideo();
   if (v.__primeUrl) { const u = v.__primeUrl; v.__primeUrl = null; setTimeout(() => URL.revokeObjectURL(u), 0); }
@@ -1637,14 +1735,21 @@ async function trackClip(file, onProg) {
   if (!Number.isFinite(full) || full < 1) throw new Error('Clip too short');
   const s = Math.min(1, 640 / Math.max(v.videoWidth,v.videoHeight)), W = Math.round(v.videoWidth * s), H = Math.round(v.videoHeight * s);
   const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d');
+  if (mode) diag.mode = mode;
+  const side = Object.assign(document.createElement('canvas'), { width: H, height: W });
+  let checked = !!mode, checks = 0, odd = [];
+  const paint = async () => {
+    if (!checked) { try { const pc = await paintCheck(v); if (pc || ++checks >= 10) checked = true; if (pc) { diag.paint = pc.note; odd = pc.odd; if (pc.pick) { mode = pc.pick; diag.mode = mode + ' (check)'; } } } catch (_) { checked = true; } }
+    try { await paintFrom(v, ctx, W, H, mode, side); } catch (e) { if (!mode) throw e; diag.paintError = String(e && e.message || e); mode = ''; ctx.drawImage(v, 0, 0, W, H); }
+  };
   const tiny = document.createElement('canvas'); tiny.width = 16; tiny.height = 12; const tctx = tiny.getContext('2d', { willReadFrequently: true });
   // A frame that is one flat color is an unready or failed frame, not a person with hidden feet. Drop it.
   const isBlank = () => { try { tctx.drawImage(c, 0, 0, 16, 12); const d = tctx.getImageData(0, 0, 16, 12).data; let lo = 255, hi = 0; for (let i = 0; i < d.length; i += 4) { const y = (d[i] * 3 + d[i + 1] * 6 + d[i + 2]) / 10; if (y < lo) lo = y; if (y > hi) hi = y; } return hi - lo < 6; } catch (_) { return false; } };
   const shoot = async t => {
-    ctx.drawImage(v, 0, 0, W, H); diag.grabbed++;
+    await paint(); diag.grabbed++;
     if (isBlank()) { diag.blank++; return null; }
     const r = await detect(c); if (!r.poseLandmarks) return null; diag.tracked++;
-    return { t, lm: r.poseLandmarks.map(p => ({ x: p.x * W, y: p.y * H, v: p.visibility })), wl: r.poseWorldLandmarks };
+    return { t, W, H, lm: r.poseLandmarks.map(p => ({ x: p.x * W, y: p.y * H, v: p.visibility })), wl: r.poseWorldLandmarks };
   };
   const unreadable = () => diag.grabbed >= 10 && diag.blank > diag.grabbed * .6;
   const started = performance.now(), thumbs = [];
@@ -1869,10 +1974,39 @@ async function trackClip(file, onProg) {
     out = await viaSeek();
   }
   diag.ms = Math.round(performance.now() - started); diag.window = [Math.round(out.window.t0 * 10) / 10, Math.round(out.window.t1 * 10) / 10]; diag.frames = out.frames.length;
-  return { frames: out.frames, v, url, c, ctx, W, H, thumbs, diag, window: out.window };
+  return { frames: out.frames, v, url, c, ctx, W, H, thumbs, diag, window: out.window, paint, odd, mode };
   }catch(e){ diag.error = String(e && e.message || e); diag.ms = Math.round(performance.now() - tStart); try { v.pause(); } catch (_) {} v.removeAttribute('src'); try { v.load(); } catch (_) {} URL.revokeObjectURL(url); if (e && typeof e === 'object') e.diag = diag; throw e; }
 }
-function releaseClip(clip){if(!clip)return;try{clip.v.pause();}catch(_){}clip.v.removeAttribute('src');try{clip.v.load();}catch(_){}URL.revokeObjectURL(clip.url);clip.thumbs=null;}
+/* Track one view and measure it. A portrait clip where the person never shows up standing upright may have been painted
+   sideways by the browser: read it once more turned a quarter turn, and keep that only if it gives an upright person and
+   a clean read. Returns the clip (still open) or, after a failed second read, a stand in holding the first read's details. */
+async function readView(file, k, prog) {
+  const study = c => (k === 'left' || k === 'right') ? analyzeSide(c.frames) : analyzeFrontal(c.frames);
+  const clip = await trackClip(file, prog);
+  const a = study(clip);
+  // A person lying on their side in a portrait clip means the picture arrived turned, whatever check failed.
+  const flat = uprightShare(clip.frames) < .5;
+  if (!(a.error && clip.H > clip.W && (flat || ['feet', 'knees', 'visibility', 'noPerson', 'coverage', 'distance'].includes(a.reason)))) return { a, clip };
+  // Backups worth a second read: ways of drawing that gave a different picture on the first frame, then the quarter turn
+  // when no upright person was seen. A clip that is drawn the same every way and shows an upright person is not read again.
+  const tries = (clip.odd || []).filter(m => m !== clip.mode).slice(0, 1);
+  if (flat) tries.push('cw');
+  if (!tries.length) return { a, clip };
+  clip.diag.result = a.reason; clip.diag.feet = feetNote(clip.frames); clip.diag.__img = await seenPicture(clip);
+  releaseClip(clip);
+  const notes = [];
+  for (const m of tries) {
+    let again = null;
+    try { again = await trackClip(file, prog, m); } catch (_) {}
+    const b = again && study(again);
+    if (b && !b.error && uprightShare(again.frames) >= .8) { again.diag.firstTry = clip.diag.result + ', ' + clip.diag.feet; return { a: b, clip: again }; }
+    notes.push(m + ' ' + ((b && b.reason) || (again ? 'not upright' : 'failed')));
+    if (again) releaseClip(again);
+  }
+  clip.diag.retried = notes.join(', ');
+  return { a, clip: { diag: clip.diag, frames: clip.frames, retried: true } };
+}
+function releaseClip(clip){if(!clip||!clip.v)return;try{clip.v.pause();}catch(_){}clip.v.removeAttribute('src');try{clip.v.load();}catch(_){}URL.revokeObjectURL(clip.url);clip.thumbs=null;}
 const BONES = [[11, 12], [11, 23], [12, 24], [23, 24], [23, 25], [25, 27], [24, 26], [26, 28], [27, 29], [29, 31], [27, 31], [28, 30], [30, 32], [28, 32], [11, 13], [13, 15], [12, 14], [14, 16]];
 // The report picture: a frame saved during tracking (no seeking needed), or a careful seek if none is close. Never fails the view.
 async function snapshot(clip, t) {
@@ -1882,7 +2016,7 @@ async function snapshot(clip, t) {
     if (th && Math.abs(th.t - t) <= .3) {
       const img = new Image(); await timeout(new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = th.src; }), 4000, 'snap');
       ctx.drawImage(img, 0, 0, W, H); t = th.t;
-    } else { await seek(v, t, 4000); await frameReady(v); ctx.drawImage(v, 0, 0, W, H); }
+    } else { await seek(v, t, 4000); await frameReady(v); if (clip.paint) await clip.paint(); else ctx.drawImage(v, 0, 0, W, H); }
   } catch (_) { return null; }
   const f = frames.reduce((b, x) => Math.abs(x.t - t) < Math.abs(b.t - t) ? x : b, frames[0]);
   ctx.lineWidth = Math.max(2, W / 200); ctx.strokeStyle = '#EDEDED'; ctx.fillStyle = '#0F354A';
@@ -1936,15 +2070,19 @@ $('run').addEventListener('click', async () => {
     let clip;
     try {
       if(!modelReady){await initModel();if(!modelReady)throw new Error('Tracking model unavailable');}
-      clip = await trackClip(files[k], p => { $('liveBar').style.width = `${((n + p) / keys.length) * 100}%`; });
-      diags[k]=clip.diag;
+      const r = await readView(files[k], k, p => { $('liveBar').style.width = `${((n + p) / keys.length) * 100}%`; });
+      clip = r.clip; diags[k] = clip.diag; let a = r.a;
       if(generation!==analysisRun){releaseClip(clip);isAnalyzing=false;updateRun();hideClipPreview();return;}
-      const a = (k==='left'||k==='right') ? analyzeSide(clip.frames) : analyzeFrontal(clip.frames);
       res[k] = a;
       if (a.error) {failed.push(k);details[k]=(clip.window&&clip.window.slow&&['coverage','steps','motion'].includes(a.reason))?'slow':(a.reason||'tracking');if(a.info)info[k]=a.info;}
       else { const src = await snapshot(clip, a.snapT).catch(()=>null); if (src) snaps.push({ src, label: VIEW_LABEL[k][0].toUpperCase()+VIEW_LABEL[k].slice(1) }); }
-      if (a.error && clip.diag) clip.diag.result = a.reason || 'tracking';
-      releaseClip(clip);clip=null;
+      if (!clip.retried) {
+        if (a.error && clip.diag) clip.diag.result = a.reason || 'tracking';
+        if (clip.diag) { try { clip.diag.feet = feetNote(clip.frames); } catch (_) {} }
+        if (a.error && clip.diag) clip.diag.__img = await seenPicture(clip);
+        releaseClip(clip);
+      }
+      clip=null;
     } catch (err) {
       releaseClip(clip); res[k] = { error: true }; failed.push(k); details[k]='tracking';
       diags[k] = (err && err.diag) || diags[k] || { error: String(err && err.message || err) };
@@ -1958,7 +2096,7 @@ $('run').addEventListener('click', async () => {
   // All four must succeed; any failure stays on Film with a refilm message.
   if (failed.length) {
     $('liveProc').textContent = 'One or more views need a clearer clip. See how to refilm below.';
-    try { console.info('[gait check] clip details', JSON.stringify(diags)); } catch (_) {}
+    try { console.info('[gait check] clip details', JSON.stringify(diags, (key, val) => key.startsWith('__') ? undefined : val)); } catch (_) {}
     showRefilm({failed, reason: decodeFail.length===failed.length?'decode':'tracking',details,info,diag:Object.fromEntries(failed.map(k=>[k,diags[k]]))});
     tracked=null; return;
   }
