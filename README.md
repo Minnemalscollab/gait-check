@@ -10,11 +10,43 @@ Local URL: http://localhost:8765/
 
 The single editable constant in `index.html` is:
 
-    const ACCESS_CODES = ['GAITCHECK'];
+    const ACCESS_CODES = ['CHECKMYGAIT'];
 
 The gate ignores case and surrounding spaces. It is **client-side only**, not secure authentication, buyer verification, or a secret. Anyone with the source can learn or bypass it.
 
-Default: upload/record **Front, Back, Left side, Right side**. Analyze stays disabled until all four are supplied. All four must yield usable tracking before proceeding to the seven foot checks. A failed required clip stays on Film, naming the view and giving targeted refilm guidance. The quiet “Can't film?” alternative requires confirmation and opens the movement assessment only. Those reports explicitly have no walk data. All-skipped movement-only reports never claim good results, prescribe drills, or save an empty baseline.
+Default: upload/record **Front, Back, Left side, Right side**. Analyze stays disabled until all four are supplied. A failed clip stays on Film, naming the view, its support code, and targeted refilm guidance.
+
+### Video checking (Nov 2026 update)
+
+- **Instant checks:** the moment a clip is added, the slot warns if it is under 2 seconds (GC-401) or the browser can't play it (GC-501). Nothing is blocked; it's an early heads-up.
+- **Two-pass judging:** each clip is judged with STRICT thresholds first. If it fails for a fixable reason (short stretch, few steps, little motion, brief tracking jumps, dim knees/hips), the same tracked frames are judged again with RELAXED thresholds. No re-tracking. A relaxed view is labeled in the report and its confidence is capped at Low. Wrong-angle, feet-cut-off, too-far and no-person failures are never relaxed. Thresholds live in `STRICT` / `RELAXED` in `index.html`.
+- **Views that tracked are kept.** Replacing one clip and tapping Analyze again only re-tracks that clip. Each slot shows ✓ Tracked or its failure code.
+- **Continue with fewer views:** after a failure, if at least `MIN_VIEWS` views tracked (default 1), the refilm panel offers "Continue with N of 4 views". The report marks missing views "Not included" and adds a note. Set `MIN_VIEWS = 4` to restore the old all-four requirement.
+- **Copy support details:** one tap copies codes, browser, and tracking diagnostics for a support email.
+- **Tracker preloads** about 1.5 s after the code is accepted (~16 MB), so it downloads while people film. Load allowance is 90 s for slow phone networks.
+- **Screen stays awake** during Analyze (Wake Lock API, where supported). A locked screen pauses the clip and stalls tracking.
+- **Safety flag is visible again:** an optional checkbox under the acknowledgment. When ticked, the report gives the read but no drills or wear schedule.
+
+| Code | Meaning | Usual fix |
+|---|---|---|
+| GC-001 | A view is missing | Add all four clips |
+| GC-101 | No person found | Right video? Person in frame while walking |
+| GC-102 | Hips/knees/ankles unclear | Brighter light, whole body in frame |
+| GC-103 | Knees/lower legs hidden | Shorts, brighter light |
+| GC-104 | Feet cut off or hidden | Phone farther back, floor visible below feet |
+| GC-105 | Person too small | Move phone closer |
+| GC-201 | Not enough continuous walking in frame | Keep head to feet in view, steady phone |
+| GC-202 | Tracking jumped (other people, cuts, swinging phone) | One person, no cuts, turn smoothly |
+| GC-301 | Fewer than the required steps (side) | 6–8 steps walking across the frame |
+| GC-302 | Side slot looks like a front/back clip | Walk across, side to the lens |
+| GC-303 | Not enough walking motion (front/back) | Walk toward/away, not in place |
+| GC-304 | Front/back slot looks side-on | Walk straight at/away from camera |
+| GC-401 | Clip too short | Record 6–8 natural steps |
+| GC-402 | Device too slow | Shorter clip, newer phone or computer |
+| GC-501 | Browser can't open the file | Record in-page, or save as MP4 / iPhone "Most Compatible" |
+| GC-502 | Can't read frames on this device | Latest Safari/Chrome, "Most Compatible" |
+| GC-503 | Tracking interrupted | Try again in latest Chrome/Safari |
+| GC-601 | Tracker didn't load | Latest Chrome/Safari | The quiet “Can't film?” alternative requires confirmation and opens the movement assessment only. Those reports explicitly have no walk data. All-skipped movement-only reports never claim good results, prescribe drills, or save an empty baseline.
 
 ## How the observations and plan work
 

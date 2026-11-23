@@ -117,6 +117,12 @@ input[type=text]{font:inherit;font-size:1.1rem;font-weight:700;letter-spacing:.1
 .slot .hint{font-size:.9rem;color:var(--muted)}
 .slot .f{font-size:.78rem;color:var(--muted);overflow-wrap:anywhere}
 .slot.has .f{color:var(--good);font-weight:700}
+.slot.bad{border-color:var(--warn)}
+.slot-stat{font-size:.82rem;font-weight:700;line-height:1.4}
+.slot-stat.ok{color:var(--good)}.slot-stat.bad,.slot-stat.warn{color:var(--warn)}
+.fail-code{display:inline-block;font:700 .75rem/1.6 ui-monospace,Menlo,monospace;background:#F6E3D9;color:#8A3B1A;border-radius:3px;padding:0 6px;margin-right:4px}
+.views-ok{color:var(--good)}
+.view-card.missing{opacity:.7}
 .slot video{width:100%;max-width:100%;border-radius:3px;background:var(--line);aspect-ratio:16/9;object-fit:cover}
 .slot-btns{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
 .status{font-size:.85rem;color:var(--muted)}
@@ -626,9 +632,9 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
   <div class="band">
     <div class="in">
       <div id="savedPanel" class="saved" hidden></div>
-      <aside class="safety" id="safetyBox"><h3>First, a quick safety check</h3><p data-copy="safety.text">A self check cannot tell you what is safe for your body. If you are questioning whether this is right for you, ask a qualified clinician who knows you individually before making changes based on the information found here.</p><label class="risk-label ack-label"><input type="checkbox" id="ack"> <span data-copy="safety.ack">I understand this is not medical advice, diagnosis, or treatment. These are general recommendations, and I am responsible for deciding what is right for my body.</span></label><p class="ack-msg" id="ackMsg" role="alert" hidden>Check the box above to continue.</p><input type="checkbox" id="risk" hidden aria-hidden="true" tabindex="-1"></aside>
+      <aside class="safety" id="safetyBox"><h3>First, a quick safety check</h3><p data-copy="safety.text">A self check cannot tell you what is safe for your body. If you are questioning whether this is right for you, ask a qualified clinician who knows you individually before making changes based on the information found here.</p><label class="risk-label ack-label"><input type="checkbox" id="ack"> <span data-copy="safety.ack">I understand this is not medical advice, diagnosis, or treatment. These are general recommendations, and I am responsible for deciding what is right for my body.</span></label><p class="ack-msg" id="ackMsg" role="alert" hidden>Check the box above to continue.</p><label class="ack-label risk-opt"><input type="checkbox" id="risk"> <span data-copy="safety.risk">Check this if you have foot or leg pain, numbness or tingling, diabetes or neuropathy, a recent injury or surgery, or you’re unsure whether this is safe for you. You’ll still get your read, but no drills or wear schedule.</span></label></aside>
       <div id="refilm" class="refilm" hidden></div>
-      <div class="viewcount" aria-hidden="true"><div class="vc-ring" id="vcRing"><b id="vcNum">0/4</b></div><div><strong>Four views required</strong><span>Each must track clearly before we continue.</span><div class="vc-dots"><i id="vcd-front">Front</i><i id="vcd-back">Back</i><i id="vcd-left">Left</i><i id="vcd-right">Right</i></div></div></div><p class="desk" id="videoNeed"><b>Four walk videos are required by default.</b> Front, back, left side, and right side. Each must track clearly before we continue.</p>
+      <div class="viewcount" aria-hidden="true"><div class="vc-ring" id="vcRing"><b id="vcNum">0/4</b></div><div><strong>Four views</strong><span>Each one is checked on its own.</span><div class="vc-dots"><i id="vcd-front">Front</i><i id="vcd-back">Back</i><i id="vcd-left">Left</i><i id="vcd-right">Right</i></div></div></div><p class="desk" id="videoNeed"><b>Film four walk videos:</b> front, back, left side, and right side. If one doesn’t track, you can replace just that clip.</p>
       <div class="ways" id="filmWays" role="group" aria-labelledby="waysTitle">
         <h3 id="waysTitle" data-copy="film.ways.title">Two ways to film. Pick whichever is easier.</h3>
         <div class="way"><span class="way-n">Option 1</span><strong data-copy="film.way1.title">Prop it up and walk by</strong><span data-copy="film.way1.text">Lean your phone sideways at about hip height, 10 to 12 feet away. Hit record, then walk past it, toward it, or away from it.</span></div>
@@ -687,7 +693,7 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
       </div>
       <div class="stack-s">
         <div class="row"><button class="btn" id="run" disabled>Analyze my walk</button><span class="status" id="modelStatus" role="status">Add all four views to unlock Analyze.</span></div>
-        <span class="status" id="filmNote">All four views must track clearly. Processing can take a minute per view on slower devices; keep this tab open.</span>
+        <span class="status" id="filmNote">Each view is checked on its own. If one doesn’t track, you can replace just that clip. Processing can take a minute per view on slower devices; keep this tab open.</span>
         <p class="opt-out"><button type="button" class="linkish" id="feetOnlyLink">Can’t film? Do the movement assessment only</button></p>
       </div>
     </div>
@@ -786,7 +792,15 @@ const ankleIn = (f, l) => {
   return (a.v ?? 0) >= .12 && a.y <= f.H * (1 - EDGE) && a.x >= -f.W * .01 && a.x <= f.W * 1.01;
 };
 const feetIn = f => ankleIn(f, 0) && ankleIn(f, 1);
-const lowerOk = f => vis(f, [23, 24, 25, 26], .35) && feetIn(f);
+/* Thresholds. Every clip is judged STRICT first. If that fails for a reason that more lenient settings could fix (short
+   stretch, few steps, dim light), the SAME tracked frames are judged again with RELAXED settings; nothing is re-tracked.
+   A relaxed pass is marked on the view and its confidence is capped at Low in the report. */
+const STRICT = { name: 'strict', stretchS: 1.8, stretchN: 15, legVis: .35, gap: .5, sideSteps: 3, sepPeak: .2, motion: .06 };
+const RELAXED = { name: 'relaxed', stretchS: 1.2, stretchN: 10, legVis: .2, gap: .7, sideSteps: 2, sepPeak: .14, motion: .04 };
+const RELAXABLE = ['coverage', 'steps', 'motion', 'identity', 'knees', 'visibility'];
+let Q = STRICT;
+function judge(fn) { const a = fn(); if (!a.error || !RELAXABLE.includes(a.reason)) return a; Q = RELAXED; let b; try { b = fn(); } finally { Q = STRICT; } if (b.error) return a; b.relaxed = true; b.strictReason = a.reason; return b; }
+const lowerOk = f => vis(f, [23, 24, 25, 26], Q.legVis) && feetIn(f);
 const shareOf = (A, fn) => A.length ? A.filter(fn).length / A.length : 0;
 function whyUnclear(all) {
   if (all.length < 10) return 'noPerson';
@@ -878,11 +892,10 @@ function pickWalk(pts, step, win) {
 }
 /* Shortest usable stretch. A phone held upright (portrait) shows a side walker for only about 2 seconds as they cross
    its narrow view, so about 1.8 seconds of clean frames is enough: roughly one and a half strides, three or more steps. */
-const STRETCH_S = 1.8, STRETCH_N = 15;
 function trackingQuality(frames) {
   const all = frames.filter(f => f && f.lm);
   const U = all.filter(lowerOk);
-  if (U.length < STRETCH_N) return { error: true, reason: whyUnclear(all) };
+  if (U.length < Q.stretchN) return { error: true, reason: whyUnclear(all) };
   const leg = median(U.map(legOf));
   if (leg < 25) return { error: true, reason: 'distance' };
   // Split into continuous stretches at gaps over half a second or at jumps a walker could not make.
@@ -890,21 +903,21 @@ function trackingQuality(frames) {
   const runs = []; let cur = [U[0]], jumps = 0;
   for (let i = 1; i < U.length; i++) {
     const f = U[i], p = cur[cur.length - 1], dt = f.t - p.t;
-    if (dt > .5) { runs.push(cur); cur = [f]; continue; }
+    if (dt > Q.gap) { runs.push(cur); cur = [f]; continue; }
     if (dist(hipMid(f), hipMid(p)) > lim(dt)) {
       const n = U[i + 1];
       // One glitched frame (tracking briefly grabbed something else): skip it and keep the stretch going.
-      if (n && n.t - p.t <= .5 && dist(hipMid(n), hipMid(p)) <= lim(n.t - p.t)) continue;
+      if (n && n.t - p.t <= Q.gap && dist(hipMid(n), hipMid(p)) <= lim(n.t - p.t)) continue;
       jumps++; runs.push(cur); cur = [f]; continue;
     }
     cur.push(f);
   }
   runs.push(cur);
   const span = r => r.length ? r[r.length - 1].t - r[0].t : 0;
-  const ok = r => r.length >= STRETCH_N && span(r) >= STRETCH_S;
+  const ok = r => r.length >= Q.stretchN && span(r) >= Q.stretchS;
   const longest = runs.reduce((a, b) => span(b) > span(a) ? b : a);
   if (!ok(longest)) {
-    if (jumps && span(longest) < STRETCH_S && U.length >= all.length * .5) return { error: true, reason: 'identity' };
+    if (jumps && span(longest) < Q.stretchS && U.length >= all.length * .5) return { error: true, reason: 'identity' };
     return { error: true, reason: U.length >= all.length * .5 ? 'coverage' : whyUnclear(all), info: { seconds: Math.round(span(longest) * 10) / 10 } };
   }
   // Prefer the longest stretch of actual walking; if trimming the still parts leaves too little, keep the whole stretch
@@ -955,8 +968,8 @@ function analyzeSide(frames, slot) {
   // Peaks one frame from either end count too: a walker crossing a narrow (portrait) view gives only a few steps.
   for (let i = 1; i < sep.length - 1; i++) {
     const w = sep.slice(Math.max(0, i - 4), i + 5);
-    if (sep[i] === Math.max(...w) && sep[i] > .2) ev.push({ i, lead: 0 });
-    if (sep[i] === Math.min(...w) && sep[i] < -.2) ev.push({ i, lead: 1 });
+    if (sep[i] === Math.max(...w) && sep[i] > Q.sepPeak) ev.push({ i, lead: 0 });
+    if (sep[i] === Math.min(...w) && sep[i] < -Q.sepPeak) ev.push({ i, lead: 1 });
   }
   ev.sort((a, b) => a.i - b.i);
   const steps=[];
@@ -966,7 +979,7 @@ function analyzeSide(frames, slot) {
     if(e.lead===last.lead){if(Math.abs(sep[e.i])>Math.abs(sep[last.i]))steps[steps.length-1]=e;continue;}
     if(F[e.i].t-F[last.i].t>=.25)steps.push(e);
   }
-  if (steps.length < 3 || !Number.isFinite(legLen) || legLen <= 0) {
+  if (steps.length < Q.sideSteps || !Number.isFinite(legLen) || legLen <= 0) {
     // A front or back clip in a side slot shows both hips square on; say so instead of asking for more steps.
     const square = median(F.map(f => Math.abs(f.lm[23].x - f.lm[24].x) / legOf(f)));
     return { error: true, reason: square >= .2 ? 'sideLooksFrontal' : 'steps' };
@@ -1004,7 +1017,7 @@ function analyzeSide(frames, slot) {
     out.stepL[l].push(Math.abs(sep[e.i]));
   });
   let cadence = NaN;
-  if (steps.length >= 3) cadence = (steps.length - 1) / (F[steps[steps.length - 1].i].t - F[steps[0].i].t) * 60;
+  if (steps.length >= Q.sideSteps) cadence = (steps.length - 1) / (F[steps[steps.length - 1].i].t - F[steps[0].i].t) * 60;
   if(!Number.isFinite(cadence)||cadence<40||cadence>200)return {error:true,reason:'steps'};
   const trunk = median(F.filter(f=>vis(f,[11,12],.5)).map(f => { const s = mid(f.lm[11], f.lm[12]), h = hm(f); return deg(Math.atan2((s.x - h.x) * dir, h.y - s.y)); }));
   const side = mean(F.map(f => f.lm[15].v)) >= mean(F.map(f => f.lm[16].v)) ? 0 : 1;
@@ -1037,7 +1050,7 @@ function analyzeFrontal(frames) {
   const legS=legSeries(F);
   // Alternating foot height in leg lengths: body-relative, so it works with a still or a following camera.
   const phase=smooth(F.map((f,i)=>(f.lm[27].y-f.lm[28].y)/legS[i]));
-  if(pct(phase,.9)-pct(phase,.1)<.06)return {error:true,reason:'motion'};
+  if(pct(phase,.9)-pct(phase,.1)<Q.motion)return {error:true,reason:'motion'};
   // Facing check in body units, not pixels, so a closer handheld phone cannot make a side-on clip pass as front or back.
   if(median(F.map(f=>Math.abs(f.lm[23].x-f.lm[24].x)))<8 || median(F.map((f,i)=>Math.abs(f.lm[23].x-f.lm[24].x)/legS[i]))<.15)return {error:true,reason:'view'};
   // Stride period from the alternating feet (two sign changes per stride), used to remove slow camera drift.
@@ -1494,7 +1507,11 @@ function comparison(base,SC) {
  return `<li><b>${c.name}:</b> ${change}.<br><span class="fine">Before: ${esc(checkValue(c,b))}. Now: ${esc(checkValue(c,n))}.</span></li>`;
  }).join('')}</ul><p class="fine">Use the same surface, support, distance, time, and side each time. Video is not compared as a clinical score.</p>`;
 }
-function hasWalk(M){ return !!(M && M.frontOk && M.backOk && M.leftOk && M.rightOk && RULES.some(r => r.ok(M))); }
+/* Fewest tracked views a report may use. The app still asks for all four and only offers to continue with fewer after a
+   clip fails; the report then names the missing views. Set to 4 to require every view again. */
+const MIN_VIEWS = 1;
+const viewsOk = M => ['frontOk', 'backOk', 'leftOk', 'rightOk'].filter(k => M && M[k]).length;
+function hasWalk(M){ return !!(M && viewsOk(M) >= MIN_VIEWS && RULES.some(r => r.ok(M))); }
 function walkObservations(M){
  if(!hasWalk(M))return [];
  const hits=RULES.filter(r=>r.ok(M)).map(r=>({r,s:r.sev(M)})).sort((a,b)=>b.s-a.s);
@@ -1506,6 +1523,13 @@ function walkObservations(M){
   s, area:r.area, why:'These image-based estimates can suggest a comfortable cue to try, but cannot establish the cause of a movement pattern, pain, or injury. Compare the cue with how you feel; do not force a different gait.'
  }));
 }
+/* Support codes. Shown next to every failed view and in the copied support details, so a customer can say "GC-104 on my
+   left side" and support knows the cause without screenshots. 1xx: body not seen, 2xx: tracking broke up, 3xx: wrong
+   movement or angle, 4xx: clip length or device speed, 5xx: file or browser, 6xx: tracker didn't load. */
+const FAIL_CODES = { missing: 'GC-001', noPerson: 'GC-101', visibility: 'GC-102', knees: 'GC-103', feet: 'GC-104', distance: 'GC-105',
+  coverage: 'GC-201', identity: 'GC-202', steps: 'GC-301', sideLooksFrontal: 'GC-302', motion: 'GC-303', view: 'GC-304',
+  short: 'GC-401', slow: 'GC-402', decode: 'GC-501', seek: 'GC-502', tracking: 'GC-503', model: 'GC-601' };
+const failCode = r => FAIL_CODES[r] || 'GC-999';
 function failText(k, reason, info) {
  const frontBack = k === 'front' || k === 'back';
  const secs = info && Number.isFinite(info.seconds) && info.seconds > 0 ? `I could only follow you clearly for about ${info.seconds < 1 ? 'less than a second' : Math.round(info.seconds) + (Math.round(info.seconds) === 1 ? ' second' : ' seconds')} in a row. ` : '';
@@ -1527,11 +1551,12 @@ function failText(k, reason, info) {
   seek: 'I couldn’t read this video frame by frame on this device. Try again in the latest Safari or Chrome. If it happens again, set your iPhone camera to Most Compatible (Settings, then Camera, then Formats) and film it again.',
   short: 'This clip is too short. Keep recording while you take 6 to 8 natural steps.',
   slow: 'This device took too long to track the clip. Try a shorter recording: start recording just before you walk and stop once you’ve taken 6 to 8 steps. Or use a newer phone or a computer.',
+  model: 'The walk tracker couldn’t download or start. Check your connection, then try again in the latest Safari or Chrome.',
   tracking: 'Tracking was interrupted. Try again in the latest Chrome or Safari. If it keeps happening, record a new clip that starts just before you walk.'
  };
  return M[reason] || 'Use a continuous, well lit, full body clip with only you in frame.';
 }
-function showRefilm({failed=[], reason='tracking', details={}, info={}, diag=null}={}) {
+function showRefilm({failed=[], reason='tracking', details={}, info={}, diag=null, ok=[], onContinue=null}={}) {
  const panel=$('refilm'); if(!panel) return;
  panel.hidden=false;
  const labels=failed.map(k=>VIEW_LABEL[k]||k); const viewTxt = labels.length===1 ? `your ${labels[0]}` : labels.length ? `your ${labels.slice(0,-1).join(', ')} and ${labels.slice(-1)[0]}` : 'your walk video';
@@ -1544,21 +1569,36 @@ function showRefilm({failed=[], reason='tracking', details={}, info={}, diag=nul
  })[reason] || 'I couldn’t get a clear enough read yet.';
  panel.innerHTML = `<div class="refilm-card" role="alert"><span class="eyebrow">Let’s refilm</span>
   <h2>I couldn’t get a clear read on ${esc(viewTxt)}.</h2>
-  <p>Your report is built from <b>your</b> walk. Without usable tracking I won’t guess, and I won’t move you to foot checks yet.</p>
+  <p>Your report is built from <b>your</b> walk. I won’t guess from an unclear clip${onContinue?'. Replace it for the full read, or continue with the views that worked':', and I won’t move you to foot checks yet'}.</p>
   <p><b>What likely went wrong:</b> ${why}</p>
-  ${Object.keys(details).length?'<ul class="view-failures">'+failed.map(k=>'<li><b>'+esc(VIEW_LABEL[k])+':</b> '+esc(failText(k,details[k],info[k]))+'</li>').join('')+'</ul>':''}
+  ${ok.length?`<p class="views-ok"><b>Tracked fine:</b> ${esc(ok.map(k=>VIEW_LABEL[k]).join(', '))}. I’ll keep ${ok.length===1?'that one':'those'}, so you only need to replace what’s listed below.</p>`:''}
+  ${Object.keys(details).length?'<ul class="view-failures">'+failed.map(k=>'<li><b>'+esc(VIEW_LABEL[k])+':</b> <span class="fail-code">'+esc(failCode(details[k]))+'</span> '+esc(failText(k,details[k],info[k]))+'</li>').join('')+'</ul>':''}
   <ul class="refilm-tips">
     <li>Prop the phone sideways at about hip height, 10 to 12 feet away, on a hard floor. Or have someone hold it there for you.</li>
     <li>If someone is filming, they stay in one spot and turn slowly to follow you. No zooming, no walking alongside, no quick swings.</li>
     <li>One person only. Whole body in frame from head to feet, with space at the edges.</li>
     <li>Barefoot, in shorts, so everything from your knees down is showing.</li>
     <li>Good light, plain background, 6 to 8 natural steps. No need to trim. Start recording, then walk, and I’ll find your walking.</li>
-    <li>For the full check, all four views must track: front, back, left side, and right side.</li>
+    <li>The full check uses all four views: front, back, left side, and right side.</li>
   </ul>
   <p class="fine">Replace the clip${failed.length===1?'':''} below${failed.length?` (start with ${failed[0]})`:''}, then tap <b>Analyze my walk</b> again.</p>
-  <button class="btn" type="button" id="refilmFocus">Got it, fix my clips</button>
+  <div class="row"><button class="btn" type="button" id="refilmFocus">Got it, fix my clips</button>${onContinue?`<button class="btn line" type="button" id="refilmContinue">Continue with ${ok.length} of 4 views</button>`:''}</div>
+  ${onContinue?`<p class="fine">Continuing leaves out what the missing view${failed.length===1?'':'s'} would show. You can film a full set again anytime.</p>`:''}
+  ${failed.length&&reason!=='missing'?`<p class="fine">Still stuck? <button class="linkish" type="button" id="copySupport">Copy support details</button> and send them with your codes. <span id="copyDone" role="status"></span></p>`:''}
   ${diag&&Object.keys(diag).length?`<details class="tech-details"><summary>Details for support</summary><pre>${esc(Object.entries(diag).map(([k,d])=>k+': '+Object.entries(d||{}).filter(([a])=>!a.startsWith('__')).map(([a,b])=>a+'='+(typeof b==='object'?JSON.stringify(b):b)).join('; ')).join('\n\n'))}</pre>${Object.entries(diag).filter(([,d])=>d&&typeof d.__img==='string'&&d.__img.startsWith('data:image/')).map(([k,d])=>`<figure class="seen-pic"><img src="${d.__img}" alt="What the tracker saw in your ${esc(VIEW_LABEL[k]||k)} clip"><figcaption>${esc((VIEW_LABEL[k]||k).replace(/^./,c=>c.toUpperCase()))}: what the tracker saw</figcaption></figure>`).join('')}</details>`:''}</div>`;
  $('refilmFocus').onclick=()=>{ ($('slot-'+(failed[0]||'front'))||$('run')).scrollIntoView({block:'center',behavior:'smooth'}); };
+ if(onContinue) $('refilmContinue').onclick=onContinue;
+ const cs=$('copySupport');
+ if(cs) cs.onclick=async()=>{
+  const lines=['Minnemals Gait Check support details', new Date().toISOString(), navigator.userAgent, ''];
+  failed.forEach(k=>lines.push(`${VIEW_LABEL[k]}: ${failCode(details[k]||reason)} (${details[k]||reason})`));
+  if(ok.length) lines.push('Tracked fine: '+ok.join(', '));
+  if(diag) Object.entries(diag).forEach(([k,d])=>lines.push('', k+': '+Object.entries(d||{}).filter(([a])=>!a.startsWith('__')).map(([a,b])=>a+'='+(typeof b==='object'?JSON.stringify(b):b)).join('; ')));
+  const txt=lines.join('\n'); let done=false;
+  try{ await navigator.clipboard.writeText(txt); done=true; }catch(_){}
+  if(!done){ const ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{done=document.execCommand('copy');}catch(_){} ta.remove(); }
+  $('copyDone').textContent=done?'Copied.':'Couldn’t copy here. Open “Details for support” and screenshot it instead.';
+ };
 }
 function startFootRetest() {
  const data=load();
@@ -1575,7 +1615,7 @@ function startFootRetest() {
  const h=$('checks').querySelector('h1'); if(h){h.setAttribute('tabindex','-1'); h.focus();}
 }
 function showSaved() {
- const data=load(), p=$('savedPanel'); if(data.last?.risk) $('risk').checked=true;
+ const data=load(), p=$('savedPanel');
  if(!data.baseline&&!data.last){p.hidden=true;return;}
  p.hidden=false;p.innerHTML=`<b>Your last check is saved on this browser.</b><p class="fine">${data.baseline?'Baseline: '+dateLabel(data.baseline.date)+' · Retest: '+dateLabel(plusDays(data.baseline.date,14)):''}</p><div class="row"><button class="btn small" id="restoreReport">Open saved report</button><button class="btn line small" id="savedRetest">Quick foot retest</button></div>`;
  $('restoreReport').onclick=()=>{const r=load().last;if(!r)return;$('risk').checked=r.risk;$('upload').hidden=true;$('reportWrap').hidden=false;buildReport(r.M,r.snaps||[],false,r.SC,r.notes,true,r.path|| (hasWalk(r.M)?'video':'feet'));window.scrollTo({top:0});};
@@ -1615,7 +1655,8 @@ const pctTxt = v => fin(v) ? Math.round(v * 100) + '%' : 'n/a';
 function viewConfidence(v) {
   if (!v || v.error || !fin(v.visMean)) return null;
   const vis = Math.max(0, Math.min(1, (v.visMean - .5) / .45)), st = Math.min(1, (v.steps || 0) / 6), sec = Math.min(1, (v.seconds || 0) / 4);
-  const score = Math.round(100 * (.45 * vis + .3 * st + .25 * sec));
+  let score = Math.round(100 * (.45 * vis + .3 * st + .25 * sec));
+  if (v.relaxed) score = Math.min(score, 54);
   return { score, label: score >= 75 ? 'High' : score >= 55 ? 'Moderate' : 'Low' };
 }
 const GROUPS = [
@@ -1815,10 +1856,11 @@ function measuredHTML(M, snaps) {
   const tiles = [[steps, 'steps tracked'], [r0(secs) + ' s', 'of walking analyzed'], [used, `frames measured${read > used ? ` of ${read} read` : ''}`], [r0(M.cadence), 'steps per minute']];
   let h = `<div class="m-tiles">${tiles.map(([v, l]) => `<div><strong>${esc(String(v))}</strong><span>${esc(l)}</span></div>`).join('')}</div><div class="clip-readings">`;
   h += VIEW_KEYS.map(k => {
+    if (!V[k] || V[k].error) return `<article class="view-card missing"><div class="view-icon">${VIEW_ICON[k]}</div><div><h4>${esc(VIEW_LABEL[k][0].toUpperCase() + VIEW_LABEL[k].slice(1))} <span class="conf low">Not included</span></h4><p class="fine">This clip didn’t track clearly, so nothing in this report comes from this view.</p></div></article>`;
     const v = V[k] || {}, c = viewConfidence(v), side = k === 'left' || k === 'right';
     const leg = side && Number.isInteger(v.near) ? `Measured your ${v.near ? 'right' : 'left'} leg, the one facing the camera.` : side ? '' : 'Pelvis, knees and base of support.';
     return `<article class="view-card"><div class="view-icon">${VIEW_ICON[k]}</div><div><h4>${esc(VIEW_LABEL[k][0].toUpperCase() + VIEW_LABEL[k].slice(1))}${c ? ` <span class="conf ${c.label.toLowerCase()}">${c.label} confidence · ${c.score}</span>` : ''}</h4>
-    <p><b>${v.steps ?? 'n/a'}</b> steps · <b>${fin(v.seconds) ? (Math.round(v.seconds * 10) / 10) : 'n/a'} s</b> analyzed · <b>${v.usableFrames ?? 'n/a'}</b>${v.framesRead > v.usableFrames ? ` of ${v.framesRead}` : ''} frames${side && fin(v.cadence) ? ` · <b>${r0(v.cadence)}</b> steps/min` : ''}</p><p class="fine">${esc(leg)}${fin(v.visMean) ? ` Lower body tracking score ${Math.round(v.visMean * 100)}%.` : ''}</p></div></article>`;
+    <p><b>${v.steps ?? 'n/a'}</b> steps · <b>${fin(v.seconds) ? (Math.round(v.seconds * 10) / 10) : 'n/a'} s</b> analyzed · <b>${v.usableFrames ?? 'n/a'}</b>${v.framesRead > v.usableFrames ? ` of ${v.framesRead}` : ''} frames${side && fin(v.cadence) ? ` · <b>${r0(v.cadence)}</b> steps/min` : ''}</p><p class="fine">${esc(leg)}${fin(v.visMean) ? ` Lower body tracking score ${Math.round(v.visMean * 100)}%.` : ''}${v.relaxed ? ' Read with relaxed settings, so treat this view as a rough guide.' : ''}</p></div></article>`;
   }).join('');
   return h + `</div><p class="fine">Confidence blends how clearly your hips, knees, ankles, heels and toes were seen, how many steps were tracked, and how many seconds of continuous walking were usable. Left and right always mean your body, not the side of the screen.</p>`;
 }
@@ -1845,13 +1887,13 @@ function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='vide
  const noExercise=risk||!hasData||(!walkOK && !feetOnly);
  const V=M.views||{}, totalSteps=VIEW_KEYS.reduce((s,k)=>s+((V[k]&&!V[k].error&&V[k].steps)||0),0);
  const nOpp=ev.opp.length, numWord=['No','One','Two','Three'][nOpp];
- const summary=!hasData?'No walk or foot check results were collected, so there is no personal read yet. Film all four views or complete a few foot checks when you are ready.':feetOnly?`You skipped filming, so this read comes from your foot checks only. Film the four views anytime and the report adds step by step measurements of how you actually walk.`:!walkOK?'We need a clear walk video before we can read your gait. Refilm and try again.':`We tracked ${totalSteps} steps from four angles and measured ${ev.found.length} aspects of your walk against published typical ranges. ${flags.length?`${flags.length} sit outside the typical range. ${numWord} stand${nOpp===1?'s':''} out as your biggest opportunit${nOpp===1?'y':'ies'}, and every one of them is trainable.`:'Every one landed inside the typical range. The opportunities below are refinements, not repairs.'}`;
+ const summary=!hasData?'No walk or foot check results were collected, so there is no personal read yet. Film all four views or complete a few foot checks when you are ready.':feetOnly?`You skipped filming, so this read comes from your foot checks only. Film the four views anytime and the report adds step by step measurements of how you actually walk.`:!walkOK?'We need a clear walk video before we can read your gait. Refilm and try again.':`We tracked ${totalSteps} steps from ${['no','one','two','three','four'][viewsOk(M)]} angle${viewsOk(M)===1?'':'s'} and measured ${ev.found.length} aspects of your walk against published typical ranges. ${flags.length?`${flags.length} sit outside the typical range. ${numWord} stand${nOpp===1?'s':''} out as your biggest opportunit${nOpp===1?'y':'ies'}, and every one of them is trainable.`:'Every one landed inside the typical range. The opportunities below are refinements, not repairs.'}`;
  const cautious= !walkOK || areas.some(a=>a.score===null||a.seen<a.total) || flags.length>0 || ev.checks.length>0;
  const wear = cautious?['5 to 10 minutes','10 to 15 minutes','15 to 20 minutes','20 to 30 minutes']:['10 to 15 minutes','15 to 20 minutes','20 to 30 minutes','30 to 40 minutes'];
- let h=`<div class="band dark"><div class="in report-hero"><span class="eyebrow">Your Minnemals Gait Check · ${dateLabel(date)}</span><span class="member-chip">For Minnemals members</span><h1>${feetOnly?"Your movement assessment.":"Here’s what <em>your</em> walk showed."}</h1><div class="dash" aria-hidden="true"><div><div class="ring${feetOnly?' skip':''}" style="--p:${walkOK?100:0}"><b>${walkOK?4:0}<small>/4</small></b></div><span>${feetOnly?'Walk video skipped':walkOK?'Views tracked':'No verified walk'}</span></div><div><div class="big">${walkOK?totalSteps:0}</div><span>Steps tracked</span></div><div><div class="ring" style="--p:${Math.round(answered/CHECKS.length*100)}"><b>${answered}<small>/${CHECKS.length}</small></b></div><span>Foot checks completed</span></div></div><p class="lede">${summary}</p><p class="quote">Balance is trainable, and your feet are where it starts.</p><div class="row no-print"><button class="btn" id="printReport">Print or save PDF</button><button class="btn line" id="copyBtn">Copy report text</button></div><p id="copyMsg" class="fine" role="status" hidden></p><textarea id="copyFallback" hidden readonly></textarea></div></div><div class="band"><div class="in report-body">`;
+ let h=`<div class="band dark"><div class="in report-hero"><span class="eyebrow">Your Minnemals Gait Check · ${dateLabel(date)}</span><span class="member-chip">For Minnemals members</span><h1>${feetOnly?"Your movement assessment.":"Here’s what <em>your</em> walk showed."}</h1><div class="dash" aria-hidden="true"><div><div class="ring${feetOnly?' skip':''}" style="--p:${walkOK?viewsOk(M)*25:0}"><b>${walkOK?viewsOk(M):0}<small>/4</small></b></div><span>${feetOnly?'Walk video skipped':walkOK?'Views tracked':'No verified walk'}</span></div><div><div class="big">${walkOK?totalSteps:0}</div><span>Steps tracked</span></div><div><div class="ring" style="--p:${Math.round(answered/CHECKS.length*100)}"><b>${answered}<small>/${CHECKS.length}</small></b></div><span>Foot checks completed</span></div></div><p class="lede">${summary}</p><p class="quote">Balance is trainable, and your feet are where it starts.</p><div class="row no-print"><button class="btn" id="printReport">Print or save PDF</button><button class="btn line" id="copyBtn">Copy report text</button></div><p id="copyMsg" class="fine" role="status" hidden></p><textarea id="copyFallback" hidden readonly></textarea></div></div><div class="band"><div class="in report-body">`;
  let n=1; const sec=(eb)=>`${String(n++).padStart(2,'0')} / ${eb}`;
  if(walkOK){
-  h+=`<section class="walk-lead"><span class="eyebrow">${sec('What we measured')}</span><h2>${totalSteps} steps, four angles, your numbers.</h2><p class="muted">Every value in this report comes from your own clips, scaled to your own leg length so phone distance and zoom cannot skew it.</p>${measuredHTML(M,snaps)}</section>`;
+  h+=`<section class="walk-lead"><span class="eyebrow">${sec('What we measured')}</span><h2>${totalSteps} steps, ${['no','one','two','three','four'][viewsOk(M)]} angle${viewsOk(M)===1?'':'s'}, your numbers.</h2><p class="muted">Every value in this report comes from your own clips, scaled to your own leg length so phone distance and zoom cannot skew it.</p>${measuredHTML(M,snaps)}</section>`;
  } else if(feetOnly){
   h+=`<section class="walk-lead"><span class="eyebrow">${sec('What we measured')}</span><h2>Walk video not included</h2><p class="notice"><b>No walk video in this report.</b> The read below comes from your foot checks only. Film all four views later to add step counts, cadence and the full gait read.</p></section>`;
  } else h+=`<section><p class="notice">No usable walk tracking in this saved report. Film a new walk to refresh it.</p></section>`;
@@ -1896,7 +1938,7 @@ function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='vide
 function reportText(r,ev,R,noExercise) {
  const M=r.M, V=M.views||{};
  const L=['MINNEMALS GAIT CHECK',dateLabel(r.date),'Educational read of your walk and foot checks. Not medical advice.',''];
- if(ev.walk){ L.push('WHAT WE MEASURED'); VIEW_KEYS.forEach(k=>{const v=V[k]||{},c=viewConfidence(v);L.push(`${VIEW_LABEL[k]}: ${v.steps??'n/a'} steps, ${fin(v.seconds)?Math.round(v.seconds*10)/10:'n/a'} s, ${v.usableFrames??'n/a'} frames${c?`, ${c.label} confidence (${c.score})`:''}`);}); L.push(`Cadence: ${r0(M.cadence)} steps/min`,''); }
+ if(ev.walk){ L.push('WHAT WE MEASURED'); VIEW_KEYS.forEach(k=>{const v=V[k]||{},c=viewConfidence(v);if(!V[k]||V[k].error){L.push(`${VIEW_LABEL[k]}: not included (clip didn't track)`);return;}L.push(`${VIEW_LABEL[k]}: ${v.steps??'n/a'} steps, ${fin(v.seconds)?Math.round(v.seconds*10)/10:'n/a'} s, ${v.usableFrames??'n/a'} frames${c?`, ${c.label} confidence (${c.score})`:''}`);}); L.push(`Cadence: ${r0(M.cadence)} steps/min`,''); }
  L.push('YOUR BIGGEST OPPORTUNITIES',...(ev.opp.length?ev.opp.map((o,i)=>o.kind==='video'?`${i+1}. ${o.f.head}: ${o.f.unit(o.v)} (typical ${o.f.typical})`:`${i+1}. ${CHECK_HEAD[o.c.id]} (self check: ${checkValue(o.c,o.a)})`):['None stand out.']),'');
  if(ev.walk){ L.push('THE FULL READ'); ev.found.forEach(x=>L.push(`${x.f.name}: ${x.f.unit(x.v)} (typical ${x.f.typical}). ${VERDICT[x.s]}.`)); L.push(''); }
  L.push('YOUR 10 MINUTE DAILY ROUTINE');
@@ -1913,12 +1955,26 @@ $('gateForm').addEventListener('submit', e => {
   if (ACCESS_CODES.includes($('code').value.trim().toUpperCase())) {
     $('gateErr').hidden = true; pass.classList.add('unlocking'); $('unlockTxt').textContent = 'Unlocked';
     const go = () => { $('gate').hidden = true; $('upload').hidden = false; showSaved(); window.scrollTo({ top: 0 }); };
+    // Start the ~16 MB tracker download now, while they film, so Analyze doesn't wait on it.
+    setTimeout(() => { if (typeof Pose === 'function') initModel(); }, 1500);
     matchMedia('(prefers-reduced-motion: reduce)').matches ? go() : setTimeout(go, 650);
   } else { $('gateErr').hidden = false; pass.classList.remove('shake'); void pass.offsetWidth; pass.classList.add('shake'); }
 });
 
 /* ---------- uploads ---------- */
 const files = {};
+/* Views that already tracked are kept, keyed by the file, so replacing one clip only re-tracks that clip. */
+const viewCache = {};
+const sigOf = f => f ? [f.name, f.size, f.lastModified].join('|') : '';
+function setSlotStatus(k, state, code, text) {
+  const slot = $('slot-' + k); if (!slot) return;
+  let el = $('stat-' + k);
+  if (!el) { el = document.createElement('span'); el.id = 'stat-' + k; el.className = 'slot-stat'; el.setAttribute('role', 'status'); $('name-' + k).after(el); }
+  slot.classList.toggle('bad', state === 'bad'); slot.classList.toggle('tracked', state === 'ok');
+  el.className = 'slot-stat ' + (state || '');
+  el.textContent = state === 'ok' ? '✓ Tracked. You can leave this one.' : (code ? code + ' · ' : '') + (text || '');
+  el.hidden = !state;
+}
 const isPhone = window.matchMedia?.('(pointer: coarse)')?.matches ?? false;
 $('deskNote').hidden = isPhone;
 VIEW_KEYS.forEach(k => ['r-', 'f-'].forEach(pre => $(pre + k).addEventListener('change', e => {
@@ -1929,6 +1985,10 @@ VIEW_KEYS.forEach(k => ['r-', 'f-'].forEach(pre => $(pre + k).addEventListener('
   $('rec-' + k + '-l').firstChild.textContent = 'Record again';
   const pv = $('prev-' + k); if (pv.src) URL.revokeObjectURL(pv.src);
   pv.src = URL.createObjectURL(f); pv.hidden = false;
+  delete viewCache[k]; setSlotStatus(k, '');
+  // Quick checks the moment a clip is added, before any tracking: can this browser open it, and is it long enough?
+  pv.onloadedmetadata = () => { if (Number.isFinite(pv.duration) && pv.duration < 2) setSlotStatus(k, 'warn', failCode('short'), 'This clip is under 2 seconds. Record again and take 6 to 8 natural steps.'); };
+  pv.onerror = () => { if (files[k] === f) setSlotStatus(k, 'warn', failCode('decode'), 'This browser can’t play this file. Record it here, or save it as an MP4 first.'); };
   updateRun();
 })));
 let modelReady = false;
@@ -1936,15 +1996,19 @@ const updateRun = () => { { const n=VIEW_KEYS.filter(k=>!!files[k]).length; $('v
 
 /* ---------- pose model ---------- */
 let pose, resolver = null;
-async function initModel() {
-  if (modelReady) return; $('modelStatus').textContent='Loading local walk tracking…';
+let modelLoading = null;
+function initModel() {
+  if (modelReady) return Promise.resolve();
+  return modelLoading || (modelLoading = loadModel().finally(() => { modelLoading = null; }));
+}
+async function loadModel() {
   try {
     pose = new Pose({ locateFile: f => CDN + f });
     pose.setOptions({ modelComplexity: 1, smoothLandmarks: true, enableSegmentation: false, minDetectionConfidence: .5, minTrackingConfidence: .5 });
     const modelInstance=pose;
     pose.onResults(r => { if(pose!==modelInstance)return; if (resolver) { const fn = resolver; resolver = null; fn(r); } });
-    await timeout(pose.initialize(), 25000, 'Model loading timed out');
-    modelReady = true; $('modelStatus').textContent = 'Ready when you are.'; updateRun();
+    await timeout(pose.initialize(), 90000, 'Model loading timed out');
+    modelReady = true; updateRun();
   } catch (err) {
     $('modelStatus').textContent = 'The tracking model couldn’t load in this browser. Try the latest Chrome or Safari.';
     /* Tracking failure is handled in the UI, never interpreted as a good result. */
@@ -2328,7 +2392,7 @@ async function trackClip(file, onProg, mode) {
    sideways by the browser: read it once more turned a quarter turn, and keep that only if it gives an upright person and
    a clean read. Returns the clip (still open) or, after a failed second read, a stand in holding the first read's details. */
 async function readView(file, k, prog) {
-  const study = c => (k === 'left' || k === 'right') ? analyzeSide(c.frames, k) : analyzeFrontal(c.frames);
+  const study = c => judge(() => (k === 'left' || k === 'right') ? analyzeSide(c.frames, k) : analyzeFrontal(c.frames));
   const clip = await trackClip(file, prog);
   const a = study(clip);
   // A person lying on their side in a portrait clip means the picture arrived turned, whatever check failed.
@@ -2383,19 +2447,21 @@ $('run').addEventListener('click', async () => {
   // Must happen before any await so iPhone Safari counts the clip playback as started by this tap.
   if(files.front) primeClipVideo(files.front);
   const generation=++analysisRun; isAnalyzing=true; updateRun(); $('run').disabled = true;
+  let wake = null; try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(w => { wake = w; if (!isAnalyzing) w.release().catch(()=>{}); }, () => {}); } catch (_) {}
+  const sleepOk = () => { try { if (wake) wake.release().catch(()=>{}); } catch (_) {} wake = null; };
   const rf=$('refilm'); if(rf) rf.hidden=true;
   const conf=$('feetConfirm'); if(conf) conf.hidden=true;
   $('modelStatus').textContent='Loading local walk tracking…';
   await initModel();
-  if(generation!==analysisRun){isAnalyzing=false;updateRun();return;}
+  if(generation!==analysisRun){isAnalyzing=false;sleepOk();updateRun();return;}
   if (!modelReady) {
-    isAnalyzing=false; updateRun(); hideClipPreview();
+    isAnalyzing=false; sleepOk(); updateRun(); hideClipPreview();
     $('modelStatus').textContent = 'Tracking is unavailable in this browser. Try the latest Chrome or Safari and short MP4s, then Analyze again.';
-    showRefilm({failed:VIEW_KEYS.slice(), reason:'model'});
+    showRefilm({failed:VIEW_KEYS.slice(), reason:'model', details:Object.fromEntries(VIEW_KEYS.map(k=>[k,'model']))});
     return;
   }
   if(!VIEW_KEYS.every(k=>files[k])){
-    isAnalyzing=false; updateRun(); hideClipPreview();
+    isAnalyzing=false; sleepOk(); updateRun(); hideClipPreview();
     showRefilm({failed:VIEW_KEYS.filter(k=>!files[k]), reason:'missing'});
     return;
   }
@@ -2413,16 +2479,21 @@ $('run').addEventListener('click', async () => {
   const res = {}, snaps = [], failed = [], decodeFail=[], details={}, info={}, diags={};
   for (let n = 0; n < keys.length; n++) {
     const k = keys[n];
-    $('liveProc').textContent = `Tracking your ${VIEW_LABEL[k]} (${n + 1} of ${keys.length})…`;
+    const kept = viewCache[k];
+    if (kept && kept.sig === sigOf(files[k])) {
+      res[k] = kept.a; diags[k] = kept.diag; if (kept.snap) snaps.push(kept.snap);
+      $('liveBar').style.width = `${((n + 1) / keys.length) * 100}%`; continue;
+    }
+    $('liveProc').textContent = `Tracking your ${VIEW_LABEL[k]} (${n + 1} of ${keys.length})… Keep this screen open.`;
     let clip;
     try {
       if(!modelReady){await initModel();if(!modelReady)throw new Error('Tracking model unavailable');}
       const r = await readView(files[k], k, p => { $('liveBar').style.width = `${((n + p) / keys.length) * 100}%`; });
       clip = r.clip; diags[k] = clip.diag; let a = r.a;
-      if(generation!==analysisRun){releaseClip(clip);isAnalyzing=false;updateRun();hideClipPreview();return;}
+      if(generation!==analysisRun){releaseClip(clip);isAnalyzing=false;sleepOk();updateRun();hideClipPreview();return;}
       res[k] = a;
       if (a.error) {failed.push(k);details[k]=(clip.window&&clip.window.slow&&['coverage','steps','motion'].includes(a.reason))?'slow':(a.reason||'tracking');if(a.info)info[k]=a.info;}
-      else { const src = await snapshot(clip, a.snapT).catch(()=>null); if (src) snaps.push({ src, label: VIEW_LABEL[k][0].toUpperCase()+VIEW_LABEL[k].slice(1) }); }
+      else { const src = await snapshot(clip, a.snapT).catch(()=>null), snap = src ? { src, label: VIEW_LABEL[k][0].toUpperCase()+VIEW_LABEL[k].slice(1) } : null; if (snap) snaps.push(snap); viewCache[k] = { sig: sigOf(files[k]), a, diag: clip.diag, snap }; setSlotStatus(k, 'ok'); }
       if (!clip.retried) {
         if (a.error && clip.diag) clip.diag.result = a.reason || 'tracking';
         if (clip.diag) { try { clip.diag.feet = feetNote(clip.frames); } catch (_) {} }
@@ -2438,13 +2509,29 @@ $('run').addEventListener('click', async () => {
       else if(String(err&&err.message||err).includes('too short')) {details[k]='short';}
     }
   }
-  isAnalyzing=false; updateRun(); hideClipPreview(); if(generation!==analysisRun)return; $('liveBar').style.width = '100%';
+  isAnalyzing=false; sleepOk(); updateRun(); hideClipPreview(); if(generation!==analysisRun)return; $('liveBar').style.width = '100%';
   window.__gaitDiag = diags;
+  failed.forEach(k => setSlotStatus(k, 'bad', failCode(details[k]), 'Needs a new clip. See why above.'));
+  const okKeys = keys.filter(k => !failed.includes(k));
+  const relaxedKeys = okKeys.filter(k => res[k] && res[k].relaxed);
+  const extraNotes = relaxedKeys.length ? [`Your ${relaxedKeys.map(k => VIEW_LABEL[k]).join(' and ')} clip${relaxedKeys.length === 1 ? ' was' : 's were'} read with relaxed settings (a short or less clear stretch of walking), so ${relaxedKeys.length === 1 ? 'that view is' : 'those views are'} marked low confidence.`] : [];
+  const proceed = (M, notes) => {
+    tracked = { M, snaps, notes, path:'video' };
+    trackBar.hidden=true;
+    const rf2=$('refilm'); if(rf2) rf2.hidden=true;
+    $('upload').hidden = true; $('checks').hidden = false; $('reportWrap').hidden = true;
+    renderChecks(); $('track').hidden = false; if($('procStatus')) $('procStatus').textContent = `${viewsOk(M)} of 4 views tracked. Finish the foot checks, then see your report.`; if($('bar')) $('bar').style.width='100%';
+    updateReportBtn(); window.scrollTo({ top: 0 });
+  };
   // All four must succeed; any failure stays on Film with a refilm message.
   if (failed.length) {
     $('liveProc').textContent = 'One or more views need a clearer clip. See how to refilm below.';
     try { console.info('[gait check] clip details', JSON.stringify(diags, (key, val) => key.startsWith('__') ? undefined : val)); } catch (_) {}
-    showRefilm({failed, reason: decodeFail.length===failed.length?'decode':'tracking',details,info,diag:Object.fromEntries(failed.map(k=>[k,diags[k]]))});
+    const partial = combine(Object.fromEntries(okKeys.map(k => [k, res[k]])));
+    const canGo = okKeys.length >= MIN_VIEWS && hasWalk(partial);
+    const missTxt = failed.map(k => VIEW_LABEL[k]).join(' and ');
+    showRefilm({failed, reason: decodeFail.length===failed.length?'decode':'tracking',details,info,diag:Object.fromEntries(failed.map(k=>[k,diags[k]])), ok: okKeys,
+      onContinue: canGo ? () => proceed(partial, [`This report uses ${okKeys.length} of 4 views. Your ${missTxt} clip${failed.length === 1 ? '' : 's'} didn’t track, so anything only ${failed.length === 1 ? 'that view' : 'those views'} can show is left out. Film a full set anytime with “Start a new check.”`, ...extraNotes]) : null});
     tracked=null; return;
   }
   const M = combine(res);
@@ -2453,12 +2540,7 @@ $('run').addEventListener('click', async () => {
     showRefilm({failed:keys, reason:'tracking'});
     tracked=null; return;
   }
-  tracked = { M, snaps, notes:[], path:'video' };
-  trackBar.hidden=true;
-  if(rf) rf.hidden=true;
-  $('upload').hidden = true; $('checks').hidden = false; $('reportWrap').hidden = true;
-  renderChecks(); $('track').hidden = false; if($('procStatus')) $('procStatus').textContent = 'All four views tracked. Finish the foot checks, then see your report.'; if($('bar')) $('bar').style.width='100%';
-  updateReportBtn(); window.scrollTo({ top: 0 });
+  proceed(M, extraNotes);
 });
 $('toReport').addEventListener('click', () => {
   const walkOK = tracked && (tracked.path==='feet' || hasWalk(tracked.M));
