@@ -638,11 +638,11 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
       <div class="ways" id="filmWays" role="group" aria-labelledby="waysTitle">
         <h3 id="waysTitle" data-copy="film.ways.title">Two ways to film. Pick whichever is easier.</h3>
         <div class="way"><span class="way-n">Option 1</span><strong data-copy="film.way1.title">Prop it up and walk by</strong><span data-copy="film.way1.text">Lean your phone sideways at about hip height, 10 to 12 feet away. Hit record, then walk past it, toward it, or away from it.</span></div>
-        <div class="way"><span class="way-n">Option 2</span><strong data-copy="film.way2.title">Have someone film you</strong><span data-copy="film.way2.text">They hold the phone sideways at hip height and stay in one spot, turning slowly to keep your whole body in frame. No zooming, and no walking alongside you.</span></div>
+        <div class="way"><span class="way-n">Option 2</span><strong data-copy="film.way2.title">Have someone film you</strong><span data-copy="film.way2.text">They hold the phone sideways at hip height and stay in one spot, turning slowly to keep you in the frame from your shoulders down. No zooming, and no walking alongside you.</span></div>
       </div><div class="setup">
         <div><svg viewBox="0 0 34 34" aria-hidden="true"><rect x="3" y="10" width="28" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="17.5" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><p><strong data-copy="film.tip1.title">Phone sideways and steady</strong><span data-copy="film.tip1.text">Landscape, level, and about 10 to 12 feet from your path. Record a short practice clip first.</span></p></div>
         <div><svg viewBox="0 0 34 34" aria-hidden="true"><use href="#fp" transform="translate(12 17) scale(.42)"/><use href="#fp" transform="translate(23 17) scale(-.42 .42)"/></svg><p><strong data-copy="film.tip2.title">Barefoot, knees showing</strong><span data-copy="film.tip2.text">Film barefoot, not in shoes. Wear shorts so nothing covers your knees, shins, ankles, or feet.</span></p></div>
-        <div><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M4 26h26M8 26V12M17 26V8M26 26V16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p><strong data-copy="film.tip3.title">Normal pace</strong><span data-copy="film.tip3.text">6 to 8 natural steps. Keep head and feet visible and leave space at frame edges. No need to trim. Start recording, then walk. I’ll find your walking. Avoid a treadmill if possible.</span></p></div>
+        <div><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M4 26h26M8 26V12M17 26V8M26 26V16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><p><strong data-copy="film.tip3.title">Normal pace</strong><span data-copy="film.tip3.text">6 to 8 natural steps. Show from your shoulders down in the frame, and leave space at the edges. No need to trim. Start recording, then walk. I’ll find your walking. Avoid a treadmill if possible.</span></p></div>
       </div>
       <p class="desk" id="deskNote" hidden data-copy="film.desktop">On a computer? Open this page on your phone to record right here, or upload clips you've already filmed.</p>
       <div class="slots">
@@ -1539,9 +1539,9 @@ function failText(k, reason, info) {
    ? 'Your feet were cut off or hidden for most of the clip. Leave floor showing below your feet the whole time. Start farther away and stop walking before you are closer than about 6 feet to the phone.'
    : 'Your feet were cut off or hidden for most of the clip. Set the phone a little farther back so there is floor showing below your feet the whole time.',
   knees: 'Your knees and lower legs were hard to see. Wear shorts so your knees, shins, and ankles are showing, and film in brighter light.',
-  visibility: 'I couldn’t see your hips, knees, and ankles clearly enough. Film in brighter light with your whole body in frame, head to feet.',
-  coverage: secs + 'I need at least 2 seconds of steady walking with your whole body in frame. Keep head to feet in view the whole way, and keep the phone still or turning smoothly.',
-  distance: 'You were too small in the picture to measure. Move the phone closer so you fill more of the frame, with your head and feet still showing.',
+  visibility: 'I couldn’t see your hips, knees, and ankles clearly enough. Film in brighter light and stay in the frame from your shoulders down.',
+  coverage: secs + 'I need at least 2 seconds of steady walking with you in the frame from your shoulders down. Keep your shoulders and feet in view the whole way, and keep the phone still or turning smoothly.',
+  distance: 'You were too small in the picture to measure. Move the phone closer so you fill more of the frame, still showing from your shoulders down.',
   identity: 'Tracking kept jumping. Film one person only, with no cuts. If someone is filming, ask them to turn smoothly instead of swinging the phone.',
   steps: 'I found fewer than three clear steps. Walk past the camera with your side to it for 6 to 8 natural steps. Start walking a few steps before you reach the frame so you are already at your normal pace.',
   sideLooksFrontal: 'This looks like a front or back clip. For the side views, walk across the camera’s view with your side facing the lens.',
@@ -1554,7 +1554,7 @@ function failText(k, reason, info) {
   model: 'The walk tracker couldn’t download or start. Check your connection, then try again in the latest Safari or Chrome.',
   tracking: 'Tracking was interrupted. Try again in the latest Chrome or Safari. If it keeps happening, record a new clip that starts just before you walk.'
  };
- return M[reason] || 'Use a continuous, well lit, full body clip with only you in frame.';
+ return M[reason] || 'Use a continuous, well lit clip with only you in the frame, from your shoulders down.';
 }
 function showRefilm({failed=[], reason='tracking', details={}, info={}, diag=null, ok=[], onContinue=null}={}) {
  const panel=$('refilm'); if(!panel) return;
@@ -1576,7 +1576,7 @@ function showRefilm({failed=[], reason='tracking', details={}, info={}, diag=nul
   <ul class="refilm-tips">
     <li>Prop the phone sideways at about hip height, 10 to 12 feet away, on a hard floor. Or have someone hold it there for you.</li>
     <li>If someone is filming, they stay in one spot and turn slowly to follow you. No zooming, no walking alongside, no quick swings.</li>
-    <li>One person only. Whole body in frame from head to feet, with space at the edges.</li>
+    <li>One person only. Show from your shoulders down in the frame, with space at the edges.</li>
     <li>Barefoot, in shorts, so everything from your knees down is showing.</li>
     <li>Good light, plain background, 6 to 8 natural steps. No need to trim. Start recording, then walk, and I’ll find your walking.</li>
     <li>The full check uses all four views: front, back, left side, and right side.</li>
@@ -1981,7 +1981,7 @@ VIEW_KEYS.forEach(k => ['r-', 'f-'].forEach(pre => $(pre + k).addEventListener('
   const f = e.target.files[0]; if (!f) return;
   files[k] = f;
   $('slot-' + k).classList.add('has');
-  $('name-' + k).textContent = pre === 'r-' ? 'Recorded. Watch it back to make sure your whole body is in frame.' : f.name;
+  $('name-' + k).textContent = pre === 'r-' ? 'Recorded. Watch it back to make sure you are in the frame from your shoulders down.' : f.name;
   $('rec-' + k + '-l').firstChild.textContent = 'Record again';
   const pv = $('prev-' + k); if (pv.src) URL.revokeObjectURL(pv.src);
   pv.src = URL.createObjectURL(f); pv.hidden = false;
