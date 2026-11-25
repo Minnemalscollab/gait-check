@@ -523,7 +523,7 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
 .selfcheck{background:var(--sand-t);border-radius:10px;padding:8px 10px;font-size:.85rem!important}
 .train{font-size:.88rem!important}.train b{color:var(--teal)}
 .opportunity .gauge{max-width:520px}
-.cant-see{margin-top:18px;background:var(--navy-t);border-radius:16px;padding:16px 18px}.cant-see h3{margin:0 0 6px;font-size:1.02rem;color:var(--navy)}.cant-see ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:.88rem}
+.cant-see{margin-top:18px;background:var(--navy-t);border-radius:16px;padding:16px 18px}.cant-see h3{margin:0 0 6px;font-size:1.02rem;color:var(--navy)}.cant-see p{margin:0;font-size:.88rem}
 .r-toggle{display:inline-flex;background:var(--sand-t);border-radius:99px;padding:4px;gap:4px;margin:6px 0 10px}
 .r-toggle button{border:0;background:transparent;border-radius:99px;padding:8px 14px;font:600 .85rem var(--font);color:var(--navy);cursor:pointer}
 .r-toggle button.on{background:var(--navy);color:#fff}
@@ -722,7 +722,7 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
       <ol class="steps" aria-label="Progress"><li class="done" data-n="1"><span>1 · Film</span></li><li class="on" id="stepFeet" data-n="2" aria-current="step"><span>2 · Feet</span></li><li data-n="3"><span>3 · Report</span></li></ol>
       <div class="stack-s">
         <h1 data-copy="feet.title">Now let's check your feet</h1>
-        <p class="lede" data-copy="feet.lede">Try both feet near a sturdy counter. Record what you notice, not what you think you should do. Stop if anything hurts. Skipping is always okay.</p>
+        <p class="lede" data-copy="feet.lede">If anything feels unsafe, skip it. Try both feet near a sturdy counter. Record what you notice, not what you think you should do. Stop if anything hurts. Skipping is always okay.</p>
       </div>
   </div></div>
   <div class="band">
@@ -1303,14 +1303,14 @@ const CHECKS = [
     tryThis: ['Knee to wall mobility: 10 slow reps per side, inching your foot back as it gets easier.', 'Calf raises with a slow 3-second lower, 2 sets of 10.', 'A few minutes a day in a supported deep squat.'],
     pro: 'what\'s limiting your ankle: the joint, the calf, or something else.' },
   { id: 'heelRaise', name: 'Single leg heel raise count', kind: 'count',
-    how: 'Barefoot on a firm, flat floor, stand on one foot with your fingertips on a wall for balance only and your knee straight. Rise as high as you can, then lower, at a steady pace of about one raise every 2 seconds (say up, down). Count each full height raise. Stop when you can no longer reach full height, lose the pace, or need the wall to help you up. Rest a minute, then do the other foot. Skip it if standing on one foot feels unsafe.',
+    how: 'Barefoot on a firm, flat floor, stand on one foot with your fingertips on a wall for balance only and your knee straight. Rise as high as you can, then lower, at a steady pace of about one raise every 2 seconds (say up, down). Count each full height raise. Stop when you can no longer reach full height, lose the pace, or need the wall to help you up. Rest a minute, then do the other foot.',
     opts: ['Both sides at or near typical for your age', 'One side is below typical, or the sides differ', 'Both sides are below typical for your age'],
     title: s => s ? `Your ${s} calf runs out of endurance sooner` : 'Your calves run out of endurance sooner than typical for your age',
     why: 'Your calf does the most work of any muscle at push off, lifting your whole body weight over the big toe on every step. Repeated full height raises show how long it can keep doing that. Fewer raises than typical for your age, or one side well behind the other, usually shows up late in a walk as a flatter, shorter push off on that side.',
     tryThis: ['Single leg heel raises: 2 sets of 8 per side, 2 seconds up and 2 seconds down, weaker side first.', 'Retest every few weeks with the same pace and count.'],
     pro: 'how your calf and Achilles handle load, and whether the limit is strength, endurance or ankle motion.' },
   { id: 'balance', name: 'Single leg balance',
-    how: 'Stand beside a sturdy counter on a clear, flat floor. If safe, try one foot for up to 30 seconds with eyes open. Keep your hand ready for support. Switch sides. Skip if unsafe; never push through a wobble or symptoms.',
+    how: 'Stand beside a sturdy counter on a clear, flat floor. If safe, try one foot for up to 30 seconds with eyes open. Keep your hand ready for support. Switch sides.',
     opts: ['Steady for 30 seconds on both without hand support', 'One side is shakier', 'Hard to hold on both sides'],
     title: s => s ? `Balance is harder on your ${s} leg` : 'Standing on one leg is a challenge',
     why: 'Every step is a moment on one leg. Balance comes from your foot sensing the ground and your hip holding you steady, so a wobble here often shows up in your walk as a hip drop or sway.',
@@ -1336,7 +1336,7 @@ const toeAngle={left:null,right:null}; const toeResult=()=>null;
 /* Single leg heel raise norms: Hebert Losier et al. 2017, Physiotherapy 103(4):446 to 452, Table 4.
    Median full raises per decade for males and females (activity level 4, BMI 24.2), averaged across left and right. */
 const HR_NORMS = [['u30','Under 30',37.45,30.15],['30s','30 to 39',32.85,27.4],['40s','40 to 49',28.3,24.65],['50s','50 to 59',23.75,21.95],['60s','60 to 69',19.15,19.2],['70s','70 to 79',14.55,16.45],['80s','80 and over',10.0,13.7]];
-const hrNorm = (age, sex) => { const r = HR_NORMS.find(x => x[0] === age); if (!r) return null; return Math.round(sex === 'male' ? r[2] : sex === 'female' ? r[3] : (r[2] + r[3]) / 2); };
+const hrNorm = (age, sex) => { const r = HR_NORMS.find(x => x[0] === age); if (!r || (sex !== 'male' && sex !== 'female')) return null; return Math.round(sex === 'male' ? r[2] : r[3]); };
 const hrStatus = (n, norm) => n >= norm ? 'At or above typical' : n >= .8 * norm ? 'Close to typical' : 'Below typical';
 function hrEval(left, right, age, sex) {
   const norm = hrNorm(age, sex); if (!norm) return null;
@@ -1354,7 +1354,7 @@ function hrTakeaway(a) {
   if (a.asymNotable) return `Both sides are close to typical, but your ${a.weaker} side did ${a.asym}% fewer raises than your ${strong} side. Closing that gap matters more than raising the total.`;
   return 'Both calves are right where they should be for your age group, and the two sides match. Keep it that way.';
 }
-const sexLabel = x => x === 'male' ? 'men' : x === 'female' ? 'women' : 'adults, midpoint of women and men';
+const sexLabel = x => x === 'male' ? 'men' : x === 'female' ? 'women' : '';
 function checkValue(c, a) {
   if (c.id === 'heelRaise' && a && Number.isInteger(a.left)) return `Left ${a.left} · Right ${a.right} · typical about ${a.norm} for ${(HR_NORMS.find(x => x[0] === a.age) || [, , ''])[1].toLowerCase()} ${sexLabel(a.sex)}${a.asymNotable ? ` · ${a.asym}% side difference` : ''}`;
   return c.opts[a.v] + (a.side ? ` (${a.side})` : '');
@@ -1364,15 +1364,15 @@ function hrInputs(c) {
       <label class="hr-field">Your age group<select id="hr-age"><option value="">Choose</option>${HR_NORMS.map(r => `<option value="${r[0]}">${r[1]}</option>`).join('')}</select></label>
       <div class="hr-field"><span>Typical counts differ for women and men</span><div class="hr-sex">
         <label><input type="radio" name="hr-sex" id="hr-sex-female" value="female">Woman</label>
-        <label><input type="radio" name="hr-sex" id="hr-sex-male" value="male">Man</label>
-        <label><input type="radio" name="hr-sex" id="hr-sex-na" value="na">Prefer not to say</label></div></div>
+        <label><input type="radio" name="hr-sex" id="hr-sex-male" value="male">Man</label></div></div>
       <div class="hr-pair"><label class="hr-field">Left foot raises<input type="number" id="hr-left" inputmode="numeric" min="0" max="150" step="1" placeholder="0"></label>
       <label class="hr-field">Right foot raises<input type="number" id="hr-right" inputmode="numeric" min="0" max="150" step="1" placeholder="0"></label></div>
     </fieldset>`;
 }
 function hrCard(a) {
   const st = n => hrStatus(n, a.norm), row = HR_NORMS.find(x => x[0] === a.age);
-  const col = a.sex === 'male' ? 2 : a.sex === 'female' ? 1 : 0;
+  if (!a || !row || (a.sex !== 'male' && a.sex !== 'female')) return '';
+  const col = a.sex === 'male' ? 2 : 1;
   return `<article class="obs hr-card ${a.v ? 'flag' : 'ok'}"><span class="badge ${a.v ? 'practice' : 'positive'}">${a.v ? 'Worth working on' : 'Looking good'}</span><h3>${esc(a.v ? call(CHECKS.find(c => c.id === 'heelRaise').title, a.side) : 'Your calf endurance is on track')}</h3>
   <div class="hr-counts"><div><span>Left</span><strong>${a.left}</strong><em class="${st(a.left) === 'Below typical' ? 'lo' : ''}">${st(a.left)}</em></div><div><span>Right</span><strong>${a.right}</strong><em class="${st(a.right) === 'Below typical' ? 'lo' : ''}">${st(a.right)}</em></div><div><span>Side difference</span><strong>${a.asym}%</strong><em class="${a.asymNotable ? 'lo' : ''}">${a.asymNotable ? 'Notable, over 10%' : 'Even, 10% or less'}</em></div></div>
   <p class="hr-take"><b>Takeaway:</b> ${esc(hrTakeaway(a))}</p>
@@ -1412,8 +1412,8 @@ function readChecks() {
       const skip = document.querySelector(`input[name="sc-${c.id}"][value="-1"]:checked`); if (skip) return;
       const num = id => { const el = $(id); const t = el ? el.value.trim() : ''; if (!/^\d{1,3}$/.test(t)) return null; const n = +t; return n <= 150 ? n : null; };
       const l = num('hr-left'), r = num('hr-right'), age = $('hr-age') ? $('hr-age').value : '', sx = document.querySelector('input[name="hr-sex"]:checked');
-      if (l === null || r === null || !age) return;
-      const a = hrEval(l, r, age, sx ? sx.value : 'na'); if (a) out[c.id] = a; return;
+      if (l === null || r === null || !age || !sx || (sx.value !== 'male' && sx.value !== 'female')) return;
+      const a = hrEval(l, r, age, sx.value); if (a) out[c.id] = a; return;
     }
     const o = document.querySelector(`input[name="sc-${c.id}"]:checked`);
     if (!o || +o.value < 0) return;
@@ -1919,9 +1919,15 @@ function routineHTML(R) {
   const list = (ids, cls) => { let t = 0; const total = ids.reduce((s, id) => s + RD[id].secs, 0); return `<ol class="routine2 ${cls}" ${cls === 'r5' ? 'hidden' : ''}>${ids.map(id => { const d = RD[id], st = t; t += d.secs; return `<li><span class="time">${mmss(st)}</span><div><b>${esc(d.name)}</b><p class="dosage">${esc(d.dose)} · about ${d.secs >= 60 ? Math.round(d.secs / 60 * 2) / 2 + ' min' : d.secs + ' s'}</p><p class="cue"><i>Cue:</i> ${esc(d.cue)}</p></div></li>`; }).join('')}<li class="end"><span class="time">${mmss(total)}</span><div><b>Done.</b><p>About ${Math.round(total / 60)} minutes.</p></div></li></ol>`; };
   return `<div class="r-toggle no-print" role="group" aria-label="Routine length"><button class="on" data-len="10" aria-pressed="true">10 minutes</button><button data-len="5" aria-pressed="false">5 minute version</button></div>${list(R.ten, 'r10')}${list(R.five, 'r5')}`;
 }
-const CANT_SEE = [['Big toe joint angle', 'There is no big toe joint point in the tracker, so push off is read from the heel to toe line, and your big toe lift check fills in part of the rest.'], ['Toe gripping and curling', 'One tracked point per foot cannot show toes curling at push off. Checking it needs eyes on your bare feet, in person.'], ['Heel rolling in (pronation)', 'It needs a line down the back of the heel bone, which a phone can’t draw reliably. Knee tracking and your arch check stand in.'], ['Toe-in or toe-out', 'Measuring which way your feet point needs a view from above. From the front, the camera angle distorts it too much to trust.'], ['Heel whip', 'It happens in under a tenth of a second, faster than the frames we analyze.']];
 const andList = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + (a.length > 2 ? ',' : '') + ' and ' + a[a.length - 1];
+function cleanSC(SC) {
+  const out = Object.assign({}, SC || {});
+  const a = out.heelRaise;
+  if (a && (a.sex !== 'male' && a.sex !== 'female')) delete out.heelRaise;
+  return out;
+}
 function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='video') {
+  SC = cleanSC(SC);
  const risk=$('risk').checked, date=restoring?(load().last?.date||new Date().toISOString()):new Date().toISOString();
  if(!hasWalk(M) && path!=='feet') {M={};snaps=[];}
  const areas=areaResults(M,SC), measured=RULES.filter(r=>r.ok(M)).length, answered=CHECKS.filter(c=>SC[c.id]).length;
@@ -1963,7 +1969,7 @@ function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='vide
   h+=`<section><span class="eyebrow">${sec('Everything we measured')}</span><h2>Your walk, step by step.</h2><p class="muted">The shaded band is the typical range from walking research. The dot is you, with L and R when we could read each leg on its own. Anywhere inside the band is fine; there’s no need to aim for the middle.</p>`;
   for(const [g,name,blurb] of GROUPS){ const items=ev.found.filter(x=>x.f.group===g); if(!items.length)continue; h+=`<div class="f-group"><h3>${esc(name)}</h3><p class="muted">${esc(blurb)}</p>${items.map(x=>findingCard(x,M,SC)).join('')}</div>`; }
   h+=`<aside class="starting-point"><h3>A starting point, not the full picture</h3><p>This report is an overview of what a phone video and a few simple checks can show. It isn’t a complete gait assessment or a diagnosis, and it doesn’t cover everything that affects how you walk. Use it as a place to start: work on your top priorities, film again in a few weeks to see what’s changed, and see a gait professional if you have pain or want a hands-on assessment.</p></aside>`;
-  h+=`<aside class="cant-see"><h3>What a phone camera cannot see</h3><ul>${CANT_SEE.map(([a,b])=>`<li><b>${esc(a)}.</b> ${esc(b)}</li>`).join('')}</ul></aside></section>`;
+  h+=`<aside class="cant-see"><h3>What a phone camera cannot see</h3><p>A phone camera cannot see details like big toe joint angle, toe gripping, and other important gait details. These examples are not exhaustive and are meant to give you an overview to dig deeper into.</p></aside></section>`;
  }
  const footFlags=CHECKS.filter(c=>SC[c.id]);
  if(footFlags.length){
