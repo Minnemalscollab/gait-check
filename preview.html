@@ -101,6 +101,9 @@
 .film-how li{font-size:.94rem;line-height:1.45;color:var(--ink,#16303F);padding-left:0}
 .film-how li b{color:var(--teal,#108474)}
 .refilm-how{list-style:none;margin:8px 0;padding:0;display:grid;gap:6px;font-size:.92rem}
+
+.rw-foot .rw-legal{margin-top:16px}
+.rw-foot .rw-clear{margin-top:28px}
 </style></head><body>
 
 
@@ -2120,7 +2123,7 @@ function rwDetailRow(x, M, SC) {
   if (f.info) { badge = 'For reference'; cls = 'info'; text = f.good; }
   else if (x.s) { badge = VERDICT[x.s]; cls = 'work'; text = rwSaw(x, M); }
   else if (linked.length) { badge = 'Worth working on'; cls = 'work'; text = `Your video read is close to typical, but your ${linked.map(c => c.name.toLowerCase()).join(' and ')} check found ${linked.some(c => SC[c.id].v === 2) ? 'both sides hard' : 'one side harder'}, so it is in your plan.`; }
-  else if (r.zone > 0) { badge = 'Typical for most people'; cls = 'ok'; text = r.text.replace(/\.? This isn’t a concern on its own\.$/, '').replace(/\.$/, '') + ', close enough that it’s typical for most people.'; }
+  else if (r.zone > 0) { badge = 'Typical for most people'; cls = 'ok'; text = 'Close to typical.'; }
   else { badge = 'Typical for most people'; cls = 'ok'; text = f.good; }
   const sideTxt = f.sides ? f.sides(M).filter(([, v]) => fin(v)).map(([l, v]) => `${l.split(' ')[0]} ${f.unit(v)}`).join(' · ') : '';
   return `<div class="rw-row"><div class="rw-row-head"><h4>${esc(f.name)}</h4><span class="rw-badge ${cls}">${esc(badge)}</span></div>${zoneBar(f, x.v, x.s, false)}<p>${esc(text)}</p><p class="rw-num">${esc(f.unit(x.v))}${sideTxt ? ' (' + esc(sideTxt) + ')' : ''} · typical ${esc(f.typical)}</p></div>`;
@@ -2129,7 +2132,7 @@ function rwModel(M, SC) {
   const ev = evaluate(M, SC), R0 = buildRoutine(ev);
   /* One routine that fits 10 minutes: drop the lowest ranked extras first, never a drill a card points to. */
   const keep = new Set(ev.opp.map(o => o.kind === 'video' ? o.f.drills[0] : CHECK_DRILL[o.c.id])), ten = [...R0.ten], tot = () => ten.reduce((s, id) => s + RD[id].secs, 0);
-  while (tot() > 600) { const i = ten.map((id, i) => [id, i]).reverse().find(([id]) => !keep.has(id)); if (!i) break; ten.splice(i[1], 1); }
+  while (tot() > 600 || ten.length > 8) { const i = ten.map((id, i) => [id, i]).reverse().find(([id]) => !keep.has(id)); if (!i) break; ten.splice(i[1], 1); }
   const R = { ...R0, ten };
   const typical = ev.found.filter(x => !x.s && !x.f.info && !rwLinkedFlag(x.f, SC).length).map(x => RW_CHIP[x.f.id] || x.f.name);
   CHECKS.filter(c => SC[c.id] && SC[c.id].v === 0).forEach(c => typical.push(c.name));
@@ -2156,10 +2159,11 @@ function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='vide
  const md=rwModel(M,SC), ev=md.ev, R=md.R, nOpp=ev.opp.length, nFlag=md.flagged.length, nGood=md.typical.length;
  const noExercise=!hasData||(!walkOK && !feetOnly);
  const num=n=>['No','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten'][n]||String(n);
+ const more=nFlag>nOpp;
  const read=!hasData?'No walk or foot check results came through yet, so there is no personal read. Film your four views or do a few foot checks when you are ready.'
   :(!walkOK&&!feetOnly)?'We need a clear walk video before we can read your walk. Refilm and try again.'
-  :!nFlag?(feetOnly?'Your feet are moving well. Nothing stands out to work on, so your plan keeps it that way.':'Your walk looks balanced and steady. Nothing stands out to work on, so your plan keeps it that way.')
-  :nGood>=nFlag?`Most of what we checked is typical for most people. ${nOpp===1?'One thing is worth working on, and it can be trained.':`${num(nOpp)} things are worth working on${nFlag>nOpp?' first':''}, and ${nOpp===2?'both':'all of them'} can be trained.`}`
+  :!nOpp?(feetOnly?'Your feet are moving well. Nothing stands out to work on, so your plan keeps it that way.':'Your walk looks balanced and steady. Nothing stands out to work on, so your plan keeps it that way.')
+  :nGood>=nOpp?`Most of what we checked is typical for most people. ${nOpp===1?'One thing is worth working on'+(more?' first':'')+', and it can be trained.':`${num(nOpp)} things are worth working on${more?' first':''}, and ${nOpp===2?'both':'all of them'} can be trained.`}`
   :`Your ${feetOnly?'feet have':'walk has'} several things to work on. Start with the top ${nOpp===1?'one':num(nOpp).toLowerCase()} below. All of it can be trained.`;
  const sub=feetOnly?'This read comes from your foot checks. Film your walk anytime to add the full picture.':'';
  const cautious=!walkOK||nFlag>0;
@@ -2167,7 +2171,7 @@ function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='vide
  const missing=walkOK?VIEW_KEYS.filter(k=>!(M.views||{})[k]||(M.views||{})[k].error):[];
  let h=`<div class="rw">`;
  h+=`<header class="rw-hero"><span class="rw-eyebrow">Your Minnemals Gait Check · ${dateLabel(date)}</span><h1>${feetOnly?'Here’s what <em>your</em> feet showed.':'Here’s what <em>your</em> walk showed.'}</h1><p class="rw-read">${esc(read)}</p>${sub?`<p class="rw-sub">${esc(sub)}</p>`:''}`;
- if(hasData&&(walkOK||feetOnly)) h+=`<div class="rw-tally"><div class="work"><strong>${nFlag}</strong><span>to work on</span></div><div class="good"><strong>${nGood}</strong><span>typical for most people</span></div></div>`;
+ if(hasData&&(walkOK||feetOnly)) h+=`<div class="rw-tally"><div class="work"><strong>${nOpp}</strong><span>${nOpp?'to start with':'to work on'}</span></div><div class="good"><strong>${nGood}</strong><span>typical for most people</span></div></div>`;
  h+=`</header>`;
  if(notes.length&&!feetOnly) h+=`<p class="rw-note">${esc(notes.join(' '))}</p>`;
  if(hasData&&(walkOK||feetOnly)){
@@ -2192,7 +2196,7 @@ function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='vide
  if(walkOK) for(const [g] of GROUPS){ const items=ev.found.filter(x=>x.f.group===g); if(!items.length)continue; h+=`<h3>${esc(RW_GROUP_NAME[g])}</h3>${items.map(x=>rwDetailRow(x,M,SC)).join('')}`; }
  h+=`<h3>Your foot checks</h3><ul class="rw-answers">${CHECKS.map(c=>{const a=SC[c.id];return `<li><b>${esc(c.name)}</b><span>${a?esc(checkValue(c,a)):'Skipped'}</span></li>`;}).join('')}</ul>`;
  h+=`<p class="rw-fine">Ranges come from published gait research and are for education, not a diagnosis.</p></div></details>`;
- h+=`<footer class="rw-foot"><div class="rw-actions no-print"><button class="btn line small" id="printReport">Print or save PDF</button><button class="btn line small" id="copyBtn">Copy report text</button></div><p id="copyMsg" class="rw-fine" role="status" hidden></p><textarea id="copyFallback" hidden readonly></textarea><p class="rw-fine">Your videos stay on this device. Your answers are saved in this browser only. Educational information, not medical advice or diagnosis.</p><div class="row no-print"><button class="btn line small" id="clearData">Clear saved results</button><span id="clearMsg" role="status"></span></div></footer></div>`;
+ h+=`<footer class="rw-foot"><div class="rw-actions no-print"><button class="btn line small" id="printReport">Print or save PDF</button><button class="btn line small" id="copyBtn">Copy report text</button></div><p id="copyMsg" class="rw-fine" role="status" hidden></p><textarea id="copyFallback" hidden readonly></textarea><p class="rw-fine rw-legal">Your videos stay on this device. Your answers are saved in this browser only. Educational information, not medical advice or diagnosis.</p><div class="row no-print rw-clear"><button class="btn line small" id="clearData">Clear saved results</button><span id="clearMsg" role="status"></span></div></footer></div>`;
  $('report').innerHTML=h; $('exampleTag').hidden=true;
  $('printReport').onclick=()=>window.print();
  $('retest').onclick=()=>startFootRetest();
