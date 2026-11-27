@@ -104,6 +104,14 @@
 
 .rw-foot .rw-legal{margin-top:16px}
 .rw-foot .rw-clear{margin-top:28px}
+</style><style>/* Restore the pre-rewrite practitioner box look inside the new report. */
+#report .help{margin:32px 0 0;padding:28px;border-radius:20px;background:var(--navy,#0F354A)!important;color:#fff}
+#report .help .eyebrow{color:#D4F4E2;display:inline-flex;align-items:center;gap:8px}
+#report .help .eyebrow::before{content:"";width:18px;height:1.5px;background:#D4F4E2}
+#report .help h2{color:#fff;font-family:var(--display);font-size:clamp(1.8rem,6vw,2.4rem);line-height:1;margin:8px 0 14px}
+#report .help p{margin:0 0 16px;line-height:1.5;color:#fff;max-width:46ch}
+#report .help .fine{color:#d6dfd4;margin:12px 0 0}
+#report .help .btn.line{color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7);align-self:flex-start}
 </style></head><body>
 
 
@@ -2190,7 +2198,8 @@ function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='vide
  }
  h+=`</section>`;
  h+=`<section class="rw-sec"><div class="rw-retest"><span class="rw-icon">${RW_ICON.rhythm}</span><div><h2>Film again in 2 weeks.</h2><p>${hasData&&(walkOK||feetOnly)?`Your retest date: <b>${dateLabel(plusDays(date,14))}</b>. `:''}Same spot, same phone height, barefoot. Then compare.</p></div></div>${retesting&&prior?`<div class="rw-compare"><h3>Since your first check</h3>${comparison(prior,SC)}</div>`:''}<div class="rw-actions no-print"><button class="btn" id="retest">Quick foot check retest</button><button class="btn line" id="again">Start a new check</button></div></section>`;
- h+=`<section class="rw-sec"><div class="rw-help"><h2>Questions?</h2><p>Email <a href="mailto:info@minnemals.com">info@minnemals.com</a> and we’ll help.</p><p>Ready for your next pair? <a href="${RW_STIMULUS}" target="_blank" rel="noopener">See the Stimulus V2</a></p><p>Want help in person? <a href="${MAP_URL}" target="_blank" rel="noopener">Find a certified gait specialist near you ↗</a></p></div></section>`;
+ h+=`<section class="help"><span class="eyebrow">For what a screen cannot tell you</span><h2>Get someone in your corner.</h2><p>Since I can’t be in person with you, find a certified gait specialist near you to get one on one help with your feet and gait. They can look at your motion and strength in person. Bring this report.</p><a class="btn line" href="${MAP_URL}" target="_blank" rel="noopener">Explore a practitioner directory ↗</a><p class="fine">External directory; check credentials and fit yourself.</p></section>`;
+ h+=`<section class="rw-sec"><div class="rw-help"><h2>Questions?</h2><p>Email <a href="mailto:info@minnemals.com">info@minnemals.com</a> and we’ll help.</p><p>Ready for your next pair? <a href="${RW_STIMULUS}" target="_blank" rel="noopener">See the Stimulus V2</a></p></div></section>`;
  h+=`<details class="rw-details"><summary>See the details</summary><div class="rw-details-in">`;
  if(missing.length) h+=`<p class="rw-p">Not included: your ${esc(andList(missing.map(k=>VIEW_LABEL[k])))} clip${missing.length>1?'s':''} didn’t come through clearly, so this read leaves ${missing.length>1?'them':'it'} out.</p>`;
  if(walkOK) for(const [g] of GROUPS){ const items=ev.found.filter(x=>x.f.group===g); if(!items.length)continue; h+=`<h3>${esc(RW_GROUP_NAME[g])}</h3>${items.map(x=>rwDetailRow(x,M,SC)).join('')}`; }
@@ -2212,7 +2221,7 @@ function reportText(r,md,noExercise,read) {
  L.push('YOUR 14-DAY PLAN: 10 MINUTES A DAY');
  if(noExercise) L.push('Do a few foot checks or film your four views to get your plan.');
  else R.ten.forEach((id,i)=>{const d=RD[id];L.push(`${i+1}. ${d.name}: ${d.dose}. ${d.cue}`);});
- L.push('','Film again in 2 weeks: '+dateLabel(plusDays(r.date,14)),'','Questions? Email info@minnemals.com','Educational information, not medical advice or diagnosis.');
+ L.push('','Film again in 2 weeks: '+dateLabel(plusDays(r.date,14)),'','GET SOMEONE IN YOUR CORNER','Since I can’t be in person with you, find a certified gait specialist near you to get one on one help with your feet and gait. They can look at your motion and strength in person. Bring this report.','Professional directory: '+MAP_URL,'','Questions? Email info@minnemals.com','Educational information, not medical advice or diagnosis.');
  return L.join('\n');
 }
 
