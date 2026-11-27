@@ -391,7 +391,16 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
 /* tracking */
 .track,.live-track{background:var(--navy-t)!important;color:var(--navy)!important}
 .track .status,.live-track .status{color:var(--navy)!important}
-.live-track{border-radius:var(--r)}
+.live-track{border-radius:0;position:sticky;top:calc(env(safe-area-inset-top,0px) + 50px);z-index:6;background:var(--navy)!important;color:#fff!important;padding:18px 0 20px;box-shadow:0 8px 24px -12px rgba(15,53,74,.45)}
+.live-track .live-wait{font-family:var(--display);font-weight:400;font-size:clamp(1.7rem,6.5vw,2.3rem);line-height:1.05;letter-spacing:.01em;color:#fff;margin:0 0 10px;max-width:22ch}
+.live-track .status{color:var(--mint)!important;font-weight:600;margin:0 0 12px;font-size:1.05rem}
+.live-track .progress{height:8px;background:rgba(255,255,255,.22);border-radius:99px;overflow:hidden}
+.live-track .progress i{background:var(--mint)}
+.live-track .live-pct{color:var(--mint);font-weight:700;margin:8px 0 0;font-size:.9rem}
+.contact-line{margin:0 0 12px;font-weight:600;color:var(--navy)}
+.contact-line a{color:var(--teal);font-weight:700}
+.product-link{margin:8px 0 0;font-weight:600}
+.product-link a{color:var(--teal)}
 .clip-preview{position:fixed;right:12px;bottom:12px;z-index:60;width:116px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px;box-shadow:0 4px 14px rgba(15,53,74,.14);display:grid;gap:4px;font-size:.66rem;color:#5C6A70;text-align:center}.clip-preview video{width:100%;max-height:150px;display:block;border-radius:4px;background:#E8E2D8;object-fit:contain}.clip-preview[hidden]{display:none}
 .tech-details{font-size:.72rem;color:#5C6A70}.tech-details summary{cursor:pointer}.seen-pic{display:inline-block;margin:6px 8px 0 0;vertical-align:top}.seen-pic img{display:block;max-width:120px;height:auto;border-radius:6px}.seen-pic figcaption{font-size:.66rem;margin-top:2px}.tech-details pre{white-space:pre-wrap;word-break:break-word;font-size:.68rem;max-height:220px;overflow:auto}
 .progress{height:6px;background:var(--navy-t2)}
@@ -632,6 +641,14 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
 
 <!-- UPLOAD -->
 <section id="upload" hidden>
+  <div id="liveTrack" class="live-track" hidden role="status" aria-live="polite">
+    <div class="in">
+      <p class="live-wait">This takes about 5 minutes. Keep this screen open and your phone unlocked.</p>
+      <p class="status" id="liveProc">Starting…</p>
+      <div class="progress"><i id="liveBar"></i></div>
+      <p class="live-pct" id="livePct"></p>
+    </div>
+  </div>
   <div class="band step-hero"><div class="in">
       <ol class="steps" aria-label="Progress"><li class="on" id="stepFilm" data-n="1" aria-current="step"><span>1 · Film</span></li><li data-n="2"><span>2 · Feet</span></li><li data-n="3"><span>3 · Report</span></li></ol>
       <div class="stack-s">
@@ -642,7 +659,7 @@ h3,h4{font-family:var(--font);font-weight:600;letter-spacing:-.005em;color:var(-
   <div class="band">
     <div class="in">
       <div id="savedPanel" class="saved" hidden></div>
-      <aside class="safety" id="safetyBox"><h3>First, a quick safety check</h3><p data-copy="safety.text">A self check cannot tell you what is safe for your body. If you are questioning whether this is right for you, ask a qualified clinician who knows you individually before making changes based on the information found here.</p><label class="risk-label ack-label"><input type="checkbox" id="ack"> <span data-copy="safety.ack">I understand this is not medical advice, diagnosis, or treatment. These are general recommendations, and I am responsible for deciding what is right for my body.</span></label><p class="ack-msg" id="ackMsg" role="alert" hidden>Check the box above to continue.</p><label class="ack-label risk-opt"><input type="checkbox" id="risk"> <span data-copy="safety.risk">Check this if you have foot or leg pain, numbness or tingling, diabetes or neuropathy, a recent injury or surgery, or you’re unsure whether this is safe for you. You’ll still get your read, but no drills or wear schedule.</span></label></aside>
+      <aside class="safety" id="safetyBox"><h3>First, a quick safety check</h3><p data-copy="safety.text">A self check cannot tell you what is safe for your body. If you are questioning whether this is right for you, ask a qualified clinician who knows you individually before making changes based on the information found here.</p><label class="risk-label ack-label"><input type="checkbox" id="ack"> <span data-copy="safety.ack">I understand this is not medical advice, diagnosis, or treatment. These are general recommendations, and I am responsible for deciding what is right for my body.</span></label><p class="ack-msg" id="ackMsg" role="alert" hidden>Check the box above to continue.</p></aside>
       <div id="refilm" class="refilm" hidden></div>
       <div class="viewcount" aria-hidden="true"><div class="vc-ring" id="vcRing"><b id="vcNum">0/4</b></div><div><strong>Four views</strong><span>Each one is checked on its own.</span><div class="vc-dots"><i id="vcd-front">Front</i><i id="vcd-back">Back</i><i id="vcd-left">Left</i><i id="vcd-right">Right</i></div></div></div><p class="desk" id="videoNeed"><b>Film four walk videos:</b> front, back, left side, and right side. If one doesn’t track, you can replace just that clip.</p>
       <p class="lede" id="filmQualityLead">The clearer your video, the more accurate your results. Good light and a full view from your shoulders down make the biggest difference.</p>
@@ -1594,6 +1611,7 @@ function showRefilm({failed=[], reason='tracking', details={}, info={}, diag=nul
   </ul>
   <p class="fine">Replace the clip${failed.length===1?'':''} below${failed.length?` (start with ${failed[0]})`:''}, then tap <b>Analyze my walk</b> again.</p>
   <div class="row"><button class="btn" type="button" id="refilmFocus">Got it, fix my clips</button>${onContinue?`<button class="btn line" type="button" id="refilmContinue">Continue with ${ok.length} of 4 views</button>`:''}</div>
+  <p class="contact-line">Questions? <a href="mailto:info@minnemals.com">Email info@minnemals.com</a></p>
   ${onContinue?`<p class="fine">Continuing leaves out what the missing view${failed.length===1?'':'s'} would show. You can film a full set again anytime.</p>`:''}
   ${failed.length&&reason!=='missing'?`<p class="fine">Still stuck? <button class="linkish" type="button" id="copySupport">Copy support details</button> and send them with your codes. <span id="copyDone" role="status"></span></p>`:''}
   ${diag&&Object.keys(diag).length?`<details class="tech-details"><summary>Details for support</summary><pre>${esc(Object.entries(diag).map(([k,d])=>k+': '+Object.entries(d||{}).filter(([a])=>!a.startsWith('__')).map(([a,b])=>a+'='+(typeof b==='object'?JSON.stringify(b):b)).join('; ')).join('\n\n'))}</pre>${Object.entries(diag).filter(([,d])=>d&&typeof d.__img==='string'&&d.__img.startsWith('data:image/')).map(([k,d])=>`<figure class="seen-pic"><img src="${d.__img}" alt="What the tracker saw in your ${esc(VIEW_LABEL[k]||k)} clip"><figcaption>${esc((VIEW_LABEL[k]||k).replace(/^./,c=>c.toUpperCase()))}: what the tracker saw</figcaption></figure>`).join('')}</details>`:''}</div>`;
@@ -1629,7 +1647,7 @@ function showSaved() {
  const data=load(), p=$('savedPanel');
  if(!data.baseline&&!data.last){p.hidden=true;return;}
  p.hidden=false;p.innerHTML=`<b>Your last check is saved on this browser.</b><p class="fine">${data.baseline?'Baseline: '+dateLabel(data.baseline.date)+' · Retest: '+dateLabel(plusDays(data.baseline.date,14)):''}</p><div class="row"><button class="btn small" id="restoreReport">Open saved report</button><button class="btn line small" id="savedRetest">Quick foot retest</button></div>`;
- $('restoreReport').onclick=()=>{const r=load().last;if(!r)return;$('risk').checked=r.risk;$('upload').hidden=true;$('reportWrap').hidden=false;buildReport(r.M,r.snaps||[],false,r.SC,r.notes,true,r.path|| (hasWalk(r.M)?'video':'feet'));window.scrollTo({top:0});};
+ $('restoreReport').onclick=()=>{const r=load().last;if(!r)return;$('upload').hidden=true;$('reportWrap').hidden=false;buildReport(r.M,r.snaps||[],false,r.SC,r.notes,true,r.path|| (hasWalk(r.M)?'video':'feet'));window.scrollTo({top:0});};
  $('savedRetest').onclick=()=>startFootRetest();
 }
 $('backSetup').onclick=()=>{analysisRun++;$('checks').hidden=true;$('upload').hidden=false; const rf=$('refilm'); if(rf) rf.hidden=true; const conf=$('feetConfirm'); if(conf) conf.hidden=true; showSaved();window.scrollTo({top:0});};
@@ -1929,7 +1947,7 @@ function cleanSC(SC) {
 }
 function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='video') {
   SC = cleanSC(SC);
- const risk=$('risk').checked, date=restoring?(load().last?.date||new Date().toISOString()):new Date().toISOString();
+ const date=restoring?(load().last?.date||new Date().toISOString()):new Date().toISOString();
  if(!hasWalk(M) && path!=='feet') {M={};snaps=[];}
  const areas=areaResults(M,SC), measured=RULES.filter(r=>r.ok(M)).length, answered=CHECKS.filter(c=>SC[c.id]).length;
  const hasData=answered+measured>0, plan=planFor(areas);
@@ -1939,11 +1957,11 @@ function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='vide
  const feetOnly=path==='feet' || (!hasWalk(M) && (notes||[]).some(n=>/movement.assessment.only|no walk video/i.test(n)));
  const walkOK=hasWalk(M);
  snaps=[]; // No frame pictures with tracked points in the report.
- const record={date,M,SC,risk,notes,retest:retesting,path:feetOnly?'feet':(path||'video'),snaps};
+ const record={date,M,SC,notes,retest:retesting,path:feetOnly?'feet':(path||'video'),snaps};
  if(!restoring) {const savable=walkOK||(feetOnly&&answered>0); if(savable&&!data.baseline){data.baseline={date,M,SC,path:record.path};} if(savable){data.last=record;save(data);}}
  currentReport=record;
  const ev=evaluate(M,SC), R=buildRoutine(ev), flags=ev.found.filter(x=>x.s>0);
- const noExercise=risk||!hasData||(!walkOK && !feetOnly);
+ const noExercise=!hasData||(!walkOK && !feetOnly);
  const V=M.views||{}, totalSteps=VIEW_KEYS.reduce((s,k)=>s+((V[k]&&!V[k].error&&V[k].steps)||0),0);
  const nOpp=ev.opp.length, numWord=['No','One','Two','Three'][nOpp];
  const summary=!hasData?'No walk or foot check results were collected, so there is no personal read yet. Film all four views or complete a few foot checks when you are ready.':feetOnly?`You skipped filming, so this read comes from your foot checks only. Film the four views anytime and the report adds step by step measurements of how you actually walk.`:!walkOK?'We need a clear walk video before we can read your gait. Refilm and try again.':`We tracked ${totalSteps} steps from ${['no','one','two','three','four'][viewsOk(M)]} angle${viewsOk(M)===1?'':'s'} and measured ${ev.found.length} aspects of your walk against published typical ranges. ${flags.length?`${flags.length} ${flags.length===1?'is':'are'} outside the typical range. ${nOpp?`Start with: ${andList(ev.opp.map(o=>{const t=o.kind==='video'?o.f.head:CHECK_HEAD[o.c.id];return t[0].toLowerCase()+t.slice(1);}))}. All of it can be trained.`:''}`:'Everything landed inside the typical range. The suggestions below are fine-tuning, not fixes.'}`;
@@ -1957,7 +1975,7 @@ function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='vide
   h+=`<section class="walk-lead"><span class="eyebrow">${sec('What we measured')}</span><h2>Walk video not included</h2><p class="notice"><b>No walk video in this report.</b> The read below comes from your foot checks only. Film all four views later to add step counts, cadence and the full gait read.</p></section>`;
  } else h+=`<section><p class="notice">No usable walk tracking in this saved report. Film a new walk to refresh it.</p></section>`;
  if(notes.length)h+=`<p class="notice">${esc(notes.join(' '))}</p>`;
- if(risk)h+=`<aside class="safety"><h3>Your safest next step is a professional check</h3><p>You flagged pain, numbness, diabetes or neuropathy, a recent injury, or uncertainty. Your answers are saved, but this tool will not suggest drills or a shoe transition. Bring your results to a qualified clinician.</p></aside>`;
+
  if(hasData){
   h+=`<section><span class="eyebrow">${sec('Your top things to work on')}</span><h2>${ev.opp.length?'Start here.':'Nothing stands out. Here’s how to keep it that way.'}</h2><p class="muted">${ev.opp.length?'These are the things most worth your time, picked by how far each is from typical and how reliably a phone can measure it. Your daily routine below is built around them.':'Your walk and foot checks are in the typical range. Your routine keeps your feet and hips working the way they are now.'}</p><div class="priority-list">`;
   ev.opp.forEach((o,i)=>{
@@ -1976,17 +1994,16 @@ function buildReport(M,snaps,isExample,SC={},notes=[],restoring=false,path='vide
  if(footFlags.length){
   h+=`<section><span class="eyebrow">${sec('Your foot checks')}</span><h2>What your feet told you.</h2><p class="muted">These come from the checks you did yourself. They fill in what a phone camera can’t see, like how your toes and arches move.</p><div class="walk-obs">${SC.heelRaise&&Number.isInteger(SC.heelRaise.left)?hrCard(SC.heelRaise):''}${footFlags.filter(c=>c.id!=='heelRaise'&&SC[c.id].v>0).map(c=>{const a=SC[c.id];return `<article class="obs ${a.v?'flag':'ok'}"><span class="badge ${a.v?'practice':'positive'}">${a.v?'Worth working on':'Looking good'}</span><h3>${esc(a.v?call(c.title,a.side):c.name)}</h3>${a.v?`<p><b>What it means:</b> ${esc(c.why)}</p>`:`<p>${esc(c.opts[0]+'.')}</p>`}${a.v?`<p class="train"><b>Try this:</b> ${tryLine([CHECK_DRILL[c.id]])}</p>`:''}</article>`;}).join('')}</div>${footFlags.some(c=>c.id!=='heelRaise'&&SC[c.id].v===0)?`<article class="obs ok"><span class="badge positive">Looking good</span><ul class="good-list">${footFlags.filter(c=>c.id!=='heelRaise'&&SC[c.id].v===0).map(c=>`<li><b>${esc(c.name)}:</b> ${esc(c.opts[0])}</li>`).join('')}</ul></article>`:''}</section>`;
  }
- h+=`<section class="today"><span class="eyebrow" id="routineEyebrow">${sec('Your 10 minute daily routine')}</span><h2 id="routineTitle">${noExercise?'Start with a conversation, not a routine.':'Ten minutes. Once a day. In this order.'}</h2>`;
- if(noExercise) h+=`<p>${risk?'Because you flagged a safety concern, we are not suggesting exercises. Take this report to a qualified clinician.':'Complete a few foot checks or film all four views and we will build your routine from your results.'}</p></section>`;
- else h+=`<p>Built from your results: feet first, then ankle, then hips, then you put it together on your feet. Barefoot on a firm floor, a counter within reach. Smooth and controlled beats more reps; stop anything that hurts.</p>${routineHTML(R)}<p class="fine">Short on time? The 5 minute version keeps the drills that match your biggest opportunities. Consistency over a few weeks matters far more than any single session.</p></section>`;
- h+=`<section class="transition"><span class="eyebrow">${sec('Wearing your Minnemals')}</span><h2>Give your feet time, not a deadline.</h2><p>Minnemals’ roomy toe box and thin, flexible sole let your toes spread and your foot feel the ground. That is the same work your routine trains, so build wear time gradually and let comfort set the pace.</p>`;
- if(risk)h+='<p class="notice">No wear schedule is suggested while a safety concern is flagged. Ask your clinician about footwear and loading first.</p>';
- else if(!hasData)h+='<p class="notice">No personal wear schedule without usable checks. Keep footwear you already wear comfortably.</p>';
+ h+=`<section class="today"><span class="eyebrow" id="routineEyebrow">${sec('Your 14-day plan')}</span><h2 id="routineTitle">${noExercise?'Start with a conversation, not a routine.':'Ten minutes. Once a day. In this order.'}</h2>`;
+ if(noExercise) h+=`<p>Complete a few foot checks or film all four views and we will build your routine from your results.</p>`;
+ else h+=`<p>Built from your results: feet first, then ankle, then hips, then you put it together on your feet. Barefoot on a firm floor, a counter within reach. Smooth and controlled beats more reps; stop anything that hurts.</p>${routineHTML(R)}<p class="fine">Short on time? The 5 minute version keeps the drills that match your biggest opportunities. Consistency over a few weeks matters far more than any single session.</p>`;
+ h+=`<h2>Give your feet time, not a deadline.</h2><p>Minnemals’ roomy toe box and thin, flexible sole let your toes spread and your foot feel the ground. That is the same work your routine trains, so build wear time gradually and let comfort set the pace.</p><p class="product-link"><a href="https://www.minnemals.com/products/stimulus-v2-barefoot-sneakers-with-zero-drop-sole" target="_blank" rel="noopener">See the Stimulus V2</a></p>`;
+ if(!hasData)h+='<p class="notice">No personal wear schedule without usable checks. Keep footwear you already wear comfortably.</p>';
  else h+=`<p><b>${cautious?'A gradual starting option':'A gentle starting option'}.</b> ${ev.checks.some(x=>['kneeWall','balance','heelRaise'].includes(x.c.id))?'Your ankle, calf or balance checks are a reason to keep early wear short and on flat ground.':''}</p><div class="wear-grid">${wear.map((w,i)=>`<div><b>Days ${['1 to 3','4 to 7','8 to 10','11 to 14'][i]}</b><strong>${w}</strong><span>per day, if comfortable</span></div>`).join('')}</div><p>Start with easy, flat walking and wear your familiar shoes the rest of the day. Increase only after two comfortable days and comfortable next mornings. Already wear Minnemals comfortably? Keep your usual amount.</p><div class="comfort-grid"><div><h3>May happen</h3><p>Mild, general foot or calf tiredness that settles by the next day. Cut back if needed.</p></div><div><h3>Not part of adapting</h3><p>Sharp or focal pain, swelling, limping, burning, tingling or numbness. Stop the new activity and get professional advice.</p></div></div>`;
  h+=`</section><section><span class="eyebrow">${sec('Check your progress')}</span><h2>Film again in two weeks.</h2><p>Same spot, same phone height, same shoes or barefoot. Then compare your numbers, especially the opportunities above. Small changes in step width or pelvic drop sit inside the measuring noise; look for a direction across several measures.</p>${retesting&&prior?`<div class="comparison"><h3>Baseline → this retest</h3>${comparison(prior,SC)}</div>`:''}<div class="row no-print"><button class="btn" id="retest">Quick foot check retest</button><button class="btn line" id="again">Start a new check or add video</button></div></section>`;
  h+=`<details class="raw-results"><summary>All ${CHECKS.length} self check answers</summary><ul>${footNotes(SC).map(t=>`<li>${esc(t)}</li>`).join('')}</ul></details>`;
  if(walkOK)h+=`<details class="raw-results"><summary>How these numbers are made, and their limits</summary><p>MediaPipe Pose tracks 33 points on each analyzed frame. Every distance is divided by your hip to ankle length in the same frame, so camera distance and zoom cancel. Side views supply rhythm, push off, landing and posture; front and back views supply pelvis, knees and base of support. 2D video agrees well with lab systems for cadence and step timing, moderately for joint angles, and least for pelvic drop, so small differences are not meaningful. Ranges come from published gait research and are education bands, not clinical cut offs.</p><ul>${ev.found.map(x=>`<li>${esc(x.f.name)}: ${esc(x.f.unit(x.v))} (typical ${esc(x.f.typical)}) · ${VERDICT[x.s]}</li>`).join('')}</ul></details>`;
- h+=`<section class="help"><span class="eyebrow">For what a screen cannot tell you</span><h2>Get someone in your corner.</h2><p>Since I can’t be in person with you, find a practitioner near you to get one on one help with your feet and gait. A physical therapist, podiatrist or qualified gait professional can look at your joint motion, strength and sensation in person. Bring this report.</p><a class="btn line" href="${MAP_URL}" target="_blank" rel="noopener">Explore a practitioner directory ↗</a><p class="fine">External directory; check credentials and fit yourself.</p></section><div id="reportEnd"><p class="fine">Your videos are processed on this device and are not uploaded or saved as video files. Report images and answers are saved in this browser only. Educational information, not medical advice or diagnosis.</p><div class="row no-print"><button class="btn line small" id="clearData">Clear saved results from this browser</button><span id="clearMsg" role="status"></span></div></div></div></div>`;
+ h+=`<section class="help"><span class="eyebrow">For what a screen cannot tell you</span><h2>Get someone in your corner.</h2><p>Since I can’t be in person with you, find a practitioner near you to get one on one help with your feet and gait. A physical therapist, podiatrist or qualified gait professional can look at your joint motion, strength and sensation in person. Bring this report.</p><a class="btn line" href="${MAP_URL}" target="_blank" rel="noopener">Explore a practitioner directory ↗</a><p class="fine">External directory; check credentials and fit yourself.</p></section><div id="reportEnd"><p class="contact-line">Questions? <a href="mailto:info@minnemals.com">Email info@minnemals.com</a></p><p class="fine">Your videos are processed on this device and are not uploaded or saved as video files. Report images and answers are saved in this browser only. Educational information, not medical advice or diagnosis.</p><div class="row no-print"><button class="btn line small" id="clearData">Clear saved results from this browser</button><span id="clearMsg" role="status"></span></div></div></div></div>`;
  $('report').innerHTML=h; $('exampleTag').hidden=true;
  $('printReport').onclick=()=>window.print();
  $('retest').onclick=()=>startFootRetest();
@@ -2001,7 +2018,7 @@ function reportText(r,ev,R,noExercise) {
  if(ev.walk){ L.push('WHAT WE MEASURED'); VIEW_KEYS.forEach(k=>{const v=V[k]||{},c=viewConfidence(v);if(!V[k]||V[k].error){L.push(`${VIEW_LABEL[k]}: not included (clip didn't track)`);return;}L.push(`${VIEW_LABEL[k]}: ${v.steps??'n/a'} steps, ${fin(v.seconds)?Math.round(v.seconds*10)/10:'n/a'} s, ${v.usableFrames??'n/a'} frames${c?`, ${c.label} confidence (${c.score})`:''}`);}); L.push(`Cadence: ${r0(M.cadence)} steps/min`,''); }
  L.push('YOUR BIGGEST OPPORTUNITIES',...(ev.opp.length?ev.opp.map((o,i)=>o.kind==='video'?`${i+1}. ${o.f.head}: ${o.f.unit(o.v)} (typical ${o.f.typical})`:`${i+1}. ${CHECK_HEAD[o.c.id]} (self check: ${checkValue(o.c,o.a)})`):['None stand out.']),'');
  if(ev.walk){ L.push('THE FULL READ'); ev.found.forEach(x=>L.push(`${x.f.name}: ${x.f.unit(x.v)} (typical ${x.f.typical}). ${VERDICT[x.s]}.`)); L.push(''); }
- L.push('YOUR 10 MINUTE DAILY ROUTINE');
+ L.push('YOUR 14-DAY PLAN');
  if(noExercise) L.push('No routine suggested. See a qualified professional first or complete the checks.');
  else { let t=0; R.ten.forEach(id=>{const d=RD[id];L.push(`${mmss(t)} ${d.name}: ${d.dose}. Cue: ${d.cue}`);t+=d.secs;}); L.push('5 minute version: '+R.five.map(id=>RD[id].name).join(', ')); }
  L.push('','FOOT CHECK ANSWERS',...footNotes(r.SC),'','This report is a starting point, not a complete gait assessment or a diagnosis. See a gait professional if you have pain or want a hands-on assessment.','','Balance is trainable, and your feet are where it starts.','Professional directory: '+MAP_URL);
@@ -2527,13 +2544,10 @@ $('run').addEventListener('click', async () => {
   }
   $('checks').hidden = true; $('reportWrap').hidden = true; $('upload').hidden = false;
   tracked = null;
-  let trackBar = $('liveTrack');
-  if(!trackBar){
-    trackBar=document.createElement('div'); trackBar.id='liveTrack'; trackBar.className='live-track';
-    trackBar.innerHTML='<p class="status" id="liveProc">Starting…</p><div class="progress"><i id="liveBar"></i></div>';
-    $('run').parentElement.parentElement.appendChild(trackBar);
-  }
-  trackBar.hidden=false; $('liveBar').style.width='0'; $('liveProc').textContent='Starting…';
+  const trackBar = $('liveTrack');
+  const setProg = frac => { const pct=Math.max(0,Math.min(100,Math.round(frac*100))); if($('liveBar'))$('liveBar').style.width=pct+'%'; if($('livePct'))$('livePct').textContent=pct+'%'; };
+  if(trackBar){ trackBar.hidden=false; }
+  setProg(0); if($('liveProc'))$('liveProc').textContent='Starting…';
   window.scrollTo({ top: 0 });
   const keys = VIEW_KEYS.slice();
   const res = {}, snaps = [], failed = [], decodeFail=[], details={}, info={}, diags={};
@@ -2542,13 +2556,13 @@ $('run').addEventListener('click', async () => {
     const kept = viewCache[k];
     if (kept && kept.sig === sigOf(files[k])) {
       res[k] = kept.a; diags[k] = kept.diag; if (kept.snap) snaps.push(kept.snap);
-      $('liveBar').style.width = `${((n + 1) / keys.length) * 100}%`; continue;
+      setProg((n + 1) / keys.length); continue;
     }
-    $('liveProc').textContent = `Tracking your ${VIEW_LABEL[k]} (${n + 1} of ${keys.length})… Keep this screen open.`;
+    if($('liveProc'))$('liveProc').textContent = `Tracking your ${VIEW_LABEL[k]} (${n + 1} of ${keys.length})…`;
     let clip;
     try {
       if(!modelReady){await initModel();if(!modelReady)throw new Error('Tracking model unavailable');}
-      const r = await readView(files[k], k, p => { $('liveBar').style.width = `${((n + p) / keys.length) * 100}%`; });
+      const r = await readView(files[k], k, p => { setProg((n + p) / keys.length); });
       clip = r.clip; diags[k] = clip.diag; let a = r.a;
       if(generation!==analysisRun){releaseClip(clip);isAnalyzing=false;sleepOk();updateRun();hideClipPreview();return;}
       res[k] = a;
@@ -2569,7 +2583,7 @@ $('run').addEventListener('click', async () => {
       else if(String(err&&err.message||err).includes('too short')) {details[k]='short';}
     }
   }
-  isAnalyzing=false; sleepOk(); updateRun(); hideClipPreview(); if(generation!==analysisRun)return; $('liveBar').style.width = '100%';
+  isAnalyzing=false; sleepOk(); updateRun(); hideClipPreview(); if(generation!==analysisRun)return; setProg(1);
   window.__gaitDiag = diags;
   failed.forEach(k => setSlotStatus(k, 'bad', failCode(details[k]), 'Needs a new clip. See why above.'));
   const okKeys = keys.filter(k => !failed.includes(k));
@@ -2577,7 +2591,7 @@ $('run').addEventListener('click', async () => {
   const extraNotes = relaxedKeys.length ? [`Your ${relaxedKeys.map(k => VIEW_LABEL[k]).join(' and ')} clip${relaxedKeys.length === 1 ? ' was' : 's were'} read with relaxed settings (a short or less clear stretch of walking), so ${relaxedKeys.length === 1 ? 'that view is' : 'those views are'} marked low confidence.`] : [];
   const proceed = (M, notes) => {
     tracked = { M, snaps, notes, path:'video' };
-    trackBar.hidden=true;
+    if(trackBar) trackBar.hidden=true;
     const rf2=$('refilm'); if(rf2) rf2.hidden=true;
     $('upload').hidden = true; $('checks').hidden = false; $('reportWrap').hidden = true;
     renderChecks(); $('track').hidden = false; if($('procStatus')) $('procStatus').textContent = `${viewsOk(M)} of 4 views tracked. Finish the foot checks, then see your report.`; if($('bar')) $('bar').style.width='100%';
@@ -2585,7 +2599,8 @@ $('run').addEventListener('click', async () => {
   };
   // All four must succeed; any failure stays on Film with a refilm message.
   if (failed.length) {
-    $('liveProc').textContent = 'One or more views need a clearer clip. See how to refilm below.';
+    if(trackBar) trackBar.hidden=true;
+    if($('liveProc'))$('liveProc').textContent = 'One or more views need a clearer clip. See how to refilm below.';
     try { console.info('[gait check] clip details', JSON.stringify(diags, (key, val) => key.startsWith('__') ? undefined : val)); } catch (_) {}
     const partial = combine(Object.fromEntries(okKeys.map(k => [k, res[k]])));
     const canGo = okKeys.length >= MIN_VIEWS && hasWalk(partial);
@@ -2596,7 +2611,8 @@ $('run').addEventListener('click', async () => {
   }
   const M = combine(res);
   if (!hasWalk(M)) {
-    $('liveProc').textContent = 'Couldn’t get a clear walk read yet. See how to refilm below.';
+    if(trackBar) trackBar.hidden=true;
+    if($('liveProc'))$('liveProc').textContent = 'Couldn’t get a clear walk read yet. See how to refilm below.';
     showRefilm({failed:keys, reason:'tracking'});
     tracked=null; return;
   }
